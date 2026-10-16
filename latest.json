@@ -1,13 +1,12 @@
 {
   "app": "distro-academy",
-  "version": "2.2.0",
-  "file": "DistroAcademy-2.2.0.html",
-  "sha256": "f5cf3ec3eee9c219f5dd73c37939aa5185dfb01b3d4f0f9aeeec451b43927748",
-  "size": 1266307,
+  "version": "2.2.1",
+  "file": "DistroAcademy-2.2.1.html",
+  "sha256": "bc44fd79e1ad7a94fc0827af35d66b2c2064ae64acaa0e36cfd3fa3386d02ad6",
+  "size": 1268586,
   "date": "2026-10-16",
   "notes": [
-    "12 new distros with three lessons each",
-    "A second, deeper lesson for 57 courses",
-    "Automatic, signed updates"
+    "Way smoother: the app now draws with your graphics card (10x+ smoother)",
+    "New Lite graphics switch in Settings \u2192 Appearance"
   ]
 }
