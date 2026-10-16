@@ -682,27 +682,27 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
 .wn-release.fresh .wn-card { border-color: var(--accent-line); box-shadow: 0 0 0 3px var(--accent-soft); }
 .nav-badge[data-badge="whats-new"] { font-size: .58rem; letter-spacing: .04em; }
 /* Larry */
-.larry-run { position: fixed; left: 0; z-index: 1000; width: min(24vw, 300px); pointer-events: none; animation: lr-cross 5.2s cubic-bezier(.25, .15, .75, .85) forwards; }
+.larry-run { position: fixed; left: 0; z-index: 1000; width: min(24vw, 300px); pointer-events: none; animation: lr-cross 1.4s cubic-bezier(.35, .05, .65, .95) forwards; }
 .larry-run.rtl { animation-name: lr-cross-rtl; }
 .larry-run.rtl .larry-flip { transform: scaleX(-1); }
 @keyframes lr-cross { from { transform: translateX(-30vw); } to { transform: translateX(106vw); } }
 @keyframes lr-cross-rtl { from { transform: translateX(106vw); } to { transform: translateX(-30vw); } }
 svg.larry-svg { width: 100%; height: auto; display: block; overflow: visible; filter: drop-shadow(0 8px 14px rgb(0 0 0 / .35)); }
 .larry-svg * { transform-box: view-box; }
-.larry-svg .lr-body { transform-origin: 104px 160px; animation: lr-bob .5s ease-in-out infinite; }
+.larry-svg .lr-body { transform-origin: 104px 160px; animation: lr-bob .17s ease-in-out infinite; }
 @keyframes lr-bob { 0%, 50%, 100% { transform: translateY(0) rotate(7deg); } 25%, 75% { transform: translateY(-9px) rotate(9deg); } }
-.larry-svg .lr-thigh { transform-origin: 98px 158px; animation: lr-thigh .5s ease-in-out infinite; }
-.larry-svg .lr-shin { transform-origin: 104px 206px; animation: lr-shin .5s ease-in-out infinite; }
+.larry-svg .lr-thigh { transform-origin: 98px 158px; animation: lr-thigh .17s ease-in-out infinite; }
+.larry-svg .lr-shin { transform-origin: 104px 206px; animation: lr-shin .17s ease-in-out infinite; }
 @keyframes lr-thigh { 0%, 100% { transform: rotate(-38deg); } 50% { transform: rotate(32deg); } }
 @keyframes lr-shin { 0%, 100% { transform: rotate(12deg); } 25% { transform: rotate(35deg); } 50% { transform: rotate(85deg); } 75% { transform: rotate(50deg); } }
-.larry-svg .lr-upper { transform-origin: 108px 90px; animation: lr-upper .5s ease-in-out infinite; }
-.larry-svg .lr-fore { transform-origin: 112px 128px; animation: lr-fore .5s ease-in-out infinite; }
+.larry-svg .lr-upper { transform-origin: 108px 90px; animation: lr-upper .17s ease-in-out infinite; }
+.larry-svg .lr-fore { transform-origin: 112px 128px; animation: lr-fore .17s ease-in-out infinite; }
 @keyframes lr-upper { 0%, 100% { transform: rotate(40deg); } 50% { transform: rotate(-50deg); } }
 @keyframes lr-fore { 0%, 100% { transform: rotate(-20deg); } 50% { transform: rotate(-55deg); } }
-.larry-svg .back .lr-thigh, .larry-svg .back .lr-shin, .larry-svg .back .lr-upper, .larry-svg .back .lr-fore { animation-delay: -.25s; }
+.larry-svg .back .lr-thigh, .larry-svg .back .lr-shin, .larry-svg .back .lr-upper, .larry-svg .back .lr-fore { animation-delay: -.085s; }
 .larry-svg .lr-jaw { transform-origin: 114px 64px; animation: lr-jaw .09s steps(2) infinite; }
 @keyframes lr-jaw { 0% { transform: rotate(6deg); } 100% { transform: rotate(24deg); } }
-.larry-svg .lr-head { transform-origin: 108px 68px; animation: lr-head .25s ease-in-out infinite alternate; }
+.larry-svg .lr-head { transform-origin: 108px 68px; animation: lr-head .085s ease-in-out infinite alternate; }
 @keyframes lr-head { from { transform: rotate(-4deg); } to { transform: rotate(5deg); } }
 .larry-svg .lr-eye { animation: blink .3s steps(1) infinite; }
 
@@ -5043,6 +5043,12 @@ DA.CMD_REF = {
 /* Every release, newest first. The What's New page and the after-update popup read from here.
    Add a new entry at the top whenever DA.VERSION changes. */
 DA.CHANGELOG = [
+  { v: "2.3.4", date: "2026-10-16", title: "Larry is unstoppable", items: [
+    ["⚡", "Even faster Larry", "Larry now crosses your screen in under a second and a half. His scream lingers after he's gone."]
+  ] },
+  { v: "2.3.3", date: "2026-10-16", title: "Larry has been training", items: [
+    ["💨", "Faster Larry", "Larry runs twice as fast now. Blink and you'll miss him (but you'll still hear him)."]
+  ] },
   { v: "2.3.2", date: "2026-10-16", title: "He has a name now", items: [
     ["💀", "Larry", "The rare visitor got a makeover, and he's a lot less rare now. If you hear rattling bones, don't panic. It's just Larry."]
   ] },
@@ -5107,7 +5113,7 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
 /* State, persistence (native file via the launcher, else localStorage), lessons and the user's machine. */
 (function () {
   const KEY = "distro-academy-v1";
-  DA.VERSION = "2.3.2";
+  DA.VERSION = "2.3.4";
 
   DA.defaults = () => ({
     v: 2,
@@ -9188,7 +9194,7 @@ DA.SCREAM_096_OGG = "T2dnUwACAAAAAAAAAADTDAAAAAAAAD5jNBwBHgF2b3JiaXMAAAAAAkSsAAA
    a skeleton (our own drawing), sprints across the screen screaming the SCP-096 scream
    (CC BY-SA 3.0, see js/scream-096.js and the About page). Summon him with `summon-larry`. */
 (function () {
-  const CHANCE = 1 / 200, EVERY_MS = 60000, RUN = 5.2, VOLUME = 0.45;
+  const CHANCE = 1 / 200, EVERY_MS = 60000, RUN = 1.4, VOLUME = 0.45;
 
   // ---------- Larry (side view, facing right) ----------
   const BONE = "#f4efe3", EDGE = "#a89f8a", BACK = "#d9d1bd";
@@ -9269,11 +9275,11 @@ DA.SCREAM_096_OGG = "T2dnUwACAAAAAAAAAADTDAAAAAAAAD5jNBwBHgF2b3JiaXMAAAAAAkSsAAA
     const rtl = Math.random() < 0.5, top = 14 + Math.random() * 26;
     const el = DA.h(`<div class="larry-run ${rtl ? "rtl" : ""}" style="top:${top}vh" aria-hidden="true"><div class="larry-flip">${DA.LARRY_SVG}</div></div>`);
     document.body.appendChild(el);
-    const stop = DA.scream(RUN);
+    DA.scream(RUN + 1.1); // the scream trails behind him
     const p = DA.state.prog, prev = p.larry || p.advisor || {};
     p.larry = { seen: (prev.seen || 0) + (why === "random" ? 1 : 0), summoned: (prev.summoned || 0) + (why === "summon" ? 1 : 0), last: Date.now() };
     DA.save(); setTimeout(() => DA.checkBadges(), RUN * 500);
-    const done = () => { if (!el.isConnected) return; el.remove(); running = false; stop.then(s => s()); };
+    const done = () => { if (!el.isConnected) return; el.remove(); running = false; };
     el.addEventListener("animationend", e => { if (e.target === el) done(); });
     setTimeout(done, RUN * 1000 + 600);
     return true;
