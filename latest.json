@@ -1,14 +1,14 @@
 {
   "app": "distro-academy",
-  "version": "2.7.0",
-  "file": "DistroAcademy-2.7.0.html",
-  "sha256": "f7cebac086cdd31d7f36c47a07b37afeae220afd648aa6f1780d392e6a2f108c",
-  "size": 1758444,
-  "core": "core-2.7.0.py",
+  "version": "2.8.0",
+  "file": "DistroAcademy-2.8.0.html",
+  "sha256": "98cb9d26872d7d1fd52280ec3302ab4e5e6b207d55f530c82e9a8cc8c6332dd1",
+  "size": 1797210,
+  "core": "core-2.8.0.py",
   "core_sha256": "92b670fff1b8fbf043e15058defc09fadd1f9317f21c0ee69fbc44c0de5c86d0",
   "core_size": 17535,
   "date": "2026-10-16",
   "notes": [
-    "2.7.0: Bash scripting course, Error Doctor, projects, Larry boss fight, cert prep"
+    "2.8.0: season pass, pet, 3 arcade games, terminal themes, sound packs, Halloween"
   ]
 }
