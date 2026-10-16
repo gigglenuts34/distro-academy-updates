@@ -885,6 +885,14 @@ svg.larry-svg { width: 100%; height: auto; display: block; overflow: visible; fi
 .side-me-text b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .side-title { color: var(--accent); font-weight: 700; }
 .tiny { font-size: .68rem; }
+.duel-page { position: relative; }
+.cheer-float { position: absolute; top: 40%; font-size: 2.4rem; display: grid; justify-items: center; pointer-events: none; animation: cheer-up 2.2s ease-out forwards; z-index: 5; }
+.cheer-float small { font-size: .7rem; color: var(--ink-soft); }
+@keyframes cheer-up { from { transform: translateY(0) scale(.6); opacity: 0; } 15% { opacity: 1; transform: translateY(-20px) scale(1.1); } to { transform: translateY(-220px) scale(1); opacity: 0; } }
+.cheer-btn { font-size: 1.3rem; padding: 8px 14px; }
+.act-list { display: grid; gap: 8px; max-height: 340px; overflow: auto; }
+.act-row { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+.act-row:last-child { border-bottom: 0; }
 
 </style>
 </head>
@@ -5403,6 +5411,16 @@ DA.CMD_REF = {
 /* Every release, newest first. The What's New page and the after-update popup read from here.
    Add a new entry at the top whenever DA.VERSION changes. */
 DA.CHANGELOG = [
+  { v: "2.10.1", date: "2026-10-16", title: "Tidier home", items: [
+    ["🧹", "Event card only when there's an event", "The Events card now only shows up on your home screen while an event (like Halloween) is running."]
+  ] },
+  { v: "2.10.0", date: "2026-10-16", title: "Watch, cheer, gift", items: [
+    ["👀", "Watch your friends' duels", "When a friend is in a live duel, a Watch button appears on their card. You see both scores climb in real time, and you can send cheers (🔥 👏 💀) that float up on their screens. Players see how many people are watching."],
+    ["🏆", "Weekly tournament", "One game a week, the exact same round for everyone. Your best score goes on a friends-only leaderboard."],
+    ["🎁", "Gifts", "Send a friend a streak freeze, an XP boost, a cheer, or a visit from Larry. One gift per friend per day."],
+    ["📰", "Activity feed and cloud save", "See your friends' badges, rank-ups, boss wins and streaks, and back up your progress to your account so you can restore it on any computer."],
+    ["🧊", "Streak freezes", "A freeze covers one missed day automatically, so your streak survives a day off."]
+  ] },
   { v: "2.9.0", date: "2026-10-16", title: "Play together, look good", items: [
     ["🤝", "Co-op labs", "In a shared terminal with a friend, the host can start any Break/Fix lab. You both see the goals tick off live, either of you can type the fix, and you both get the reward."],
     ["🖼️", "Player cards", "A shareable picture of your profile: your dressed-up Tux, rank, title and stats. Save it as an image from Achievements, or open any friend's card from the Friends page."],
@@ -5513,7 +5531,7 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
 /* State, persistence (native file via the launcher, else localStorage), lessons and the user's machine. */
 (function () {
   const KEY = "distro-academy-v1";
-  DA.VERSION = "2.9.0";
+  DA.VERSION = "2.10.1";
 
   DA.defaults = () => ({
     v: 2,
@@ -9323,7 +9341,7 @@ DA.ONLINE_CONFIG = { url: "https://erstexcypkidzvzjajod.supabase.co", key: "sb_p
     if (!O.signedIn() || rt) return;
     rt = new Realtime(S().access_token);
     lobby = rt.channel("lobby", { presenceKey: O.me().id });
-    lobby.on("joined", () => lobby.track({ u: O.me().username, at: Date.now() }));
+    lobby.on("joined", () => lobby.track({ u: O.me().username, at: Date.now(), ...(O.activity || {}) }));
     lobby.on("presence", p => { O.online = Object.fromEntries(Object.entries(p).map(([k, metas]) => [k, metas[0]])); DA.emit("presence", O.online); });
     inbox = rt.channel("inbox:" + O.me().id, { changes: [
       { event: "INSERT", schema: "public", table: "invites", filter: `recipient=eq.${O.me().id}` },
@@ -9334,6 +9352,8 @@ DA.ONLINE_CONFIG = { url: "https://erstexcypkidzvzjajod.supabase.co", key: "sb_p
       if (d.table === "friendships") DA.emit("friends-changed", d);
     });
   };
+  // What you're doing right now, shown to friends through the lobby (used for "Watch duel").
+  O.setActivity = a => { O.activity = a || null; if (lobby && O.me()) lobby.track({ u: O.me().username, at: Date.now(), ...(a || {}) }); };
   O.disconnect = () => { rt?.close(); rt = lobby = inbox = null; O.online = {}; };
   O.Realtime = Realtime;
 
@@ -9469,7 +9489,7 @@ DA.ONLINE_CONFIG = { url: "https://erstexcypkidzvzjajod.supabase.co", key: "sb_p
         </div>
         <div class="hero-art" aria-hidden="true">${DA.TUX("hero-tux")}<div class="hero-orbit"><span>$</span><span>~</span><span>/</span><span>#</span></div></div>
       </section>
-      <div class="widgets">${DA.state.settings.widgets.filter(w => w.on && W[w.id]).map(w => `<section class="card widget ${W[w.id].wide ? "wide" : ""}" data-widget="${w.id}">${W[w.id].render()}</section>`).join("")}</div>
+      <div class="widgets">${DA.state.settings.widgets.filter(w => w.on && W[w.id] && !W[w.id].hidden?.()).map(w => `<section class="card widget ${W[w.id].wide ? "wide" : ""}" data-widget="${w.id}">${W[w.id].render()}</section>`).join("")}</div>
       ${DA.state.settings.widgets.every(w => !w.on) ? `<div class="empty">All widgets are hidden. <a href="#/settings/layout">Turn some back on</a>.</div>` : ""}
     </div>`;
     $$("[data-widget]", v).forEach(el => W[el.dataset.widget].after?.(el));
@@ -10531,18 +10551,19 @@ DA.ONLINE_CONFIG = { url: "https://erstexcypkidzvzjajod.supabase.co", key: "sb_p
             <p class="small muted">Tell friends your username: <b class="mono">@${esc(me.username)}</b></p></section>
           ${incoming.length ? `<section class="card stack"><h2>Friend requests <span class="count">${incoming.length}</span></h2>${incoming.map(f => `<div class="fr-row">${av(f.requester)}<div class="fr-who"><b>${esc(nameOf(f.requester))}</b><span class="small muted mono">@${esc(f.requester.username)}</span></div><div class="row" style="gap:6px"><button class="btn ghost sm" data-unfriend="${f.id}">Decline</button><button class="btn primary sm" data-accept="${f.id}">Accept</button></div></div>`).join("")}</section>` : ""}
           ${outgoing.length ? `<section class="card stack"><h3>Sent requests</h3>${outgoing.map(f => `<div class="fr-row">${av(f.addressee)}<div class="fr-who"><b>${esc(nameOf(f.addressee))}</b><span class="small muted">waiting…</span></div><button class="btn ghost sm" data-unfriend="${f.id}">Cancel</button></div>`).join("")}</section>` : ""}
-          <section class="card stack"><h2>${icon("trophy")} This week</h2><ol class="fr-board">${board.map((x, i) => `<li class="${x.you ? "you" : ""}"><span class="fr-place">${["🥇", "🥈", "🥉"][i] || i + 1}</span>${av(x.p)}<span class="fr-who"><b>${esc(x.you ? "You" : nameOf(x.p))}</b><span class="small muted">${esc(x.s.rankEm || "")} ${esc(x.s.rank || "")}</span></span><span class="mono"><b>${(x.s.weekXP || 0).toLocaleString()}</b> <span class="small muted">XP</span></span></li>`).join("")}</ol>${friends.length ? "" : `<p class="small muted">Add a friend to start a leaderboard.</p>`}</section>
+          <section class="card stack"><h2>${icon("trophy")} This week</h2><ol class="fr-board">${board.map((x, i) => `<li class="${x.you ? "you" : ""}"><span class="fr-place">${["🥇", "🥈", "🥉"][i] || i + 1}</span>${av(x.p)}<span class="fr-who"><b>${esc(x.you ? "You" : nameOf(x.p))}</b><span class="small muted">${esc(x.s.rankEm || "")} ${esc(x.s.rank || "")}</span></span><span class="mono"><b>${(x.s.weekXP || 0).toLocaleString()}</b> <span class="small muted">XP</span></span></li>`).join("")}</ol>${friends.length ? "" : `<p class="small muted">Add a friend to start a leaderboard.</p>`}</section><div id="fr-extra" class="stack"></div>
         </div>
         <section class="stack"><div class="row" style="justify-content:space-between"><h2>Your friends <span class="count">${friends.length}</span></h2><span class="small muted">${friends.filter(x => O.online[x.p.id]).length} online</span></div>
           ${friends.length ? `<div class="fr-cards">${friends.map(({ f, p }) => { const s = p.stats || {}, r = record(p.id); return `<article class="card fr-card">
             <div class="row" style="gap:12px;flex-wrap:nowrap">${av(p)}<div class="fr-who"><b>${esc(nameOf(p))} ${onlineDot(p.id)}</b><span class="small muted mono">@${esc(p.username)} · ${O.online[p.id] ? "online now" : `seen ${ago(p.updated_at)}`}</span></div></div>
             <div class="fr-stats"><div><span>${esc(s.rankEm || "🧳")}</span><b>${esc(s.rank || "New")}</b></div><div><span>XP</span><b>${(s.xp || 0).toLocaleString()}</b></div><div><span>🔥</span><b>${s.streak || 0}d</b></div><div><span>Learning</span><b>${esc(s.distro || "?")}</b></div></div>
             ${r.w + r.l + r.t ? `<div class="small muted">Duels: <b>${r.w}</b> won · <b>${r.l}</b> lost${r.t ? ` · ${r.t} tied` : ""}</div>` : ""}
-            <div class="row" style="gap:6px"><button class="btn sm" data-card="${esc(p.id)}">${icon("user")} Card</button><button class="btn sm" data-compare="${esc(p.id)}">${icon("scale")} Compare</button><button class="btn sm" data-terminal="${esc(p.id)}">${icon("terminal")} Terminal</button><button class="btn primary sm" data-duel="${esc(p.id)}">${icon("play")} Duel</button><button class="icon-btn fr-x" data-unfriend="${f.id}" data-confirm="1" title="Remove friend" aria-label="Remove friend">${icon("x")}</button></div></article>`; }).join("")}</div>`
+            <div class="row" style="gap:6px"><button class="btn sm" data-card="${esc(p.id)}">${icon("user")} Card</button><button class="btn sm" data-compare="${esc(p.id)}">${icon("scale")} Compare</button><button class="btn sm" data-terminal="${esc(p.id)}">${icon("terminal")} Terminal</button>${O.online[p.id]?.duel && O.online[p.id]?.vs ? `<button class="btn soft sm" data-go="#/watch/${esc(O.online[p.id].duel)}/${esc(p.id)}/${esc(O.online[p.id].vs)}/${esc(O.online[p.id].game || "sprint")}">👀 Watch</button>` : ""}<button class="btn primary sm" data-duel="${esc(p.id)}">${icon("play")} Duel</button><button class="icon-btn fr-x" data-unfriend="${f.id}" data-confirm="1" title="Remove friend" aria-label="Remove friend">${icon("x")}</button></div></article>`; }).join("")}</div>`
             : `<div class="card empty">${DA.TUX("tux-xl")}<h3>No friends yet</h3><p class="muted">Search for a username on the left and send a request. When they accept, you can compare progress, hack in a terminal together and duel in the arcade.</p></div>`}
         </section>
       </div></div></div>`;
     const find = id => friends.find(x => x.p.id === id)?.p;
+    DA.friendsExtras?.(v, friends.map(x => x.p));
     const search = DA.debounce(async q => {
       const box = $("#fr-results"); if (!box) return;
       if (q.trim().length < 2) { box.innerHTML = ""; return; }
@@ -10670,7 +10691,9 @@ DA.ONLINE_CONFIG = { url: "https://erstexcypkidzvzjajod.supabase.co", key: "sb_p
     if (f) return f.requester.id === friendId ? f.requester : f.addressee;
     try { cache.friendships = await O.friendships(); } catch { /* offline */ }
     const g = cache.friendships.find(x => x.requester.id === friendId || x.addressee.id === friendId);
-    return g ? (g.requester.id === friendId ? g.requester : g.addressee) : { id: friendId, username: "friend" };
+    if (g) return g.requester.id === friendId ? g.requester : g.addressee;
+    try { const [p] = await O.req("GET", `/rest/v1/profiles?select=id,username,display_name,avatar&id=eq.${encodeURIComponent(friendId)}`); if (p) return p; } catch { /* not found */ }
+    return { id: friendId, username: "friend" };
   }
   let roomCleanup = null;
   const leaveRoom = () => { roomCleanup?.(); roomCleanup = null; };
@@ -10769,7 +10792,9 @@ DA.ONLINE_CONFIG = { url: "https://erstexcypkidzvzjajod.supabase.co", key: "sb_p
     const ch = O.channel("duel:" + room, { presenceKey: me.id });
     const status = t => { const el = $("#du-status"); if (el) el.textContent = t; };
     const draw = () => { const a = $("#du-me"), b = $("#du-them"); if (!a) return; a.textContent = mine.toLocaleString(); b.textContent = theirs.toLocaleString(); const t = Math.max(mine, theirs, 1); $("#du-bar-me").style.width = mine / t * 50 + "%"; $("#du-bar-them").style.width = theirs / t * 50 + "%"; };
-    const onScore = s => { if (!active || !playing) return; mine = s; draw(); ch.send("score", { s }); };
+    const onScore = s => { if (!active || !playing) return; mine = s; draw(); ch.send("score", { s, p: me.id }); };
+    O.setActivity({ duel: room, game: G, vs: peer.id });
+    ch.onBroadcast("cheer", ({ em, name }) => { if (!/^(🔥|👏|💀|😱|🐧|⚡)$/.test(em)) return; const st = $(".duel-page"); if (!st) return; const f = DA.h(`<div class="cheer-float">${em}<small>${esc(String(name || "").slice(0, 20))}</small></div>`); f.style.left = 20 + Math.random() * 60 + "%"; st.appendChild(f); setTimeout(() => f.remove(), 2200); });
     DA.on("arcade-score", onScore);
     const finish = () => {
       if (myFinal == null || theirFinal == null) { const st = $("#arcade-stage"); if (myFinal != null && st) st.innerHTML = `<section class="card stack game-intro" style="margin-top:var(--gap)"><div class="game-em">⏳</div><h2>You scored ${myFinal.toLocaleString()}</h2><p class="muted">Waiting for ${esc(nameOf(peer))} to finish…</p></section>`; return; }
@@ -10787,7 +10812,7 @@ DA.ONLINE_CONFIG = { url: "https://erstexcypkidzvzjajod.supabase.co", key: "sb_p
       const dd = DA.distroById[distroId] || d, st = $("#arcade-stage");
       let n = 3; st.innerHTML = `<section class="card game-intro" style="margin-top:var(--gap)"><div class="duel-count" id="du-count">3</div></section>`;
       const tick = setInterval(() => { n--; const c = $("#du-count"); if (!c) return clearInterval(tick); if (n > 0) { c.textContent = n; DA.sound("click"); } else { clearInterval(tick); DA.sound("ok"); start(); } }, 800);
-      const start = () => DA.ARCADE_PLAY[G](dd, seed, score => { playing = false; myFinal = score; mine = score; draw(); ch.send("final", { s: score }); O.recordDuel(room, G, peer.id, Math.min(100000, Math.max(0, Math.round(score)))).catch(() => {}); finish(); });
+      const start = () => DA.ARCADE_PLAY[G](dd, seed, score => { playing = false; myFinal = score; mine = score; draw(); ch.send("final", { s: score, p: me.id }); O.recordDuel(room, G, peer.id, Math.min(100000, Math.max(0, Math.round(score)))).catch(() => {}); finish(); });
     };
     ch.onBroadcast("score", ({ s }) => { theirs = Math.max(0, Math.min(100000, +s || 0)); draw(); });
     ch.onBroadcast("final", ({ s }) => { theirFinal = Math.max(0, Math.min(100000, +s || 0)); theirs = theirFinal; draw(); finish(); });
@@ -10795,12 +10820,31 @@ DA.ONLINE_CONFIG = { url: "https://erstexcypkidzvzjajod.supabase.co", key: "sb_p
     ch.onBroadcast("rematch", ({ room: next }) => { if (/^[0-9a-f-]{36}$/.test(next)) ui().go(`#/duel/${next}/guest/${peer.id}/${G}`); });
     ch.on("joined", () => ch.track({ u: me.username, at: Date.now() }));
     ch.on("presence", p => {
-      const here = !!p[peer.id]; status(here ? `🟢 ${nameOf(peer)} is here` : `Waiting for ${nameOf(peer)}…`);
+      const watchers = Object.keys(p).filter(k => k !== me.id && k !== peer.id).length;
+      const here = !!p[peer.id]; status((here ? `🟢 ${nameOf(peer)} is here` : `Waiting for ${nameOf(peer)}…`) + (watchers ? ` · 👀 ${watchers} watching` : ""));
       const w = $("#du-wait"); if (w && !playing && myFinal == null) w.textContent = here ? (host ? "Both here. Ready when you are!" : `${nameOf(peer)} is here. Get ready…`) : `Waiting for ${nameOf(peer)} to join…`;
       const b = $("#du-start"); if (b) b.disabled = !here;
     });
     $("#du-start")?.addEventListener("click", () => { const seed = Date.now().toString(36) + Math.random().toString(36).slice(2, 6); ch.send("start", { seed, distro: d.id }); play(seed, d.id); });
-    roomCleanup = () => { active = false; ch.leave(); DA.arcadeStop?.(); };
+    roomCleanup = () => { active = false; ch.leave(); DA.arcadeStop?.(); O.setActivity(null); };
+  };
+
+  // ---------- watching a friend's duel ----------
+  DA.views.watch = async (v, room, aId, bId, game) => {
+    if (!guardOnline(v) || !/^[0-9a-f-]{36}$/.test(room || "")) return;
+    leaveRoom();
+    const me = O.me(), [A, B] = await Promise.all([roomPeer(aId), roomPeer(bId)]), G = GAMES()[game] ? game : "sprint", sc = { [aId]: 0, [bId]: 0 }, fin = {};
+    v.innerHTML = `<div class="view"><div class="duel-page">${ui().pageHead(`👀 ${esc(nameOf(A))} vs ${esc(nameOf(B))}`, `Watching a live ${esc(GAMES()[G].name)} duel. Send some cheers!`, `<span class="tag" id="wa-status">Connecting…</span><button class="btn ghost" data-go="#/friends">${icon("arrowL")} Leave</button>`, "// spectating")}
+      <section class="card duel-score"><div class="du-side"><b>${esc(nameOf(A))}</b><span class="big-num" id="wa-a">0</span></div><div class="du-vs mono">VS</div><div class="du-side them"><b>${esc(nameOf(B))}</b><span class="big-num" id="wa-b">0</span></div><div class="du-bars"><i class="me" id="wa-bar-a"></i><i class="them" id="wa-bar-b"></i></div></section>
+      <section class="card stack game-intro" style="margin-top:var(--gap)"><h2 id="wa-msg">Waiting for the round…</h2><div class="row" style="justify-content:center;gap:8px">${["🔥", "👏", "💀", "😱", "🐧", "⚡"].map(e => `<button class="btn soft cheer-btn" data-cheer="${e}">${e}</button>`).join("")}</div></section></div></div>`;
+    const ch = O.channel("duel:" + room, { presenceKey: me.id });
+    const draw = () => { const a = $("#wa-a"); if (!a) return; a.textContent = sc[aId].toLocaleString(); $("#wa-b").textContent = sc[bId].toLocaleString(); const t = Math.max(sc[aId], sc[bId], 1); $("#wa-bar-a").style.width = sc[aId] / t * 50 + "%"; $("#wa-bar-b").style.width = sc[bId] / t * 50 + "%"; };
+    const take = ({ s, p }, final) => { if (!(p in sc)) return; sc[p] = Math.max(0, Math.min(100000, +s || 0)); if (final) fin[p] = true; draw(); const m = $("#wa-msg"); if (!m) return; m.textContent = fin[aId] && fin[bId] ? (sc[aId] === sc[bId] ? "A perfect tie! 🤝" : `${nameOf(sc[aId] > sc[bId] ? A : B)} wins! 🏆`) : "Live! 🔴"; };
+    ch.onBroadcast("score", x => take(x)); ch.onBroadcast("final", x => take(x, true));
+    ch.onBroadcast("start", () => { sc[aId] = sc[bId] = 0; Object.keys(fin).forEach(k => delete fin[k]); draw(); const m = $("#wa-msg"); if (m) m.textContent = "3… 2… 1… Go!"; });
+    ch.on("joined", () => { ch.track({ u: me.username, at: Date.now(), watching: true }); const s = $("#wa-status"); if (s) s.textContent = "🟢 Watching live"; });
+    v.querySelectorAll("[data-cheer]").forEach(b => b.onclick = () => { ch.send("cheer", { em: b.dataset.cheer, name: DA.state.profile.name || me.username }); b.disabled = true; setTimeout(() => { b.disabled = false; }, 1500); });
+    roomCleanup = () => ch.leave();
   };
 
   // ---------- badges ----------
@@ -11641,7 +11685,7 @@ DA.CERTPREP = [
   setTimeout(halloweenTick, 1500); setInterval(halloweenTick, 3600000);
   // During Halloween Larry gets about four times more likely to appear.
   setInterval(() => { if (!document.hidden && DA.isHalloween() && DA.state?.profile.onboarded && Math.random() < 3 / 200) DA.summonLarry?.("random"); }, 60000);
-  DA.WIDGETS.event = { name: "Events", render() {
+  DA.WIDGETS.event = { name: "Events", hidden: () => !DA.isHalloween(), render() {
     if (!DA.isHalloween()) return `<h3>${icon("spark")} Events</h3><p class="small muted">No event right now. Halloween starts October 24th. Larry is… excited.</p>`;
     return `<h3>🎃 Halloween with Larry</h3><p class="small">Until November 1st: Larry shows up four times as often, <code>larry trick-or-treat</code> works in any terminal, and the pumpkin hat and Pumpkin patch terminal theme are yours to keep.</p><div class="row" style="gap:8px"><button class="btn primary sm" data-term="larry trick-or-treat">🍬 Trick or treat</button><button class="btn ghost sm" data-go="#/settings/look">Wear the hat</button></div>`;
   } };
@@ -11750,6 +11794,164 @@ DA.CERTPREP = [
     };
   };
   DA.myCard = () => DA.showPlayerCard({ name: DA.displayName(), username: DA.online?.me?.()?.username, s: DA.online?.myStats ? DA.online.myStats() : { xp: DA.state.prog.xp } });
+})();
+
+</script>
+<script>
+/* Online, part 3: friends' activity feed, a weekly friends tournament, gifts and cloud save.
+   Each feature checks that its table exists on the server (server/schema-v3.sql), and stays hidden until it does. */
+(function () {
+  const O = DA.online, { esc, icon, $ } = DA;
+  if (!O) return;
+  const P = () => DA.state.prog;
+  const nameOf = p => p?.display_name || p?.username || "friend";
+  const ago = iso => { const m = Math.round((Date.now() - new Date(iso)) / 60000); return m < 2 ? "just now" : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : `${Math.round(m / 1440)} d ago`; };
+
+  // ---------- which tables exist ----------
+  const has = {};
+  O.hasTable = async t => {
+    if (t in has) return has[t];
+    try { await O.req("GET", `/rest/v1/${t}?select=*&limit=0`); has[t] = true; } catch (e) { has[t] = !(e.status === 404 || /PGRST205|does not exist|schema cache/i.test(e.data?.code + " " + e.message)); }
+    return has[t];
+  };
+
+  // ---------- activity feed ----------
+  const post = async (kind, detail = {}) => {
+    if (!O.signedIn() || !(await O.hasTable("activity"))) return;
+    const day = DA.today(), log = P().actLog = P().actLog?.day === day ? P().actLog : { day, n: 0 };
+    if (log.n >= 25) return; log.n++; DA.save();
+    O.req("POST", "/rest/v1/activity", { kind, detail }, { headers: { Prefer: "return=minimal" } }).catch(() => {});
+  };
+  O.postActivity = post;
+  const baseCheck = DA.checkBadges;
+  DA.checkBadges = () => { const fresh = baseCheck(); (fresh || []).forEach(b => post("badge", { em: b.em, name: b.name })); return fresh; };
+  DA.on("lab-done", lab => post(lab.level >= 5 ? "boss" : "lab", { em: lab.em, name: lab.title }));
+  let lastRank = null, lastTier = null;
+  DA.on("xp", () => {
+    const r = DA.rank(); if (lastRank != null && r.i > lastRank) post("rank", { em: r.em, name: r.name }); lastRank = r.i;
+    const t = DA.seasonTier?.(); if (lastTier != null && t > lastTier && t % 5 === 0) post("season", { tier: t }); lastTier = t;
+    const s = DA.streak(), m = [7, 14, 30, 50, 100].find(x => x === s);
+    if (m && P().streakPosted !== `${m}:${DA.today()}`) { P().streakPosted = `${m}:${DA.today()}`; post("streak", { days: m }); }
+  });
+  const say = a => { const d = a.detail || {}; return ({
+    badge: `unlocked the badge ${d.em || ""} <b>${esc(d.name || "")}</b>`, lab: `fixed the lab ${d.em || ""} <b>${esc(d.name || "")}</b>`, boss: `beat the boss ${d.em || "💀"} <b>${esc(d.name || "")}</b>!`,
+    rank: `ranked up to ${d.em || ""} <b>${esc(d.name || "")}</b>`, season: `reached season tier <b>${+d.tier || 0}</b> 🌙`, streak: `hit a <b>${+d.days || 0}-day streak</b> 🔥`,
+    tournament: `scored <b>${(+d.score || 0).toLocaleString()}</b> in this week's tournament`, gift: `sent a gift to <b>${esc(d.to || "a friend")}</b> 🎁`
+  })[a.kind] || esc(a.kind); };
+
+  // ---------- weekly tournament ----------
+  const week = () => DA.weekKey();
+  const tourGame = () => { const g = Object.keys(DA.ARCADE_GAMES).sort(); return g[DA.hash("tour" + week()) % g.length]; };
+  const tourSeed = () => "tour-" + week();
+  DA.views.tournament = async (v) => {
+    const g = tourGame(), G = DA.ARCADE_GAMES[g], d = DA.distroById.cachyos;
+    v.innerHTML = `<div class="view">${DA.ui.pageHead(`🏆 Weekly tournament: ${esc(G.name)}`, "Everyone plays the exact same round this week. Play as often as you like: your best score counts. A new game every Monday.", `<button class="btn ghost" data-go="#/friends">${icon("arrowL")} Friends</button>`, "// tournament")}
+      <div id="arcade-stage"><section class="card stack game-intro"><div class="game-em">${G.em}</div><h2>${esc(G.name)}</h2><p class="muted">${esc(G.blurb)}</p><p class="small muted">Your best this week: <b>${(P().tour?.[week()] || 0).toLocaleString()}</b></p><button class="btn primary" id="tour-go">${icon("play")} Play the round</button></section></div></div>`;
+    const go = () => DA.ARCADE_PLAY[g](d, tourSeed(), async score => {
+      const best = Math.max(score, P().tour?.[week()] || 0), improved = score > (P().tour?.[week()] || 0);
+      (P().tour = P().tour || {})[week()] = best; DA.addXP(Math.max(5, Math.round(score / 50)), "tournament"); DA.save();
+      let msg = "";
+      if (improved && O.signedIn() && await O.hasTable("tournament_scores")) {
+        try { await O.req("POST", "/rest/v1/tournament_scores?on_conflict=week,player", { week: week(), game: g, score: Math.min(100000, Math.round(score)), updated_at: new Date().toISOString() }, { headers: { Prefer: "resolution=merge-duplicates,return=minimal" } }); post("tournament", { score }); msg = "Score sent to the leaderboard."; } catch (e) { msg = "Couldn't send your score: " + esc(e.message); }
+      }
+      const st = $("#arcade-stage"); if (!st) return;
+      st.innerHTML = `<section class="card stack game-intro"><div class="game-em">${G.em}</div><div class="big-num" style="font-size:3rem">${score.toLocaleString()}</div><h2>${improved ? "New best this week! 🎉" : `Best this week: ${best.toLocaleString()}`}</h2><p class="small muted">${msg}</p><div class="row" style="justify-content:center"><button class="btn ghost" data-go="#/friends">Leaderboard</button><button class="btn primary" id="tour-again">${icon("refresh")} Again</button></div></section>`;
+      $("#tour-again").onclick = () => DA.views.tournament(v);
+    });
+    $("#tour-go").onclick = go;
+  };
+
+  // ---------- gifts ----------
+  const GIFTS = { freeze: ["🧊", "Streak freeze", "Saves their streak if they miss a day"], cheer: ["📣", "Cheer", "A note and +10 XP"], xp: ["⭐", "XP boost", "+25 XP"], larry: ["💀", "A visit from Larry", "Larry runs across their screen. Screaming."] };
+  O.sendGift = (to, kind, note) => O.req("POST", "/rest/v1/gifts", { recipient: to.id, kind, note: String(note || "").slice(0, 120) }, { headers: { Prefer: "return=minimal" } });
+  const giftDialog = p => {
+    const m = DA.ui.modal(`<h2>🎁 Send ${esc(nameOf(p))} a gift</h2><p class="muted small" style="margin:6px 0 12px">One gift per friend per day.</p>
+      <div class="choices">${Object.entries(GIFTS).map(([k, [em, n, d]], i) => `<button class="choice ${i ? "" : "on"}" data-gk="${k}"><span style="font-size:1.6rem">${em}</span><b>${n}</b><span class="small muted">${d}</span></button>`).join("")}</div>
+      <input class="input" id="gift-note" maxlength="120" placeholder="Add a note (optional)" style="margin-top:12px">
+      <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn ghost" data-close>Cancel</button><button class="btn primary" id="gift-send">${icon("send")} Send</button></div>`, { label: "Gift", width: 560 });
+    let kind = "freeze";
+    document.querySelectorAll("[data-gk]").forEach(b => b.onclick = () => { kind = b.dataset.gk; document.querySelectorAll("[data-gk]").forEach(x => x.classList.toggle("on", x === b)); });
+    $("#gift-send").onclick = async e => {
+      e.target.disabled = true;
+      try { await O.sendGift(p, kind, $("#gift-note").value); post("gift", { to: nameOf(p) }); DA.toast(`🎁 Sent to ${esc(nameOf(p))}!`); document.querySelector(".scrim")?.remove(); }
+      catch (err) { DA.toast(/duplicate|unique/i.test(err.message) ? `You've already sent ${esc(nameOf(p))} a gift today. Try again tomorrow!` : esc(err.message)); e.target.disabled = false; }
+    };
+  };
+  const applyGift = gft => {
+    const from = nameOf(gft.sender), note = gft.note ? `: “${esc(gft.note)}”` : "";
+    if (gft.kind === "freeze") { P().freezes = Math.min(5, (P().freezes || 0) + 1); DA.toast(`🧊 <b>${esc(from)}</b> sent you a streak freeze${note}`, "xp"); }
+    else if (gft.kind === "cheer") { DA.addXP(10, "gift"); DA.toast(`📣 <b>${esc(from)}</b> cheered you on${note}`, "xp"); }
+    else if (gft.kind === "xp") { DA.addXP(25, "gift"); DA.toast(`⭐ <b>${esc(from)}</b> sent you an XP boost${note}`, "xp"); }
+    else if (gft.kind === "larry") { DA.toast(`💀 <b>${esc(from)}</b> sent you… Larry${note}`, "xp"); setTimeout(() => DA.summonLarry?.("summon", "run"), 1500); }
+    P().giftsGot = (P().giftsGot || 0) + 1; DA.save(); DA.checkBadges();
+  };
+  O.claimGifts = async () => {
+    if (!O.signedIn() || !(await O.hasTable("gifts"))) return;
+    let list = [];
+    try { list = await O.req("GET", `/rest/v1/gifts?select=id,kind,note,created_at,sender:profiles!gifts_sender_fkey(username,display_name)&recipient=eq.${O.me().id}&claimed=eq.false&order=created_at.asc&limit=10`); } catch { return; }
+    for (const g of list) { try { await O.req("PATCH", `/rest/v1/gifts?id=eq.${g.id}`, { claimed: true }, { headers: { Prefer: "return=minimal" } }); applyGift(g); } catch { /* try again later */ } }
+  };
+  setTimeout(() => O.claimGifts(), 8000); setInterval(() => { if (!document.hidden) O.claimGifts(); }, 120000);
+
+  // Streak freezes: each one covers a single missed day, used automatically.
+  const baseStreak = DA.streak;
+  DA.streak = () => {
+    const p = P(), days = p.days, fz = p.frozen = p.frozen || {};
+    if ((p.freezes || 0) > 0) {
+      let d = DA.addDays(DA.today(), -1), gap = [];
+      while (!days[d] && !fz[d] && gap.length < 5) { gap.push(d); d = DA.addDays(d, -1); }
+      if (gap.length && gap.length <= p.freezes && (days[d] || fz[d])) { gap.forEach(x => { fz[x] = 1; }); p.freezes -= gap.length; DA.save(); setTimeout(() => DA.toast(`🧊 ${gap.length === 1 ? "A streak freeze" : `${gap.length} streak freezes`} saved your streak!`, "xp"), 1200); }
+    }
+    let n = 0, d = DA.today(); if (!days[d]) d = DA.addDays(d, -1);
+    while (days[d] || fz[d]) { if (days[d]) n++; else n++; d = DA.addDays(d, -1); }
+    return Math.max(n, baseStreak());
+  };
+
+  // ---------- cloud save ----------
+  O.cloudSave = async () => {
+    const data = JSON.parse(DA.exportState());
+    await O.req("POST", "/rest/v1/saves?on_conflict=owner", { data, version: DA.VERSION, updated_at: new Date().toISOString() }, { headers: { Prefer: "resolution=merge-duplicates,return=minimal" } });
+    P().cloudAt = Date.now(); DA.save();
+  };
+  O.cloudInfo = async () => (await O.req("GET", `/rest/v1/saves?select=version,updated_at&owner=eq.${O.me().id}`))[0] || null;
+  O.cloudRestore = async () => { const [row] = await O.req("GET", `/rest/v1/saves?select=data&owner=eq.${O.me().id}`); if (!row) throw new Error("There's no cloud save yet."); DA.importState(JSON.stringify(row.data)); };
+  // Back up automatically once a day while signed in.
+  setInterval(async () => { if (O.signedIn() && Date.now() - (P().cloudAt || 0) > 86400000 && await O.hasTable("saves")) O.cloudSave().catch(() => {}); }, 300000);
+
+  // ---------- the Friends page gets the new sections ----------
+  DA.friendsExtras = async (v, friends) => {
+    const host = v.querySelector("#fr-extra"); if (!host || !O.signedIn()) return;
+    const [feed, tour, gifts, saves] = await Promise.all(["activity", "tournament_scores", "gifts", "saves"].map(t => O.hasTable(t)));
+    if (!feed && !tour && !gifts && !saves) return;
+    const people = Object.fromEntries([{ id: O.me().id, display_name: "You", username: O.me().username }, ...friends].map(p => [p.id, p]));
+    let html = "";
+    if (tour) {
+      let rows = []; try { rows = await O.req("GET", `/rest/v1/tournament_scores?select=player,score&week=eq.${week()}&order=score.desc&limit=50`); } catch { /* offline */ }
+      const G = DA.ARCADE_GAMES[tourGame()];
+      html += `<section class="card stack"><div class="row" style="justify-content:space-between"><h2>🏆 Tournament</h2><span class="tag">${G.em} ${esc(G.name)}</span></div>
+        ${rows.length ? `<ol class="fr-board">${rows.map((r, i) => `<li class="${r.player === O.me().id ? "you" : ""}"><span class="fr-place">${["🥇", "🥈", "🥉"][i] || i + 1}</span><span class="fr-who"><b>${esc(nameOf(people[r.player]))}</b></span><span class="mono"><b>${r.score.toLocaleString()}</b></span></li>`).join("")}</ol>` : `<p class="small muted">No scores yet this week. Be the first!</p>`}
+        <button class="btn primary sm" data-go="#/tournament">${icon("play")} Play this week's round</button></section>`;
+    }
+    if (feed) {
+      let rows = []; try { rows = await O.req("GET", "/rest/v1/activity?select=kind,detail,created_at,actor&order=created_at.desc&limit=25"); } catch { /* offline */ }
+      html += `<section class="card stack"><h2>${icon("spark")} Activity</h2>${rows.length ? `<div class="act-list">${rows.map(a => `<div class="act-row"><span class="small"><b>${esc(nameOf(people[a.actor]))}</b> ${say(a)}</span><span class="tiny muted">${ago(a.created_at)}</span></div>`).join("")}</div>` : `<p class="small muted">Nothing yet. Badges, labs, rank-ups and streaks from you and your friends show up here.</p>`}</section>`;
+    }
+    if (saves) {
+      let info = null; try { info = await O.cloudInfo(); } catch { /* offline */ }
+      html += `<section class="card stack"><h2>${icon("upload")} Cloud save</h2><p class="small muted">${info ? `Last backup: ${ago(info.updated_at)} (v${esc(info.version)}). It backs up by itself once a day.` : "Back up your progress to your account, so you can restore it on any computer."}</p>
+        <div class="row" style="gap:8px"><button class="btn soft sm" id="cs-save">${icon("upload")} Back up now</button>${info ? `<button class="btn ghost sm" id="cs-restore">${icon("download")} Restore</button>` : ""}</div></section>`;
+    }
+    host.innerHTML = html;
+    host.querySelector("#cs-save")?.addEventListener("click", async e => { e.target.disabled = true; try { await O.cloudSave(); DA.toast("☁️ Backed up!"); DA.friendsExtras(v, friends); } catch (err) { DA.toast(esc(err.message)); e.target.disabled = false; } });
+    host.querySelector("#cs-restore")?.addEventListener("click", () => DA.ui.confirmBox("Restore your cloud save?", "This replaces the progress on this computer with your last cloud backup.", "Restore", async () => { try { await O.cloudRestore(); DA.toast("☁️ Restored!"); DA.ui.route(); } catch (err) { DA.toast(esc(err.message)); } }));
+    if (gifts) v.querySelectorAll(".fr-card").forEach(card => {
+      const id = card.querySelector("[data-duel]")?.dataset.duel, p = friends.find(f => f.id === id); if (!p || card.querySelector("[data-gift]")) return;
+      const b = DA.h(`<button class="btn sm" data-gift="${esc(id)}">🎁 Gift</button>`); b.onclick = e => { e.stopPropagation(); giftDialog(p); };
+      card.querySelector("[data-duel]").before(b);
+    });
+    O.claimGifts();
+  };
+  DA.BADGES.push({ id: "gifted", em: "🎁", name: "Good Friend", d: "Receive a gift from a friend", ok: () => (P().giftsGot || 0) >= 1 });
 })();
 
 </script>
@@ -11980,7 +12182,7 @@ DA.CERTPREP = [
     const [page, a, b, ...more] = (location.hash || "#/" + (DA.state.settings.startPage || "home")).slice(2).split("/").map(x => decodeURIComponent(x || ""));
     ctx.lesson = null; ctx.distro = my(); ctx.term = null; ctx.lab = null;
     DA.arcadeStop?.();
-    const navId = page === "distro" && a === my().id ? "mine" : page === "lesson" || page === "exam" ? (a === my().id ? "mine" : "distros") : page === "distro" ? "distros" : page === "together" || page === "duel" ? "friends" : page;
+    const navId = page === "distro" && a === my().id ? "mine" : page === "lesson" || page === "exam" ? (a === my().id ? "mine" : "distros") : page === "distro" ? "distros" : page === "together" || page === "duel" || page === "watch" ? "friends" : page;
     $$(".nav-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.nav === navId));
     if (["doctor", "certprep", "season"].includes(navId) && !DA.state.prog.navSeen?.[navId]) { (DA.state.prog.navSeen = DA.state.prog.navSeen || {})[navId] = 1; DA.save(); setTimeout(topbar, 0); }
     $(".app").classList.toggle("focus-mode", page === "lesson" && DA.state.settings.focusLessons);
