@@ -1,0 +1,13 @@
+{
+  "app": "distro-academy",
+  "version": "2.2.0",
+  "file": "DistroAcademy-2.2.0.html",
+  "sha256": "f5cf3ec3eee9c219f5dd73c37939aa5185dfb01b3d4f0f9aeeec451b43927748",
+  "size": 1266307,
+  "date": "2026-10-16",
+  "notes": [
+    "12 new distros with three lessons each",
+    "A second, deeper lesson for 57 courses",
+    "Automatic, signed updates"
+  ]
+}
