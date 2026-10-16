@@ -761,6 +761,55 @@ svg.larry-svg { width: 100%; height: auto; display: block; overflow: visible; fi
 .du-bars i { position: absolute; top: 0; bottom: 0; transition: width .3s var(--ease); }
 .du-bars .me { left: 50%; transform: translateX(-100%); background: var(--accent); } .du-bars .them { left: 50%; background: var(--peach-ink); }
 .duel-count { font: 700 6rem/1 var(--font-display); color: var(--accent); text-align: center; animation: pop .4s var(--ease); }
+/* Larry's appearances */
+.larry-stage { position: fixed; inset: 0; z-index: 1000; pointer-events: none; overflow: hidden; }
+.larry-stage .larry-run { position: absolute; }
+.larry-moon { animation: lr-moon 4.2s linear forwards !important; }
+.larry-moon.rtl { animation-name: lr-moon-rtl !important; }
+.larry-moon .larry-flip { transform: scaleX(-1); }
+.larry-moon.rtl .larry-flip { transform: none; }
+@keyframes lr-moon { from { transform: translateX(-28vw); } to { transform: translateX(104vw); } }
+@keyframes lr-moon-rtl { from { transform: translateX(104vw); } to { transform: translateX(-28vw); } }
+.larry-moon .lr-thigh, .larry-moon .lr-shin, .larry-moon .lr-upper, .larry-moon .lr-fore { animation-duration: .6s !important; }
+.larry-moon .lr-thigh { animation-name: lr-moon-leg !important; }
+.larry-moon .lr-shin { animation-name: lr-moon-shin !important; }
+@keyframes lr-moon-leg { 0%, 100% { transform: rotate(8deg); } 50% { transform: rotate(-6deg); } }
+@keyframes lr-moon-shin { 0%, 100% { transform: rotate(4deg); } 50% { transform: rotate(32deg); } }
+.larry-moon .lr-body { animation: lr-groove .6s ease-in-out infinite !important; }
+@keyframes lr-groove { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-4px) rotate(3deg); } }
+.larry-notes { position: absolute; top: -4%; left: 30%; font-size: clamp(1.2rem, 3vw, 2.2rem); color: var(--accent); animation: lr-notes 1s ease-in-out infinite alternate; text-shadow: 0 2px 8px rgb(0 0 0 / .3); }
+@keyframes lr-notes { from { transform: translateY(0) rotate(-8deg); } to { transform: translateY(-14px) rotate(8deg); } }
+.larry-peek { position: absolute; bottom: 0; width: min(20vw, 240px); transform: translateY(100%); animation: lr-peek 3.6s ease-in-out forwards; }
+@keyframes lr-peek { 0% { transform: translateY(100%); } 22%, 72% { transform: translateY(58%); } 30% { transform: translateY(54%) rotate(-6deg); } 50% { transform: translateY(54%) rotate(7deg); } 100% { transform: translateY(105%); } }
+.larry-peek .lr-body, .larry-peek .lr-thigh, .larry-peek .lr-shin, .larry-peek .lr-upper, .larry-peek .lr-fore, .larry-wave .lr-thigh, .larry-wave .lr-shin, .larry-fall .lr-thigh, .larry-fall .lr-shin, .larry-fall .lr-upper, .larry-fall .lr-fore, .larry-fall .lr-body { animation: none !important; }
+.larry-peek .lr-jaw, .larry-wave .lr-jaw { animation-duration: .5s !important; }
+.larry-wave { position: absolute; right: 0; width: min(22vw, 260px); transform: translateX(110%); animation: lr-lean 3.4s ease-in-out forwards; }
+.larry-wave.rtl { right: auto; left: 0; transform: translateX(-110%); animation-name: lr-lean-rtl; }
+.larry-wave.rtl .larry-flip { transform: none; }
+.larry-wave:not(.rtl) .larry-flip { transform: scaleX(-1); }
+@keyframes lr-lean { 0% { transform: translateX(110%); } 18%, 80% { transform: translateX(28%) rotate(-6deg); } 100% { transform: translateX(115%); } }
+@keyframes lr-lean-rtl { 0% { transform: translateX(-110%); } 18%, 80% { transform: translateX(-28%) rotate(6deg); } 100% { transform: translateX(-115%); } }
+.larry-wave .lr-arm.front .lr-upper { animation: lr-wave-arm .32s ease-in-out infinite alternate !important; }
+@keyframes lr-wave-arm { from { transform: rotate(-150deg); } to { transform: rotate(-110deg); } }
+.larry-bubble { position: absolute; top: -6%; left: 50%; transform: translateX(-50%); background: #fff; color: #222; border-radius: 16px; padding: 8px 14px; font: 700 clamp(.8rem, 1.5vw, 1.05rem) var(--font-display); white-space: nowrap; box-shadow: 0 6px 18px rgb(0 0 0 / .25); }
+.larry-bubble::after { content: ""; position: absolute; bottom: -8px; left: 50%; border: 8px solid transparent; border-top-color: #fff; border-bottom: 0; transform: translateX(-50%); }
+.larry-chase { animation-duration: 2.2s !important; }
+.larry-tux { position: absolute; bottom: 2%; left: -34%; width: 62%; animation: lr-tux-bob .17s ease-in-out infinite alternate; }
+.larry-chase.rtl .larry-tux { left: auto; right: -34%; transform: scaleX(-1); }
+@keyframes lr-tux-bob { from { translate: 0 -6px; rotate: -6deg; } to { translate: 0 4px; rotate: 6deg; } }
+.larry-fall { position: absolute; top: 0; width: min(20vw, 240px); animation: lr-fall 4.6s cubic-bezier(.5, 0, .5, 1) forwards; }
+@keyframes lr-fall { 0% { transform: translateY(-110%); } 14% { transform: translateY(42vh); } 16% { transform: translateY(42vh) scaleY(.82); } 18% { transform: translateY(42vh); } 74% { transform: translateY(42vh); } 100% { transform: translateY(42vh) translateX(140vw); } }
+.larry-fall .larry-svg .lr-head, .larry-fall .larry-svg .lr-arm, .larry-fall .larry-svg .lr-leg, .larry-fall .larry-svg .lr-ribs { animation: lr-crumble 4.6s ease-in-out forwards !important; }
+.larry-fall .larry-svg .lr-head { --dx: 34px; --dy: 118px; --r: 40deg; }
+.larry-fall .larry-svg .lr-arm.front { --dx: 60px; --dy: 90px; --r: 80deg; }
+.larry-fall .larry-svg .lr-arm.back { --dx: -50px; --dy: 100px; --r: -70deg; }
+.larry-fall .larry-svg .lr-leg.front { --dx: 40px; --dy: 30px; --r: 70deg; }
+.larry-fall .larry-svg .lr-leg.back { --dx: -40px; --dy: 30px; --r: -80deg; }
+.larry-fall .larry-svg .lr-ribs { --dx: 0px; --dy: 80px; --r: 20deg; }
+@keyframes lr-crumble { 0%, 15% { transform: none; } 24%, 52% { transform: translate(var(--dx), var(--dy)) rotate(var(--r)); } 66%, 100% { transform: none; } }
+.larry-fall .larry-svg * { transform-origin: 104px 140px; }
+.larry-wave .larry-bubble { left: 34%; }
+.larry-wave.rtl .larry-bubble { left: 66%; }
 
 </style>
 </head>
@@ -5100,6 +5149,18 @@ DA.CMD_REF = {
 /* Every release, newest first. The What's New page and the after-update popup read from here.
    Add a new entry at the top whenever DA.VERSION changes. */
 DA.CHANGELOG = [
+  { v: "2.6.0", date: "2026-10-16", title: "Friends!", items: [
+    ["👥", "Accounts and friends", "Make an account with just a username and password (no email), then add friends by username. Find it under You → Friends."],
+    ["💻", "Terminals together", "Invite a friend into your practice terminal. You both type, you both see everything, every command is labelled with who typed it, and there's a chat on the side."],
+    ["🥊", "Live arcade duels", "Challenge a friend to any arcade game. Same round, same time, and you watch each other's score climb live. Then rematch."],
+    ["📊", "Compare and compete", "Side-by-side stats with any friend, a weekly friends leaderboard, and your win/loss record against each of them."]
+  ] },
+  { v: "2.5.0", date: "2026-10-16", title: "Larry's world gets bigger", items: [
+    ["💀", "Six kinds of Larry sightings", "He runs, moonwalks, peeks up from the bottom of the screen, leans in to say hi, gets chased by Tux, and sometimes falls from the sky and has to pull himself back together."],
+    ["🗂️", "20 Larry Files", "Eight new files to uncover. Try finger, check old logs in /var/log, dig through Larry's trash, and peek at his crontab (you'll need sudo)."],
+    ["🦴", "Larry has commands now", "larry help, larry say, larry fortune, larry joke, larry dance. And summon-larry takes a style: --moonwalk, --peek, --wave, --chase, --fall."],
+    ["🛠️", "Fixed", "Larry's clue commands sometimes printed an error instead of their output. They all work now, however you explore."]
+  ] },
   { v: "2.4.0", date: "2026-10-16", title: "The Larry Files", items: [
     ["🗂️", "Who is Larry?", "Twelve classified files tell Larry's story. They're hidden all over the practice terminals: start by looking around /home. A Larry Files page appears once you've found your first one."],
     ["🪧", "Larry has things to say", "Sometimes he runs past holding a sign. Read it fast."],
@@ -5175,7 +5236,7 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
 /* State, persistence (native file via the launcher, else localStorage), lessons and the user's machine. */
 (function () {
   const KEY = "distro-academy-v1";
-  DA.VERSION = "2.4.0";
+  DA.VERSION = "2.6.0";
 
   DA.defaults = () => ({
     v: 2,
@@ -5320,7 +5381,7 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
 /* The online server (Supabase). The key is the public "anon" key: it's meant to ship inside apps.
    What each signed-in person may do is enforced on the server by Row Level Security (server/schema.sql). */
 window.DA = window.DA || {};
-DA.ONLINE_CONFIG = { url: "", key: "" };
+DA.ONLINE_CONFIG = { url: "https://erstexcypkidzvzjajod.supabase.co", key: "sb_publishable_xQsD9W8Ivfhr6okUGlFJdA_26PA4l6A" };
 
 </script>
 <script>
@@ -5417,7 +5478,7 @@ DA.ONLINE_CONFIG = { url: "", key: "" };
 
   DA.checkBadges = () => {
     const got = DA.state.prog.badges; const fresh = [];
-    DA.BADGES.forEach(b => { if (!got[b.id] && b.ok()) { got[b.id] = Date.now(); fresh.push(b); } });
+    DA.BADGES.forEach(b => { let ok = false; try { ok = !got[b.id] && b.ok(); } catch (e) { console.error("badge check failed:", b.id, e); } if (ok) { got[b.id] = Date.now(); fresh.push(b); } });
     fresh.forEach((b, i) => setTimeout(() => { DA.toast(`${b.em} Badge unlocked: <b>${DA.esc(b.name)}</b>`, "xp"); DA.sound("level"); }, 600 + i * 900));
     if (fresh.length) DA.save();
     return fresh;
@@ -8126,6 +8187,175 @@ DA.ONLINE_CONFIG = { url: "", key: "" };
 
 </script>
 <script>
+/* Distro Academy online: accounts, friends and live multiplayer, on Supabase.
+   No libraries: plain fetch for auth and the database, and a small Phoenix-protocol client for
+   Supabase Realtime (presence, broadcast and database changes). Row Level Security on the server
+   decides what each person can read and write (see server/schema.sql). */
+(function () {
+  const CFG = () => DA.ONLINE_CONFIG || {};
+  DA.online = { enabled: () => !!(CFG().url && CFG().key) };
+  const O = DA.online;
+
+  // ---------- session (kept out of backups, like the AI key) ----------
+  const S = () => DA.state.account || null;
+  const setSession = s => { DA.state.account = s; DA.save(); DA.emit("account"); };
+  O.me = () => S()?.user || null;
+  O.signedIn = () => !!S()?.access_token;
+
+  const emailFor = username => `${username.toLowerCase()}@users.distro-academy.invalid`;
+  async function req(method, path, body, { auth = true, headers = {} } = {}) {
+    if (!O.enabled()) throw new Error("Online features aren't set up in this copy of the app.");
+    if (auth) await O.freshToken();
+    const h = { apikey: CFG().key, Authorization: `Bearer ${auth && S()?.access_token ? S().access_token : CFG().key}`, ...headers };
+    if (body !== undefined) h["Content-Type"] = "application/json";
+    let r;
+    try { r = await fetch(CFG().url + path, { method, headers: h, body: body === undefined ? undefined : JSON.stringify(body) }); }
+    catch { throw new Error("Can't reach the server. Check your internet connection."); }
+    const text = await r.text(); let data = null;
+    try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+    if (!r.ok) {
+      const msg = data?.msg || data?.message || data?.error_description || data?.error || `Server error ${r.status}`;
+      if (r.status === 401 && auth) { /* token revoked or account deleted */ }
+      throw Object.assign(new Error(friendly(msg)), { status: r.status, data });
+    }
+    return data;
+  }
+  const friendly = m => /invalid login credentials/i.test(m) ? "Wrong username or password."
+    : /already registered|already exists/i.test(m) ? "That username is taken."
+    : /password should be at least/i.test(m) ? "Passwords need at least 8 characters."
+    : /duplicate key.*friendships/i.test(m) ? "You've already sent a request (or you're already friends)."
+    : m;
+  O.req = req;
+
+  // ---------- accounts ----------
+  const keepSession = d => setSession({ access_token: d.access_token, refresh_token: d.refresh_token, expires_at: Date.now() + (d.expires_in || 3600) * 1000, user: { id: d.user.id, username: d.user.user_metadata?.username || "" } });
+  O.usernameAvailable = name => req("POST", "/rest/v1/rpc/username_available", { name }, { auth: false });
+  O.signUp = async (username, password, displayName) => {
+    username = username.trim().toLowerCase();
+    if (!/^[a-z0-9_]{3,20}$/.test(username)) throw new Error("Usernames are 3–20 letters, numbers or _.");
+    if (password.length < 8) throw new Error("Passwords need at least 8 characters.");
+    if (!(await O.usernameAvailable(username))) throw new Error("That username is taken.");
+    const d = await req("POST", "/auth/v1/signup", { email: emailFor(username), password, data: { username, display_name: (displayName || "").slice(0, 30) } }, { auth: false });
+    if (!d.access_token) throw new Error("Account created, but the server wants an email confirmation. Ask the app's owner to turn that off.");
+    keepSession(d); await O.syncProfile(true); O.connect(); return O.me();
+  };
+  O.logIn = async (username, password) => {
+    const d = await req("POST", "/auth/v1/token?grant_type=password", { email: emailFor(username.trim()), password }, { auth: false });
+    keepSession(d); await O.syncProfile(true); O.connect(); return O.me();
+  };
+  O.logOut = async () => { try { await req("POST", "/auth/v1/logout", {}); } catch { /* already gone */ } O.disconnect(); setSession(null); };
+  O.deleteAccount = async () => { await req("POST", "/rest/v1/rpc/delete_my_account", {}); O.disconnect(); setSession(null); };
+  O.changePassword = password => req("PUT", "/auth/v1/user", { password });
+  let refreshing = null;
+  O.freshToken = async () => {
+    const s = S(); if (!s?.refresh_token) return;
+    if (s.expires_at - Date.now() > 60000) return;
+    refreshing = refreshing || (async () => {
+      try { const d = await req("POST", "/auth/v1/token?grant_type=refresh_token", { refresh_token: s.refresh_token }, { auth: false }); keepSession(d); rt?.setToken(d.access_token); }
+      catch (e) { if (e.status === 400 || e.status === 401) setSession(null); }
+      finally { refreshing = null; }
+    })();
+    return refreshing;
+  };
+
+  // ---------- profile & stats ----------
+  O.myStats = () => {
+    const p = DA.state.prog, rk = DA.rank(), a = p.arcade || {};
+    const weekStart = DA.weekKey(); let weekXP = 0; for (let i = 0; i < 7; i++) weekXP += p.days[DA.addDays(weekStart, i)] || 0;
+    return { xp: p.xp, rank: rk.name, rankEm: rk.em, streak: DA.streak(), best: DA.bestStreak(), weekXP, lessons: Object.keys(p.lessons).length, labs: Object.keys(p.labs || {}).length,
+      badges: Object.keys(p.badges).length, stamps: Object.keys(p.stamps).length, exams: Object.values(p.exams || {}).filter(e => e.pass).length, distro: DA.myDistro().name, distroId: DA.myDistro().id,
+      arcade: { sprint: a.sprint || 0, quiz: a.quiz || 0, typo: a.typo || 0, flags: a.flags || 0 }, larry: Object.keys(p.larryLore || {}).length, outfit: DA.state.settings.outfit, at: Date.now() };
+  };
+  O.syncProfile = async (now) => {
+    if (!O.signedIn()) return;
+    const body = { stats: O.myStats(), avatar: DA.state.profile.avatar || "tux", updated_at: new Date().toISOString() };
+    if (DA.state.profile.name) body.display_name = DA.state.profile.name.slice(0, 30);
+    await req("PATCH", `/rest/v1/profiles?id=eq.${O.me().id}`, body, { headers: { Prefer: "return=minimal" } });
+    if (now) { const [me] = await req("GET", `/rest/v1/profiles?id=eq.${O.me().id}&select=username`); if (me) { S().user.username = me.username; DA.save(); } }
+  };
+  const syncSoon = DA.debounce(() => O.syncProfile().catch(() => {}), 20000);
+  DA.on("xp", () => { if (O.signedIn()) syncSoon(); });
+
+  // ---------- friends ----------
+  const PROFILE = "id,username,display_name,avatar,stats,updated_at";
+  O.search = q => req("GET", `/rest/v1/profiles?select=${PROFILE}&username=ilike.*${encodeURIComponent(q.trim().toLowerCase().replace(/[^a-z0-9_]/g, ""))}*&id=neq.${O.me().id}&order=username&limit=12`);
+  O.friendships = () => req("GET", `/rest/v1/friendships?select=id,status,created_at,requester:profiles!friendships_requester_fkey(${PROFILE}),addressee:profiles!friendships_addressee_fkey(${PROFILE})&order=created_at.desc`);
+  O.sendRequest = id => req("POST", "/rest/v1/friendships", { requester: O.me().id, addressee: id }, { headers: { Prefer: "return=minimal" } });
+  O.accept = fid => req("PATCH", `/rest/v1/friendships?id=eq.${fid}`, { status: "accepted" }, { headers: { Prefer: "return=minimal" } });
+  O.removeFriendship = fid => req("DELETE", `/rest/v1/friendships?id=eq.${fid}`);
+  O.invite = (recipient, kind, detail = {}) => req("POST", "/rest/v1/invites", { sender: O.me().id, recipient, kind, detail }, { headers: { Prefer: "return=representation" } }).then(r => r[0]);
+  O.invites = () => req("GET", `/rest/v1/invites?select=id,kind,room,detail,status,created_at,sender:profiles!invites_sender_fkey(${PROFILE}),recipient:profiles!invites_recipient_fkey(${PROFILE})&status=eq.open&created_at=gt.${new Date(Date.now() - 30 * 60000).toISOString()}&order=created_at.desc`);
+  O.answerInvite = (id, status) => req("PATCH", `/rest/v1/invites?id=eq.${id}`, { status }, { headers: { Prefer: "return=minimal" } });
+  O.recordDuel = (room, game, opponent, score) => req("POST", "/rest/v1/duel_results", { room, game, player: O.me().id, opponent, score }, { headers: { Prefer: "return=minimal" } });
+  O.duelHistory = () => req("GET", "/rest/v1/duel_results?select=room,game,player,opponent,score,created_at&order=created_at.desc&limit=200");
+
+  // ---------- Realtime (Phoenix channels over a WebSocket) ----------
+  class Realtime {
+    constructor(token) { this.token = token; this.ref = 0; this.channels = new Map(); this.open = false; this.connect(); }
+    connect() {
+      const u = CFG().url.replace(/^http/, "ws") + `/realtime/v1/websocket?apikey=${encodeURIComponent(CFG().key)}&vsn=1.0.0`;
+      this.ws = new WebSocket(u);
+      this.ws.onopen = () => { this.open = true; this.tries = 0; this.channels.forEach(c => c.join()); this.hb = setInterval(() => this.push("phoenix", "heartbeat", {}), 25000); };
+      this.ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch { return; } this.channels.get(m.topic)?.receive(m); };
+      this.ws.onclose = () => { this.open = false; clearInterval(this.hb); if (this.closed) return; this.tries = (this.tries || 0) + 1; setTimeout(() => !this.closed && this.connect(), Math.min(30000, 1000 * 2 ** this.tries)); };
+    }
+    push(topic, event, payload, joinRef) { if (!this.open) return; this.ws.send(JSON.stringify({ topic, event, payload, ref: String(++this.ref), join_ref: joinRef })); }
+    setToken(t) { this.token = t; this.channels.forEach(c => c.joined && this.push(c.topic, "access_token", { access_token: t }, c.joinRef)); }
+    channel(name, opts = {}) { const c = new Channel(this, name, opts); this.channels.set(c.topic, c); if (this.open) c.join(); return c; }
+    close() { this.closed = true; this.channels.forEach(c => c.leave()); try { this.ws.close(); } catch { /* fine */ } }
+  }
+  class Channel {
+    constructor(rt, name, opts) { this.rt = rt; this.topic = "realtime:" + name; this.opts = opts; this.handlers = {}; this.presence = {}; }
+    join() {
+      this.joinRef = String(++this.rt.ref);
+      const config = { broadcast: { self: false, ack: false }, presence: { key: this.opts.presenceKey || "" }, postgres_changes: this.opts.changes || [], private: false };
+      this.rt.ws.send(JSON.stringify({ topic: this.topic, event: "phx_join", payload: { config, access_token: this.rt.token }, ref: this.joinRef, join_ref: this.joinRef }));
+    }
+    receive(m) {
+      if (m.event === "phx_reply" && m.ref === this.joinRef) { this.joined = m.payload?.status === "ok"; if (this.joined) { if (this.tracked) this.track(this.tracked); this.fire("joined"); } else this.fire("error", m.payload?.response); return; }
+      if (m.event === "broadcast") return this.fire("b:" + m.payload.event, m.payload.payload);
+      if (m.event === "postgres_changes") return this.fire("db", m.payload.data);
+      if (m.event === "presence_state") { this.presence = {}; Object.entries(m.payload).forEach(([k, v]) => this.presence[k] = v.metas); return this.fire("presence", this.presence); }
+      if (m.event === "presence_diff") {
+        Object.entries(m.payload.joins || {}).forEach(([k, v]) => this.presence[k] = v.metas);
+        Object.keys(m.payload.leaves || {}).forEach(k => { if (!m.payload.joins?.[k]) delete this.presence[k]; });
+        return this.fire("presence", this.presence);
+      }
+    }
+    on(ev, fn) { (this.handlers[ev] = this.handlers[ev] || []).push(fn); return this; }
+    onBroadcast(ev, fn) { return this.on("b:" + ev, fn); }
+    fire(ev, data) { (this.handlers[ev] || []).forEach(fn => { try { fn(data); } catch (e) { console.error(e); } }); }
+    send(event, payload) { this.rt.push(this.topic, "broadcast", { type: "broadcast", event, payload }, this.joinRef); }
+    track(payload) { this.tracked = payload; if (this.joined) this.rt.push(this.topic, "presence", { type: "presence", event: "track", payload }, this.joinRef); }
+    leave() { if (this.rt.open) this.rt.push(this.topic, "phx_leave", {}, this.joinRef); this.rt.channels.delete(this.topic); }
+  }
+  let rt = null, lobby = null, inbox = null;
+  O.online = {}; // who's online right now: { userId: {username, at} }
+  O.channel = (name, opts) => rt?.channel(name, opts);
+  O.connect = () => {
+    if (!O.signedIn() || rt) return;
+    rt = new Realtime(S().access_token);
+    lobby = rt.channel("lobby", { presenceKey: O.me().id });
+    lobby.on("joined", () => lobby.track({ u: O.me().username, at: Date.now() }));
+    lobby.on("presence", p => { O.online = Object.fromEntries(Object.entries(p).map(([k, metas]) => [k, metas[0]])); DA.emit("presence", O.online); });
+    inbox = rt.channel("inbox:" + O.me().id, { changes: [
+      { event: "INSERT", schema: "public", table: "invites", filter: `recipient=eq.${O.me().id}` },
+      { event: "*", schema: "public", table: "friendships" }
+    ] });
+    inbox.on("db", d => {
+      if (d.table === "invites" && d.type === "INSERT") DA.emit("invite", d.record);
+      if (d.table === "friendships") DA.emit("friends-changed", d);
+    });
+  };
+  O.disconnect = () => { rt?.close(); rt = lobby = inbox = null; O.online = {}; };
+  O.Realtime = Realtime;
+
+  // Start when the app starts, if you're signed in.
+  DA.on("ready", () => { if (O.enabled() && O.signedIn()) { O.freshToken().then(() => { O.connect(); O.syncProfile().catch(() => {}); }); } });
+})();
+
+</script>
+<script>
 /* Home: hero, inline daily challenge and dashboard widgets. */
 (function () {
   const { esc, icon, $, $$ } = DA;
@@ -9260,7 +9490,8 @@ DA.ONLINE_CONFIG = { url: "", key: "" };
    treated as untrusted text: it's escaped before it reaches the page. */
 (function () {
   const { esc, icon, $, $$ } = DA;
-  const ui = () => DA.ui, O = DA.online;
+  const ui = () => DA.ui;
+  const O = new Proxy({}, { get: (_, k) => DA.online[k] });
   const GAMES = () => DA.ARCADE_GAMES;
   const nameOf = p => p?.display_name || p?.username || "friend";
   const av = p => `<span class="avatar fr-av">${DA.avatarHTML(p?.avatar || "tux")}</span>`;
@@ -9289,6 +9520,7 @@ DA.ONLINE_CONFIG = { url: "", key: "" };
     const incoming = F.filter(f => f.status === "pending" && f.addressee.id === me.id);
     const outgoing = F.filter(f => f.status === "pending" && f.requester.id === me.id);
     const invites = cache.invites.filter(i => i.recipient.id === me.id);
+    if (friends.length) DA.larryUnlock?.("friends");
     const mine = O.myStats();
     friends.sort((a, b) => (O.online[b.p.id] ? 1 : 0) - (O.online[a.p.id] ? 1 : 0) || (b.p.stats?.xp || 0) - (a.p.stats?.xp || 0));
     const record = id => { const games = {}; cache.duels.forEach(r => { if (r.opponent === id || r.player === id) (games[r.room] = games[r.room] || {})[r.player === me.id ? "me" : "them"] = r.score; }); const done = Object.values(games).filter(g => g.me != null && g.them != null); return { w: done.filter(g => g.me > g.them).length, l: done.filter(g => g.me < g.them).length, t: done.filter(g => g.me === g.them).length }; };
@@ -9470,7 +9702,7 @@ DA.ONLINE_CONFIG = { url: "", key: "" };
       term.drawPrompt = () => { baseDraw(); ch.send("prompt", { s: term.promptText() }); };
       let who = myName;
       term.promptText = () => (who !== myName ? DA.TERM.col("c", `[${who}] `) : "") + basePromptText();
-      ch.onBroadcast("cmd", ({ cmd, name }) => { if (typeof cmd !== "string" || cmd.length > 500) return; who = String(name || peer.username).slice(0, 30); term.inEl.value = cmd; term.submit(); who = myName; });
+      ch.onBroadcast("cmd", ({ cmd, name }) => { if (typeof cmd !== "string" || cmd.length > 500) return; who = String(name || peer.username).slice(0, 30); term.inEl.value = cmd; term.submit(); who = myName; term.drawPrompt(); });
       ch.onBroadcast("hello", () => ch.send("sync", { lines: transcript.slice(-200), prompt: term.promptText() }));
     } else {
       // Guests send what they type to the host, and show whatever the host's terminal prints.
@@ -9633,26 +9865,57 @@ DA.SCREAM_096_OGG = "T2dnUwACAAAAAAAAAADTDAAAAAAAAD5jNBwBHgF2b3JiaXMAAAAAAkSsAAA
     } catch { return () => {}; }
   };
 
-  // ---------- the run ----------
+  // ---------- bone rattle (for the quieter appearances) ----------
+  DA.larryRattle = (n = 9) => {
+    if (!DA.state?.settings.learn.sound) return;
+    try {
+      const a = ctx(), len = Math.floor(a.sampleRate * 0.03);
+      for (let k = 0; k < n; k++) {
+        const t = a.currentTime + 0.02 + k * (0.05 + Math.random() * 0.04), buf = a.createBuffer(1, len, a.sampleRate), d = buf.getChannelData(0);
+        for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 6);
+        const src = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+        src.buffer = buf; f.type = "bandpass"; f.frequency.value = 1800 + Math.random() * 2200; f.Q.value = 3; g.gain.value = VOLUME * 1.4;
+        src.connect(f).connect(g).connect(a.destination); src.start(t);
+      }
+    } catch { /* no audio */ }
+  };
+
+  // ---------- appearances ----------
+  // run: the classic sprint · moonwalk: glides backwards · peek: rises from the bottom edge and looks around
+  // wave: leans in from the side to say hi · chase: flees from Tux · fall: drops in, falls apart, pulls himself together
+  const SIGNS = ["MAKE A BACKUP", "rm -rf / was a mistake", "I use Arch btw", "READ THE MAN PAGE", "chmod 777 is NOT a fix", "sudo make me a sandwich", "have you tried rebooting", "it's always DNS", "never trust a script you didn't read", "I ♥ init", "git commit early, git commit often", "test it in a VM first"];
+  const WAVES = ["hi :)", "made a backup today?", "nice terminal skills", "don't mind me", "boo.", "I'm just passing through", "you're doing great", "keep learning!"];
+  DA.LARRY_STYLES = { run: 34, moonwalk: 14, peek: 16, wave: 12, chase: 14, fall: 10 };
+  const pickStyle = () => { let r = Math.random() * 100; for (const [k, w] of Object.entries(DA.LARRY_STYLES)) { if ((r -= w) < 0) return k; } return "run"; };
   let running = false;
-  DA.summonLarry = (why = "random") => {
+  DA.summonLarry = (why = "random", style) => {
     if (running || !document.body) return false;
+    style = DA.LARRY_STYLES[style] !== undefined ? style : pickStyle();
     running = true;
-    const rtl = Math.random() < 0.5, top = 14 + Math.random() * 26;
-    // Sometimes Larry brings a message.
-    const SIGNS = ["MAKE A BACKUP", "rm -rf / was a mistake", "I use Arch btw", "READ THE MAN PAGE", "chmod 777 is NOT a fix", "sudo make me a sandwich", "have you tried rebooting", "it's always DNS", "never trust a script you didn't read", "I ♥ init"];
-    const sign = Math.random() < 0.35 ? `<div class="larry-sign">${DA.esc(DA.pick(SIGNS))}</div>` : "";
-    const el = DA.h(`<div class="larry-run ${rtl ? "rtl" : ""}" style="top:${top}vh" aria-hidden="true">${sign}<div class="larry-flip">${DA.LARRY_SVG}</div></div>`);
+    const rtl = Math.random() < 0.5, top = 14 + Math.random() * 26, x = 12 + Math.random() * 62;
+    const sign = (style === "run" || style === "chase") && Math.random() < 0.35 ? `<div class="larry-sign">${DA.esc(DA.pick(SIGNS))}</div>` : "";
+    const L = `<div class="larry-flip">${DA.LARRY_SVG}</div>`;
+    const html = {
+      run: `<div class="larry-run ${rtl ? "rtl" : ""}" style="top:${top}vh">${sign}${L}</div>`,
+      moonwalk: `<div class="larry-run larry-moon ${rtl ? "rtl" : ""}" style="top:${top}vh"><div class="larry-notes">♪ ♫ ♪</div>${L}</div>`,
+      peek: `<div class="larry-peek" style="left:${x}vw">${L}</div>`,
+      wave: `<div class="larry-wave ${rtl ? "rtl" : ""}" style="top:${18 + Math.random() * 30}vh"><div class="larry-bubble">${DA.esc(DA.pick(WAVES))}</div>${L}</div>`,
+      chase: `<div class="larry-run larry-chase ${rtl ? "rtl" : ""}" style="top:${top}vh">${sign}${L}<div class="larry-tux">${DA.TUX("chase-tux")}</div></div>`,
+      fall: `<div class="larry-fall" style="left:${x}vw">${L}</div>`
+    }[style];
+    const el = DA.h(`<div class="larry-stage" aria-hidden="true">${html}</div>`);
     document.body.appendChild(el);
-    DA.scream(RUN + 1.1); // the scream trails behind him
+    const life = { run: RUN, moonwalk: 4.2, peek: 3.6, wave: 3.4, chase: RUN + 0.9, fall: 4.6 }[style];
+    if (style === "run" || style === "chase") DA.scream(life + 1.1);
+    else if (style === "fall") { setTimeout(() => DA.larryRattle(14), 650); setTimeout(() => DA.scream(1.6), 2900); }
+    else DA.larryRattle(style === "moonwalk" ? 16 : 8);
     const p = DA.state.prog, prev = p.larry || p.advisor || {};
-    p.larry = { seen: (prev.seen || 0) + (why === "random" ? 1 : 0), summoned: (prev.summoned || 0) + (why === "summon" ? 1 : 0), last: Date.now() };
-    DA.save(); setTimeout(() => DA.checkBadges(), RUN * 500);
-    DA.emit("larry", { why });
-    const done = () => { if (!el.isConnected) return; el.remove(); running = false; };
-    el.addEventListener("animationend", e => { if (e.target === el) done(); });
-    setTimeout(done, RUN * 1000 + 600);
-    return true;
+    p.larry = { seen: (prev.seen || 0) + (why === "random" ? 1 : 0), summoned: (prev.summoned || 0) + (why === "summon" ? 1 : 0), last: Date.now(), styles: { ...(prev.styles || {}), [style]: (prev.styles?.[style] || 0) + 1 } };
+    DA.save(); setTimeout(() => DA.checkBadges(), life * 500);
+    DA.emit("larry", { why, style });
+    const done = () => { running = false; el.remove(); };
+    setTimeout(done, life * 1000 + 400);
+    return style;
   };
 
   // Roll the dice once a minute, only while someone can actually see it.
@@ -9661,9 +9924,11 @@ DA.SCREAM_096_OGG = "T2dnUwACAAAAAAAAAADTDAAAAAAAAD5jNBwBHgF2b3JiaXMAAAAAAkSsAAA
     if (Math.random() < CHANCE) DA.summonLarry("random");
   }, EVERY_MS);
 
-  if (DA.TERM?.CMDS) DA.TERM.CMDS["summon-larry"] = function () {
-    setTimeout(() => DA.summonLarry("summon"), 400);
-    return DA.TERM.col("d", "💀 You hear rattling bones…");
+  if (DA.TERM?.CMDS) DA.TERM.CMDS["summon-larry"] = function (a) {
+    const style = (a.find(x => x.startsWith("--")) || "").slice(2);
+    if (style && DA.LARRY_STYLES[style] === undefined) return { ok: false, out: `summon-larry: unknown style '${style}'\n` + DA.TERM.col("m", `Try: ${Object.keys(DA.LARRY_STYLES).map(k => "--" + k).join(" ")}`) };
+    setTimeout(() => DA.summonLarry("summon", style || undefined), 400);
+    return DA.TERM.col("d", { peek: "👀 Something is watching you…", moonwalk: "🕺 You hear a smooth beat… and rattling bones.", wave: "👋 Someone wants to say hi…", chase: "🐧 Tux is on the hunt…", fall: "⬇️  Look up.", run: "💀 You hear rattling bones…" }[style] || "💀 You hear rattling bones…");
   };
 
   DA.BADGES.push(
@@ -9704,7 +9969,23 @@ DA.SCREAM_096_OGG = "T2dnUwACAAAAAAAAAADTDAAAAAAAAD5jNBwBHgF2b3JiaXMAAAAAAkSsAAA
       text: "Summon Larry between midnight and 4 am and he moves differently: slower, almost thoughtful. Night-shift habits die hard. The lab was always empty at that hour. Just Larry, the hum of the server, and the blinking cursor." },
     { id: "wild", n: "011", title: "A true sighting", hint: "Summoning doesn't count. Let him find you.",
       text: "Larry came on his own. No command, no warning. Researchers believe he picks people who are learning: the ones typing commands, trying things, breaking things on purpose in the sandbox. He's checking on you. In his own screaming way, he's rooting for you." },
-    { id: "truth", n: "012", title: "The truth about Larry", hint: "Collect every other file.",
+    { id: "finger", n: "012", title: "The .plan", hint: "Old Unix had a command for looking people up. Point it at Larry.",
+      text: "finger larry still works. Last login: Fri Oct 18 16:59 1996 on tty1. Unread mail: 4,812 messages, all from sudo. Plan: haunt terminals until everyone makes backups. Status: 0% complete. (finger was how people looked each other up before social media. Really.)" },
+    { id: "incident", n: "013", title: "The incident log", hint: "Logs live in /var/log. One of them is very old.",
+      text: "/var/log/incident-1996.log records the lab server's last three seconds: rm tearing through /bin, /etc, /usr… then a kernel panic. The final line, at 16:59:59, isn't from the system at all. It just says: larry: oh no." },
+    { id: "mug", n: "014", title: "The mug", hint: "Deleted things often aren't gone. Check Larry's trash.",
+      text: "Larry's Trash folder holds a photo of a coffee mug reading 'I ♥ init'. He loved the old init scripts. He never lived to see systemd, and people still argue about which side he'd have taken. (On Linux desktops, deleted files go to ~/.local/share/Trash first. rm skips the trash entirely.)" },
+    { id: "cron", n: "015", title: "The scheduled scream", hint: "Some jobs run on a timer. Look at Larry's (you'll need root).",
+      text: "Larry's crontab holds a single job: * * * * * /usr/bin/scream. Five stars means every minute of every hour of every day. That's why he can turn up any time. Cron never forgets, and neither does Larry." },
+    { id: "fortune", n: "016", title: "Larry's wisdom", hint: "Larry gives advice, if you ask his command for a fortune.",
+      text: "larry fortune dispenses ancient wisdom. Every single fortune is about backups. When asked if he had any other advice, Larry screamed for nine seconds and left." },
+    { id: "moonwalk", n: "017", title: "Smooth criminal", hint: "Catch Larry dancing.",
+      text: "Witnesses report Larry moonwalking across their screens. Night shifts in 1996 were long and the server room floor was freshly waxed. He practiced. A lot." },
+    { id: "chase", n: "018", title: "Tux and Larry", hint: "Catch Tux chasing someone.",
+      text: "Tux has been chasing Larry for years. Some say Tux is trying to hand him a backup drive. Others say Larry still owes Tux a coffee from 1996. Tux isn't talking. Tux never talks." },
+    { id: "friends", n: "019", title: "Larry's friends", hint: "Larry worked alone. Don't be like Larry.",
+      text: "Larry spent every night alone with a humming server. When you made a friend in Distro Academy, somewhere a skeleton nodded approvingly. Hack with friends. Ask for help. Have someone check your rm commands." },
+    { id: "truth", n: "020", title: "The truth about Larry", hint: "Collect every other file.",
       text: "Larry isn't a curse. He's a reminder. Every time he screams across your screen, he's yelling the thing he never got to hear in 1996: MAKE A BACKUP. Read your commands before pressing Enter. Test things in a sandbox first. Learn from the skeleton. Be better than Larry. (He'd want that.)" }
   ];
   const unlocked = id => !!lore()[id];
@@ -9725,10 +10006,13 @@ DA.SCREAM_096_OGG = "T2dnUwACAAAAAAAAAADTDAAAAAAAAD5jNBwBHgF2b3JiaXMAAAAAAkSsAAA
       "diary.txt": file("Oct 3 1996: Night shift again. Server's purring. Coffee's cold. Life is good.\nOct 10 1996: Someone asked if I back up the server. Backups are for people who make mistakes.\nOct 17 1996: Disk is getting full. I'll clean out /tmp on Friday.\nOct 18 1996, 4:58 pm: Friday. Cleaning up. Then home for the weekend.", "larry", "644"),
       ".bash_history": file("ls\ncd /tmp\nls -la\nsudo rm -rf / tmp/old-logs\nsudo rm -rf / --no-preserve-root\n# why is it taking so long", "larry", "600"),
       "README": file("if you are reading this, MAKE A BACKUP.\n            - L", "larry", "644"),
-      ".plan": file("Plan: haunt terminals until everyone makes backups.\nStatus: 0% complete.", "larry", "644")
+      ".plan": file("Plan: haunt terminals until everyone makes backups.\nStatus: 0% complete.", "larry", "644"),
+      ".local": dir({ share: dir({ Trash: dir({ files: dir({ "mug-photo.txt": file("[photo] A chipped coffee mug. It says: I ♥ init\n(found in Larry's trash. He never emptied it.)", "larry", "644") }, "larry", "755") }, "larry", "755") }, "larry", "755") }, "larry", "755")
     }, "larry", "755");
+    root.kids.var.kids.log.kids["incident-1996.log"] = file("Oct 18 16:59:57 labserver sudo:   larry : COMMAND=/bin/rm -rf / --no-preserve-root\nOct 18 16:59:57 labserver rm: removing /bin/...\nOct 18 16:59:58 labserver rm: removing /etc/...\nOct 18 16:59:58 labserver rm: removing /usr/...\nOct 18 16:59:59 labserver kernel: Kernel panic - not syncing: Attempted to kill init!\nOct 18 16:59:59 labserver larry: oh no", "root", "644");
     root.kids.etc.kids.passwd.text += "\nlarry:x:666:666:Larry,,,night shift:/home/larry:/bin/scream";
   });
+  (DA.TERM_RESET = DA.TERM_RESET || []).push(function () { if (this.users) this.users.larry = { uid: 666, groups: ["larry", "night-shift"] }; });
   const T = DA.TERM.CMDS;
   const baseCat = T.cat;
   T.cat = function (a, o) {
@@ -9736,19 +10020,47 @@ DA.SCREAM_096_OGG = "T2dnUwACAAAAAAAAAADTDAAAAAAAAD5jNBwBHgF2b3JiaXMAAAAAAkSsAAA
     const paths = a.map(p => this.abs(p));
     if (paths.includes("/home/larry/.bash_history") && !o.sudo && this.user !== "larry") return { ok: false, out: `cat: ${a.find(p => this.abs(p) === "/home/larry/.bash_history")}: Permission denied\n` + col("m", "💡 It's Larry's private file (mode 600). Only Larry, or root, can read it.") };
     if (paths.includes("/home/larry/diary.txt")) DA.larryUnlock("diary");
+    if (paths.includes("/var/log/incident-1996.log")) DA.larryUnlock("incident");
+    if (paths.includes("/home/larry/.local/share/Trash/files/mug-photo.txt")) DA.larryUnlock("mug");
     if (paths.includes("/home/larry/.bash_history")) DA.larryUnlock("history");
     return r;
   };
   const baseLs = T.ls;
   T.ls = function (a, o) {
     const r = baseLs.call(this, a, o);
-    const targets = a.filter(x => !x.startsWith("-")).map(p => this.abs(p));
+    const named = a.filter(x => !x.startsWith("-")), targets = (named.length ? named : ["."]).map(p => this.abs(p));
     if (targets.some(p => p === "/home" || p.startsWith("/home/larry"))) DA.larryUnlock("home");
     return r;
   };
+  const SKULL = "        .-\"\"\"-.\n       /  x  x \\\n       |   ^   |\n        \\ '-' /\n         '---'";
+  const FORTUNES = ["There are two kinds of people: those who back up, and those who will.", "rm doesn't ask twice. Neither does fate.", "A backup you never tested is just a hope.", "Read the command. Then read it again. Then press Enter.", "The cloud is just someone else's computer. Back that up too.", "Friday 4:59 pm is not the time for rm -rf.", "Snapshots are cheap. Regret is expensive.", "If it's not in two places, it doesn't exist.", "sudo means 'I know what I'm doing'. Do you?", "Today is a good day to run rsync."];
+  const say = text => { const t = String(text || "boo.").slice(0, 60); return ` ${"_".repeat(t.length + 2)}\n< ${t} >\n ${"-".repeat(t.length + 2)}\n    \\\n     \\\n` + SKULL; };
   T.larry = function (a) {
-    if (a.includes("--version") || a.includes("-v")) { DA.larryUnlock("version"); return "larry 0.0.1 (never updated)\nCopyright (C) 1996 Larry. No backups reserved."; }
-    return col("d", "      .-\"\"\"-.\n     /  x  x \\\n     |   ^   |   AAAAAAAAAAAAAAA\n      \\ '-' /\n       '---'\n") + col("m", "larry: usage: larry [--version] (or try summon-larry)");
+    const sub = a[0] || "";
+    if (sub === "--version" || sub === "-v") { DA.larryUnlock("version"); return "larry 0.0.1 (never updated)\nCopyright (C) 1996 Larry. No backups reserved."; }
+    if (sub === "say") return col("d", say(a.slice(1).join(" ")));
+    if (sub === "fortune") { DA.larryUnlock("fortune"); return col("d", say(DA.pick(FORTUNES))); }
+    if (sub === "joke") return col("d", say(DA.pick(["Why did I cross the screen? To get to the other backup.", "I'd tell you a UDP joke but you might not get it.", "My favourite file system? ext4. I'm very attached to my bones.", "I don't have a body. Just a shell.", "Knock knock. Who's there? 404. 404 who? Exactly."])));
+    if (sub === "dance") { setTimeout(() => DA.summonLarry("summon", "moonwalk"), 300); return col("d", "🕺 larry: hit it!"); }
+    if (sub === "scream") { setTimeout(() => DA.summonLarry("summon", "run"), 300); return col("d", "AAAAAAAAAAAAAAAAAAAAAAAAA"); }
+    if (sub === "peek") { setTimeout(() => DA.summonLarry("summon", "peek"), 300); return col("d", "👀"); }
+    if (sub === "help" || sub === "--help" || sub === "-h") return `larry 0.0.1, a skeleton who screams\n\n${col("k", "usage:")} larry <command>\n  say TEXT   larry says something\n  fortune    ancient backup wisdom\n  joke       a skeleton joke\n  dance      you'll see\n  peek       he's watching\n  scream     why would you\n  --version  version info\n\nAlso: summon-larry [--run|--moonwalk|--peek|--wave|--chase|--fall]`;
+    return col("d", SKULL + "   AAAAAAAAAAAAAAA") + "\n" + col("m", "larry: try 'larry help'");
+  };
+  T.finger = function (a) {
+    const who = a.filter(x => !x.startsWith("-"))[0] || this.user;
+    if (who === "larry") { DA.larryUnlock("finger"); return "Login: larry          \t\t\tName: Larry\nDirectory: /home/larry          \tShell: /bin/scream\nLast login Fri Oct 18 16:59 (CDT) 1996 on tty1\nNew mail received Fri Oct 16 19:00 2026\n     Unread since Fri Oct 18 16:59 1996 (4,812 messages, all from sudo)\nPlan:\nhaunt terminals until everyone makes backups.\nStatus: 0% complete."; }
+    if (who === this.user) return `Login: ${who}          \t\t\tName: ${DA.displayName()}\nDirectory: ${this.home}          \tShell: /usr/bin/${DA.shellName(this.d)}\nOn since today on pts/0\nNo Plan.`;
+    return { ok: false, out: `finger: ${who}: no such user.` };
+  };
+  const baseCron = T.crontab;
+  T.crontab = function (a, o) {
+    const u = a.indexOf("-u");
+    if (u >= 0 && a[u + 1] === "larry") {
+      if (!o.sudo) return { ok: false, out: "must be privileged to use -u\n" + col("m", "💡 Reading someone else's crontab needs sudo.") };
+      DA.larryUnlock("cron"); return "# m h dom mon dow command\n* * * * * /usr/bin/scream";
+    }
+    return baseCron.call(this, a, o);
   };
   const baseMan = T.man;
   T.man = function (a, o) {
@@ -9787,9 +10099,11 @@ DA.SCREAM_096_OGG = "T2dnUwACAAAAAAAAAADTDAAAAAAAAD5jNBwBHgF2b3JiaXMAAAAAAkSsAAA
     return r;
   };
 
-  // Sightings and the 3 am rule come from the run itself.
-  DA.on("larry", ({ why }) => {
+  // Sightings, styles and the 3 am rule come from the appearance itself.
+  DA.on("larry", ({ why, style }) => {
     DA.larryUnlock("sighting");
+    if (style === "moonwalk") setTimeout(() => DA.larryUnlock("moonwalk"), 1500);
+    if (style === "chase") setTimeout(() => DA.larryUnlock("chase"), 1500);
     if (why === "random") DA.larryUnlock("wild");
     const h = new Date().getHours();
     if (why === "summon" && h < 4) DA.larryUnlock("night");
@@ -9808,6 +10122,19 @@ DA.SCREAM_096_OGG = "T2dnUwACAAAAAAAAAADTDAAAAAAAAD5jNBwBHgF2b3JiaXMAAAAAAkSsAAA
     </div></div>`;
   };
 
+  // Every so often, Larry says something in your terminal.
+  const LINES = ["did you make a backup today?", "nice command.", "careful with that one.", "I'm watching. Supportively.", "read the man page, it's good.", "remember: rm doesn't ask twice.", "you type faster than I did.", "boo."];
+  const baseSubmit = DA.Term.prototype.submit;
+  DA.Term.prototype.submit = function () {
+    baseSubmit.call(this);
+    if (Math.random() < 1 / 120 && this.o.id !== "daily" && this.el?.isConnected) this.print(col("d", `💀 larry@${this.d.id}: `) + col("m", DA.pick(LINES)));
+  };
+  // ...and very occasionally sends you a message.
+  setInterval(() => {
+    if (document.hidden || !DA.state?.profile.onboarded || Math.random() > 1 / 400) return;
+    DA.toast(`📨 <b>larry</b>: ${esc(DA.pick(LINES))}`); DA.larryRattle?.(5);
+  }, 60000);
+
   // The tutor knows a little.
   const baseAnswer = DA.tutorAnswer;
   DA.tutorAnswer = (input, ctx) => {
@@ -9822,175 +10149,6 @@ DA.SCREAM_096_OGG = "T2dnUwACAAAAAAAAAADTDAAAAAAAAD5jNBwBHgF2b3JiaXMAAAAAAkSsAAA
     { id: "larryfiles", em: "🗂️", name: "Larry Scholar", d: "Recover every Larry File", ok: () => DA.LARRY_FILES.every(f => unlocked(f.id)) },
     { id: "larry3", em: "🦴", name: "Bone Collector", d: "Recover 3 Larry Files", ok: () => DA.LARRY_FILES.filter(f => unlocked(f.id)).length >= 3 }
   );
-})();
-
-</script>
-<script>
-/* Distro Academy online: accounts, friends and live multiplayer, on Supabase.
-   No libraries: plain fetch for auth and the database, and a small Phoenix-protocol client for
-   Supabase Realtime (presence, broadcast and database changes). Row Level Security on the server
-   decides what each person can read and write (see server/schema.sql). */
-(function () {
-  const CFG = () => DA.ONLINE_CONFIG || {};
-  DA.online = { enabled: () => !!(CFG().url && CFG().key) };
-  const O = DA.online;
-
-  // ---------- session (kept out of backups, like the AI key) ----------
-  const S = () => DA.state.account || null;
-  const setSession = s => { DA.state.account = s; DA.save(); DA.emit("account"); };
-  O.me = () => S()?.user || null;
-  O.signedIn = () => !!S()?.access_token;
-
-  const emailFor = username => `${username.toLowerCase()}@users.distro-academy.invalid`;
-  async function req(method, path, body, { auth = true, headers = {} } = {}) {
-    if (!O.enabled()) throw new Error("Online features aren't set up in this copy of the app.");
-    if (auth) await O.freshToken();
-    const h = { apikey: CFG().key, Authorization: `Bearer ${auth && S()?.access_token ? S().access_token : CFG().key}`, ...headers };
-    if (body !== undefined) h["Content-Type"] = "application/json";
-    let r;
-    try { r = await fetch(CFG().url + path, { method, headers: h, body: body === undefined ? undefined : JSON.stringify(body) }); }
-    catch { throw new Error("Can't reach the server. Check your internet connection."); }
-    const text = await r.text(); let data = null;
-    try { data = text ? JSON.parse(text) : null; } catch { data = text; }
-    if (!r.ok) {
-      const msg = data?.msg || data?.message || data?.error_description || data?.error || `Server error ${r.status}`;
-      if (r.status === 401 && auth) { /* token revoked or account deleted */ }
-      throw Object.assign(new Error(friendly(msg)), { status: r.status, data });
-    }
-    return data;
-  }
-  const friendly = m => /invalid login credentials/i.test(m) ? "Wrong username or password."
-    : /already registered|already exists/i.test(m) ? "That username is taken."
-    : /password should be at least/i.test(m) ? "Passwords need at least 8 characters."
-    : /duplicate key.*friendships/i.test(m) ? "You've already sent a request (or you're already friends)."
-    : m;
-  O.req = req;
-
-  // ---------- accounts ----------
-  const keepSession = d => setSession({ access_token: d.access_token, refresh_token: d.refresh_token, expires_at: Date.now() + (d.expires_in || 3600) * 1000, user: { id: d.user.id, username: d.user.user_metadata?.username || "" } });
-  O.usernameAvailable = name => req("POST", "/rest/v1/rpc/username_available", { name }, { auth: false });
-  O.signUp = async (username, password, displayName) => {
-    username = username.trim().toLowerCase();
-    if (!/^[a-z0-9_]{3,20}$/.test(username)) throw new Error("Usernames are 3–20 letters, numbers or _.");
-    if (password.length < 8) throw new Error("Passwords need at least 8 characters.");
-    if (!(await O.usernameAvailable(username))) throw new Error("That username is taken.");
-    const d = await req("POST", "/auth/v1/signup", { email: emailFor(username), password, data: { username, display_name: (displayName || "").slice(0, 30) } }, { auth: false });
-    if (!d.access_token) throw new Error("Account created, but the server wants an email confirmation. Ask the app's owner to turn that off.");
-    keepSession(d); await O.syncProfile(true); O.connect(); return O.me();
-  };
-  O.logIn = async (username, password) => {
-    const d = await req("POST", "/auth/v1/token?grant_type=password", { email: emailFor(username.trim()), password }, { auth: false });
-    keepSession(d); await O.syncProfile(true); O.connect(); return O.me();
-  };
-  O.logOut = async () => { try { await req("POST", "/auth/v1/logout", {}); } catch { /* already gone */ } O.disconnect(); setSession(null); };
-  O.deleteAccount = async () => { await req("POST", "/rest/v1/rpc/delete_my_account", {}); O.disconnect(); setSession(null); };
-  O.changePassword = password => req("PUT", "/auth/v1/user", { password });
-  let refreshing = null;
-  O.freshToken = async () => {
-    const s = S(); if (!s?.refresh_token) return;
-    if (s.expires_at - Date.now() > 60000) return;
-    refreshing = refreshing || (async () => {
-      try { const d = await req("POST", "/auth/v1/token?grant_type=refresh_token", { refresh_token: s.refresh_token }, { auth: false }); keepSession(d); rt?.setToken(d.access_token); }
-      catch (e) { if (e.status === 400 || e.status === 401) setSession(null); }
-      finally { refreshing = null; }
-    })();
-    return refreshing;
-  };
-
-  // ---------- profile & stats ----------
-  O.myStats = () => {
-    const p = DA.state.prog, rk = DA.rank(), a = p.arcade || {};
-    const weekStart = DA.weekKey(); let weekXP = 0; for (let i = 0; i < 7; i++) weekXP += p.days[DA.addDays(weekStart, i)] || 0;
-    return { xp: p.xp, rank: rk.name, rankEm: rk.em, streak: DA.streak(), best: DA.bestStreak(), weekXP, lessons: Object.keys(p.lessons).length, labs: Object.keys(p.labs || {}).length,
-      badges: Object.keys(p.badges).length, stamps: Object.keys(p.stamps).length, exams: Object.values(p.exams || {}).filter(e => e.pass).length, distro: DA.myDistro().name, distroId: DA.myDistro().id,
-      arcade: { sprint: a.sprint || 0, quiz: a.quiz || 0, typo: a.typo || 0, flags: a.flags || 0 }, larry: Object.keys(p.larryLore || {}).length, outfit: DA.state.settings.outfit, at: Date.now() };
-  };
-  O.syncProfile = async (now) => {
-    if (!O.signedIn()) return;
-    const body = { stats: O.myStats(), avatar: DA.state.profile.avatar || "tux", updated_at: new Date().toISOString() };
-    if (DA.state.profile.name) body.display_name = DA.state.profile.name.slice(0, 30);
-    await req("PATCH", `/rest/v1/profiles?id=eq.${O.me().id}`, body, { headers: { Prefer: "return=minimal" } });
-    if (now) { const [me] = await req("GET", `/rest/v1/profiles?id=eq.${O.me().id}&select=username`); if (me) { S().user.username = me.username; DA.save(); } }
-  };
-  const syncSoon = DA.debounce(() => O.syncProfile().catch(() => {}), 20000);
-  DA.on("xp", () => { if (O.signedIn()) syncSoon(); });
-
-  // ---------- friends ----------
-  const PROFILE = "id,username,display_name,avatar,stats,updated_at";
-  O.search = q => req("GET", `/rest/v1/profiles?select=${PROFILE}&username=ilike.*${encodeURIComponent(q.trim().toLowerCase().replace(/[^a-z0-9_]/g, ""))}*&id=neq.${O.me().id}&order=username&limit=12`);
-  O.friendships = () => req("GET", `/rest/v1/friendships?select=id,status,created_at,requester:profiles!friendships_requester_fkey(${PROFILE}),addressee:profiles!friendships_addressee_fkey(${PROFILE})&order=created_at.desc`);
-  O.sendRequest = id => req("POST", "/rest/v1/friendships", { requester: O.me().id, addressee: id }, { headers: { Prefer: "return=minimal" } });
-  O.accept = fid => req("PATCH", `/rest/v1/friendships?id=eq.${fid}`, { status: "accepted" }, { headers: { Prefer: "return=minimal" } });
-  O.removeFriendship = fid => req("DELETE", `/rest/v1/friendships?id=eq.${fid}`);
-  O.invite = (recipient, kind, detail = {}) => req("POST", "/rest/v1/invites", { sender: O.me().id, recipient, kind, detail }, { headers: { Prefer: "return=representation" } }).then(r => r[0]);
-  O.invites = () => req("GET", `/rest/v1/invites?select=id,kind,room,detail,status,created_at,sender:profiles!invites_sender_fkey(${PROFILE}),recipient:profiles!invites_recipient_fkey(${PROFILE})&status=eq.open&created_at=gt.${new Date(Date.now() - 30 * 60000).toISOString()}&order=created_at.desc`);
-  O.answerInvite = (id, status) => req("PATCH", `/rest/v1/invites?id=eq.${id}`, { status }, { headers: { Prefer: "return=minimal" } });
-  O.recordDuel = (room, game, opponent, score) => req("POST", "/rest/v1/duel_results", { room, game, player: O.me().id, opponent, score }, { headers: { Prefer: "return=minimal" } });
-  O.duelHistory = () => req("GET", "/rest/v1/duel_results?select=room,game,player,opponent,score,created_at&order=created_at.desc&limit=200");
-
-  // ---------- Realtime (Phoenix channels over a WebSocket) ----------
-  class Realtime {
-    constructor(token) { this.token = token; this.ref = 0; this.channels = new Map(); this.open = false; this.connect(); }
-    connect() {
-      const u = CFG().url.replace(/^http/, "ws") + `/realtime/v1/websocket?apikey=${encodeURIComponent(CFG().key)}&vsn=1.0.0`;
-      this.ws = new WebSocket(u);
-      this.ws.onopen = () => { this.open = true; this.tries = 0; this.channels.forEach(c => c.join()); this.hb = setInterval(() => this.push("phoenix", "heartbeat", {}), 25000); };
-      this.ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch { return; } this.channels.get(m.topic)?.receive(m); };
-      this.ws.onclose = () => { this.open = false; clearInterval(this.hb); if (this.closed) return; this.tries = (this.tries || 0) + 1; setTimeout(() => !this.closed && this.connect(), Math.min(30000, 1000 * 2 ** this.tries)); };
-    }
-    push(topic, event, payload, joinRef) { if (!this.open) return; this.ws.send(JSON.stringify({ topic, event, payload, ref: String(++this.ref), join_ref: joinRef })); }
-    setToken(t) { this.token = t; this.channels.forEach(c => c.joined && this.push(c.topic, "access_token", { access_token: t }, c.joinRef)); }
-    channel(name, opts = {}) { const c = new Channel(this, name, opts); this.channels.set(c.topic, c); if (this.open) c.join(); return c; }
-    close() { this.closed = true; this.channels.forEach(c => c.leave()); try { this.ws.close(); } catch { /* fine */ } }
-  }
-  class Channel {
-    constructor(rt, name, opts) { this.rt = rt; this.topic = "realtime:" + name; this.opts = opts; this.handlers = {}; this.presence = {}; }
-    join() {
-      this.joinRef = String(++this.rt.ref);
-      const config = { broadcast: { self: false, ack: false }, presence: { key: this.opts.presenceKey || "" }, postgres_changes: this.opts.changes || [], private: false };
-      this.rt.ws.send(JSON.stringify({ topic: this.topic, event: "phx_join", payload: { config, access_token: this.rt.token }, ref: this.joinRef, join_ref: this.joinRef }));
-    }
-    receive(m) {
-      if (m.event === "phx_reply" && m.ref === this.joinRef) { this.joined = m.payload?.status === "ok"; if (this.joined) { if (this.tracked) this.track(this.tracked); this.fire("joined"); } else this.fire("error", m.payload?.response); return; }
-      if (m.event === "broadcast") return this.fire("b:" + m.payload.event, m.payload.payload);
-      if (m.event === "postgres_changes") return this.fire("db", m.payload.data);
-      if (m.event === "presence_state") { this.presence = {}; Object.entries(m.payload).forEach(([k, v]) => this.presence[k] = v.metas); return this.fire("presence", this.presence); }
-      if (m.event === "presence_diff") {
-        Object.entries(m.payload.joins || {}).forEach(([k, v]) => this.presence[k] = v.metas);
-        Object.keys(m.payload.leaves || {}).forEach(k => { if (!m.payload.joins?.[k]) delete this.presence[k]; });
-        return this.fire("presence", this.presence);
-      }
-    }
-    on(ev, fn) { (this.handlers[ev] = this.handlers[ev] || []).push(fn); return this; }
-    onBroadcast(ev, fn) { return this.on("b:" + ev, fn); }
-    fire(ev, data) { (this.handlers[ev] || []).forEach(fn => { try { fn(data); } catch (e) { console.error(e); } }); }
-    send(event, payload) { this.rt.push(this.topic, "broadcast", { type: "broadcast", event, payload }, this.joinRef); }
-    track(payload) { this.tracked = payload; if (this.joined) this.rt.push(this.topic, "presence", { type: "presence", event: "track", payload }, this.joinRef); }
-    leave() { if (this.rt.open) this.rt.push(this.topic, "phx_leave", {}, this.joinRef); this.rt.channels.delete(this.topic); }
-  }
-  let rt = null, lobby = null, inbox = null;
-  O.online = {}; // who's online right now: { userId: {username, at} }
-  O.channel = (name, opts) => rt?.channel(name, opts);
-  O.connect = () => {
-    if (!O.signedIn() || rt) return;
-    rt = new Realtime(S().access_token);
-    lobby = rt.channel("lobby", { presenceKey: O.me().id });
-    lobby.on("joined", () => lobby.track({ u: O.me().username, at: Date.now() }));
-    lobby.on("presence", p => { O.online = Object.fromEntries(Object.entries(p).map(([k, metas]) => [k, metas[0]])); DA.emit("presence", O.online); });
-    inbox = rt.channel("inbox:" + O.me().id, { changes: [
-      { event: "INSERT", schema: "public", table: "invites", filter: `recipient=eq.${O.me().id}` },
-      { event: "*", schema: "public", table: "friendships" }
-    ] });
-    inbox.on("db", d => {
-      if (d.table === "invites" && d.type === "INSERT") DA.emit("invite", d.record);
-      if (d.table === "friendships") DA.emit("friends-changed", d);
-    });
-  };
-  O.disconnect = () => { rt?.close(); rt = lobby = inbox = null; O.online = {}; };
-  O.Realtime = Realtime;
-
-  // Start when the app starts, if you're signed in.
-  DA.on("ready", () => { if (O.enabled() && O.signedIn()) { O.freshToken().then(() => { O.connect(); O.syncProfile().catch(() => {}); }); } });
 })();
 
 </script>
