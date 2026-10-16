@@ -1,14 +1,14 @@
 {
   "app": "distro-academy",
-  "version": "2.9.0",
-  "file": "DistroAcademy-2.9.0.html",
-  "sha256": "85dd95e5d7fc468620afc666063fc4255384872316d84ebdd4d6def23eaa42f6",
-  "size": 1809660,
-  "core": "core-2.9.0.py",
+  "version": "2.10.0",
+  "file": "DistroAcademy-2.10.0.html",
+  "sha256": "87b6bcbb05026c9785c604be2b12717e263320d9626232999b7e2fe30cd5ad86",
+  "size": 1830204,
+  "core": "core-2.10.0.py",
   "core_sha256": "92b670fff1b8fbf043e15058defc09fadd1f9317f21c0ee69fbc44c0de5c86d0",
   "core_size": 17535,
   "date": "2026-10-16",
   "notes": [
-    "2.9.0: co-op labs, player cards, foldable sidebar"
+    "2.10.0: duel spectating, cheers, tournament, gifts, feed, cloud save (server part pending)"
   ]
 }
