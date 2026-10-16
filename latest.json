@@ -1,17 +1,14 @@
 {
   "app": "distro-academy",
-  "version": "2.3.0",
-  "file": "DistroAcademy-2.3.0.html",
-  "sha256": "6a76847ef05d2d568b0057e5e2d98703124a7f9ca3c9780c28d2ad1f1278d45f",
-  "size": 1330365,
-  "core": "core-2.3.0.py",
+  "version": "2.3.1",
+  "file": "DistroAcademy-2.3.1.html",
+  "sha256": "e9cbd1b3adf10af0842313bdd60b443c67277f3a2707bba1e4cd7516d4731877",
+  "size": 1551514,
+  "core": "core-2.3.1.py",
   "core_sha256": "92b670fff1b8fbf043e15058defc09fadd1f9317f21c0ee69fbc44c0de5c86d0",
   "core_size": 17535,
   "date": "2026-10-16",
   "notes": [
-    "The real Tux, from Wikimedia Commons",
-    "Updates now install themselves when you're not using the app",
-    "The launcher updates itself too",
-    "New What's New page with every update"
+    "A very rare visitor. You'll know it when you hear it."
   ]
 }
