@@ -1,15 +1,16 @@
 {
   "app": "distro-academy",
-  "version": "2.4.0",
-  "file": "DistroAcademy-2.4.0.html",
-  "sha256": "093e22c02c7fee4690eaf2e03b9fe9299e945c059f37d4cc9e05c65147af3a10",
-  "size": 1619527,
-  "core": "core-2.4.0.py",
+  "version": "2.5.0",
+  "file": "DistroAcademy-2.5.0.html",
+  "sha256": "aaf703dca6b29f237cbbe0bdbc29107dc3aef66152a59ea40884fe3e30ec1a80",
+  "size": 1637213,
+  "core": "core-2.5.0.py",
   "core_sha256": "92b670fff1b8fbf043e15058defc09fadd1f9317f21c0ee69fbc44c0de5c86d0",
   "core_size": 17535,
   "date": "2026-10-16",
   "notes": [
-    "The Larry Files: twelve secrets hidden in the practice terminals",
-    "Sometimes Larry carries a sign"
+    "Six kinds of Larry sightings and 20 Larry Files",
+    "Larry commands: larry help",
+    "Fixed: Larry clue commands sometimes printed an error"
   ]
 }

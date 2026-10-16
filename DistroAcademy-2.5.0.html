@@ -705,6 +705,111 @@ svg.larry-svg { width: 100%; height: auto; display: block; overflow: visible; fi
 .larry-svg .lr-head { transform-origin: 108px 68px; animation: lr-head .085s ease-in-out infinite alternate; }
 @keyframes lr-head { from { transform: rotate(-4deg); } to { transform: rotate(5deg); } }
 .larry-svg .lr-eye { animation: blink .3s steps(1) infinite; }
+/* Larry's sign and the Larry Files */
+.larry-sign { position: absolute; top: 6%; left: 58%; z-index: 1; transform: rotate(-8deg); background: #fffbe8; color: #2a2420; border: 3px solid #8a6b3a; border-radius: 6px; padding: 6px 10px; font: 700 clamp(.7rem, 1.4vw, 1rem)/1.15 var(--font-display); text-align: center; max-width: 170px; box-shadow: 0 6px 14px rgb(0 0 0 / .3); animation: lr-sign .17s ease-in-out infinite alternate; }
+.larry-run.rtl .larry-sign { left: auto; right: 58%; transform: rotate(8deg); }
+@keyframes lr-sign { from { translate: 0 -3px; } to { translate: 0 4px; } }
+.larry-page { max-width: 980px; margin: 0 auto; }
+.larry-hero { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; background: repeating-linear-gradient(-45deg, transparent 0 22px, color-mix(in oklab, var(--warn) 6%, transparent) 22px 44px), var(--surface); }
+.larry-hero-art { width: 150px; flex: none; }
+.larry-hero h2 { font-family: var(--font-mono); letter-spacing: .2em; font-size: 1.8rem; }
+.larry-facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; margin: 10px 0 0; font-size: .9rem; }
+.larry-facts div { display: contents; } .larry-facts dt { color: var(--ink-faint); } .larry-facts dd { margin: 0; font-weight: 700; }
+.larry-files { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: var(--gap); }
+.larry-file { display: flex; flex-direction: column; gap: 8px; border-left: 4px solid var(--warn); }
+.larry-file p { font-size: .92rem; line-height: 1.6; }
+.larry-file.locked { border-left-color: var(--line); opacity: .85; }
+.larry-file.locked h3 { font-family: var(--font-mono); color: var(--ink-faint); letter-spacing: .1em; }
+.larry-file.locked svg { width: 16px; color: var(--ink-faint); }
+/* friends & online */
+.fr-page { max-width: 1180px; margin: 0 auto; }
+.fr-auth { max-width: 520px; margin: 0 auto; }
+.fr-grid { display: grid; grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); gap: var(--gap); align-items: start; }
+@container main (max-width: 860px) { .fr-grid { grid-template-columns: 1fr; } }
+.fr-row { display: flex; align-items: center; gap: 10px; }
+.fr-who { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.fr-who b, .fr-who span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fr-av { width: 40px; height: 40px; font-size: 1.15rem; }
+.fr-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--ink-faint); vertical-align: 1px; margin-left: 4px; }
+.fr-dot.on { background: var(--good); box-shadow: 0 0 8px var(--good); }
+.fr-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: var(--gap); }
+.fr-card { display: flex; flex-direction: column; gap: 12px; position: relative; }
+.fr-x { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; }
+.fr-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.fr-stats div { background: var(--surface-2); border-radius: var(--r-sm); padding: 6px 8px; display: flex; flex-direction: column; min-width: 0; }
+.fr-stats span { font-size: .7rem; color: var(--ink-faint); } .fr-stats b { font-size: .86rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fr-board { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.fr-board li { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: var(--r-sm); }
+.fr-board li.you { background: var(--accent-soft); }
+.fr-place { width: 26px; text-align: center; font-weight: 700; }
+.fr-invites { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.cmp-table { width: 100%; border-collapse: collapse; }
+.cmp-table th, .cmp-table td { padding: 7px 10px; border-bottom: 1px solid var(--line); text-align: left; font-size: .9rem; }
+.cmp-table td.win { color: var(--good); font-weight: 700; }
+.cmp-bars { display: flex; flex-direction: column; gap: 3px; width: 120px; }
+.cmp-bars i { display: block; height: 6px; border-radius: 3px; min-width: 2px; }
+.cmp-bars .me { background: var(--accent); } .cmp-bars .them { background: var(--peach-ink); opacity: .8; }
+.tg-chat { min-height: 300px; }
+.tg-log { flex: 1; max-height: 340px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+.tg-line { font-size: .9rem; padding: 6px 10px; border-radius: 12px; background: var(--surface-2); align-self: flex-start; max-width: 92%; overflow-wrap: anywhere; }
+.tg-line.mine { background: var(--accent-soft); align-self: flex-end; }
+.duel-page { max-width: 860px; margin: 0 auto; }
+.duel-score { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; position: relative; padding-bottom: 26px; }
+.du-side { display: flex; flex-direction: column; gap: 2px; } .du-side.them { text-align: right; }
+.du-vs { color: var(--ink-faint); font-weight: 700; }
+.du-bars { position: absolute; left: var(--pad); right: var(--pad); bottom: 12px; height: 8px; border-radius: 4px; background: var(--surface-3); overflow: hidden; }
+.du-bars i { position: absolute; top: 0; bottom: 0; transition: width .3s var(--ease); }
+.du-bars .me { left: 50%; transform: translateX(-100%); background: var(--accent); } .du-bars .them { left: 50%; background: var(--peach-ink); }
+.duel-count { font: 700 6rem/1 var(--font-display); color: var(--accent); text-align: center; animation: pop .4s var(--ease); }
+/* Larry's appearances */
+.larry-stage { position: fixed; inset: 0; z-index: 1000; pointer-events: none; overflow: hidden; }
+.larry-stage .larry-run { position: absolute; }
+.larry-moon { animation: lr-moon 4.2s linear forwards !important; }
+.larry-moon.rtl { animation-name: lr-moon-rtl !important; }
+.larry-moon .larry-flip { transform: scaleX(-1); }
+.larry-moon.rtl .larry-flip { transform: none; }
+@keyframes lr-moon { from { transform: translateX(-28vw); } to { transform: translateX(104vw); } }
+@keyframes lr-moon-rtl { from { transform: translateX(104vw); } to { transform: translateX(-28vw); } }
+.larry-moon .lr-thigh, .larry-moon .lr-shin, .larry-moon .lr-upper, .larry-moon .lr-fore { animation-duration: .6s !important; }
+.larry-moon .lr-thigh { animation-name: lr-moon-leg !important; }
+.larry-moon .lr-shin { animation-name: lr-moon-shin !important; }
+@keyframes lr-moon-leg { 0%, 100% { transform: rotate(8deg); } 50% { transform: rotate(-6deg); } }
+@keyframes lr-moon-shin { 0%, 100% { transform: rotate(4deg); } 50% { transform: rotate(32deg); } }
+.larry-moon .lr-body { animation: lr-groove .6s ease-in-out infinite !important; }
+@keyframes lr-groove { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-4px) rotate(3deg); } }
+.larry-notes { position: absolute; top: -4%; left: 30%; font-size: clamp(1.2rem, 3vw, 2.2rem); color: var(--accent); animation: lr-notes 1s ease-in-out infinite alternate; text-shadow: 0 2px 8px rgb(0 0 0 / .3); }
+@keyframes lr-notes { from { transform: translateY(0) rotate(-8deg); } to { transform: translateY(-14px) rotate(8deg); } }
+.larry-peek { position: absolute; bottom: 0; width: min(20vw, 240px); transform: translateY(100%); animation: lr-peek 3.6s ease-in-out forwards; }
+@keyframes lr-peek { 0% { transform: translateY(100%); } 22%, 72% { transform: translateY(58%); } 30% { transform: translateY(54%) rotate(-6deg); } 50% { transform: translateY(54%) rotate(7deg); } 100% { transform: translateY(105%); } }
+.larry-peek .lr-body, .larry-peek .lr-thigh, .larry-peek .lr-shin, .larry-peek .lr-upper, .larry-peek .lr-fore, .larry-wave .lr-thigh, .larry-wave .lr-shin, .larry-fall .lr-thigh, .larry-fall .lr-shin, .larry-fall .lr-upper, .larry-fall .lr-fore, .larry-fall .lr-body { animation: none !important; }
+.larry-peek .lr-jaw, .larry-wave .lr-jaw { animation-duration: .5s !important; }
+.larry-wave { position: absolute; right: 0; width: min(22vw, 260px); transform: translateX(110%); animation: lr-lean 3.4s ease-in-out forwards; }
+.larry-wave.rtl { right: auto; left: 0; transform: translateX(-110%); animation-name: lr-lean-rtl; }
+.larry-wave.rtl .larry-flip { transform: none; }
+.larry-wave:not(.rtl) .larry-flip { transform: scaleX(-1); }
+@keyframes lr-lean { 0% { transform: translateX(110%); } 18%, 80% { transform: translateX(28%) rotate(-6deg); } 100% { transform: translateX(115%); } }
+@keyframes lr-lean-rtl { 0% { transform: translateX(-110%); } 18%, 80% { transform: translateX(-28%) rotate(6deg); } 100% { transform: translateX(-115%); } }
+.larry-wave .lr-arm.front .lr-upper { animation: lr-wave-arm .32s ease-in-out infinite alternate !important; }
+@keyframes lr-wave-arm { from { transform: rotate(-150deg); } to { transform: rotate(-110deg); } }
+.larry-bubble { position: absolute; top: -6%; left: 50%; transform: translateX(-50%); background: #fff; color: #222; border-radius: 16px; padding: 8px 14px; font: 700 clamp(.8rem, 1.5vw, 1.05rem) var(--font-display); white-space: nowrap; box-shadow: 0 6px 18px rgb(0 0 0 / .25); }
+.larry-bubble::after { content: ""; position: absolute; bottom: -8px; left: 50%; border: 8px solid transparent; border-top-color: #fff; border-bottom: 0; transform: translateX(-50%); }
+.larry-chase { animation-duration: 2.2s !important; }
+.larry-tux { position: absolute; bottom: 2%; left: -34%; width: 62%; animation: lr-tux-bob .17s ease-in-out infinite alternate; }
+.larry-chase.rtl .larry-tux { left: auto; right: -34%; transform: scaleX(-1); }
+@keyframes lr-tux-bob { from { translate: 0 -6px; rotate: -6deg; } to { translate: 0 4px; rotate: 6deg; } }
+.larry-fall { position: absolute; top: 0; width: min(20vw, 240px); animation: lr-fall 4.6s cubic-bezier(.5, 0, .5, 1) forwards; }
+@keyframes lr-fall { 0% { transform: translateY(-110%); } 14% { transform: translateY(42vh); } 16% { transform: translateY(42vh) scaleY(.82); } 18% { transform: translateY(42vh); } 74% { transform: translateY(42vh); } 100% { transform: translateY(42vh) translateX(140vw); } }
+.larry-fall .larry-svg .lr-head, .larry-fall .larry-svg .lr-arm, .larry-fall .larry-svg .lr-leg, .larry-fall .larry-svg .lr-ribs { animation: lr-crumble 4.6s ease-in-out forwards !important; }
+.larry-fall .larry-svg .lr-head { --dx: 34px; --dy: 118px; --r: 40deg; }
+.larry-fall .larry-svg .lr-arm.front { --dx: 60px; --dy: 90px; --r: 80deg; }
+.larry-fall .larry-svg .lr-arm.back { --dx: -50px; --dy: 100px; --r: -70deg; }
+.larry-fall .larry-svg .lr-leg.front { --dx: 40px; --dy: 30px; --r: 70deg; }
+.larry-fall .larry-svg .lr-leg.back { --dx: -40px; --dy: 30px; --r: -80deg; }
+.larry-fall .larry-svg .lr-ribs { --dx: 0px; --dy: 80px; --r: 20deg; }
+@keyframes lr-crumble { 0%, 15% { transform: none; } 24%, 52% { transform: translate(var(--dx), var(--dy)) rotate(var(--r)); } 66%, 100% { transform: none; } }
+.larry-fall .larry-svg * { transform-origin: 104px 140px; }
+.larry-wave .larry-bubble { left: 34%; }
+.larry-wave.rtl .larry-bubble { left: 66%; }
 
 </style>
 </head>
@@ -794,6 +899,7 @@ DA.views = DA.views || {};
     keyboard: '<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>'
   };
   Object.assign(ICONS, {
+    skull: '<path d="M12 3a7 7 0 0 0-7 7c0 2.4 1.2 4 2.5 5v2.5a1.5 1.5 0 0 0 1.5 1.5h6a1.5 1.5 0 0 0 1.5-1.5V15c1.3-1 2.5-2.6 2.5-5a7 7 0 0 0-7-7z"/><circle cx="9.3" cy="10.5" r="1.6"/><circle cx="14.7" cy="10.5" r="1.6"/><path d="M10 19v2M14 19v2M12 13.5l-.8 1.6h1.6z"/>',
     flask: '<path d="M9 3h6M10 3v6l-5.6 9.6A2 2 0 0 0 6.1 21.5h11.8a2 2 0 0 0 1.7-2.9L14 9V3"/><path d="M7.2 15h9.6"/>',
     radar: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12l6.4-6.4"/>',
     history: '<path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 3.5v5h5"/><path d="M12 7.5V12l3 2"/>',
@@ -5043,6 +5149,17 @@ DA.CMD_REF = {
 /* Every release, newest first. The What's New page and the after-update popup read from here.
    Add a new entry at the top whenever DA.VERSION changes. */
 DA.CHANGELOG = [
+  { v: "2.5.0", date: "2026-10-16", title: "Larry's world gets bigger", items: [
+    ["💀", "Six kinds of Larry sightings", "He runs, moonwalks, peeks up from the bottom of the screen, leans in to say hi, gets chased by Tux, and sometimes falls from the sky and has to pull himself back together."],
+    ["🗂️", "20 Larry Files", "Eight new files to uncover. Try finger, check old logs in /var/log, dig through Larry's trash, and peek at his crontab (you'll need sudo)."],
+    ["🦴", "Larry has commands now", "larry help, larry say, larry fortune, larry joke, larry dance. And summon-larry takes a style: --moonwalk, --peek, --wave, --chase, --fall."],
+    ["🛠️", "Fixed", "Larry's clue commands sometimes printed an error instead of their output. They all work now, however you explore."]
+  ] },
+  { v: "2.4.0", date: "2026-10-16", title: "The Larry Files", items: [
+    ["🗂️", "Who is Larry?", "Twelve classified files tell Larry's story. They're hidden all over the practice terminals: start by looking around /home. A Larry Files page appears once you've found your first one."],
+    ["🪧", "Larry has things to say", "Sometimes he runs past holding a sign. Read it fast."],
+    ["🦴", "New badges", "Bone Collector and Larry Scholar, for the dedicated investigator."]
+  ] },
   { v: "2.3.4", date: "2026-10-16", title: "Larry is unstoppable", items: [
     ["⚡", "Even faster Larry", "Larry now crosses your screen in under a second and a half. His scream lingers after he's gone."]
   ] },
@@ -5113,7 +5230,7 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
 /* State, persistence (native file via the launcher, else localStorage), lessons and the user's machine. */
 (function () {
   const KEY = "distro-academy-v1";
-  DA.VERSION = "2.3.4";
+  DA.VERSION = "2.5.0";
 
   DA.defaults = () => ({
     v: 2,
@@ -5177,15 +5294,17 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
   DA.save = (now) => now ? write() : writeSoon();
   addEventListener("beforeunload", write);
 
-  // Backups never include the AI API key.
-  DA.exportState = () => { const st = JSON.parse(JSON.stringify(DA.state)); st.settings.ai.key = ""; return JSON.stringify({ app: "distro-academy", version: DA.VERSION, exported: new Date().toISOString(), state: st }, null, 2); };
+  // Backups never include the AI API key or your online sign-in.
+  DA.exportState = () => { const st = JSON.parse(JSON.stringify(DA.state)); st.settings.ai.key = ""; delete st.account; return JSON.stringify({ app: "distro-academy", version: DA.VERSION, exported: new Date().toISOString(), state: st }, null, 2); };
   DA.importState = (text) => {
     const data = JSON.parse(text);
     const st = data.state || data;
     if (!st.prog || !st.settings) throw new Error("That file doesn't look like a Distro Academy backup.");
-    const key = DA.state?.settings.ai.key || "";
+    const key = DA.state?.settings.ai.key || "", account = DA.state?.account || null;
+    delete st.account; // a backup can never sign you into someone else's account
     DA.state = merge(DA.defaults(), st);
     if (!DA.state.settings.ai.key) DA.state.settings.ai.key = key;
+    if (account) DA.state.account = account;
     DA.invalidate(); DA.save(true);
   };
 
@@ -5250,6 +5369,13 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
   };
   DA.totalLessons = () => DA.DISTROS.reduce((n, d) => n + DA.lessonsFor(d).length, 0);
 })();
+
+</script>
+<script>
+/* The online server (Supabase). The key is the public "anon" key: it's meant to ship inside apps.
+   What each signed-in person may do is enforced on the server by Row Level Security (server/schema.sql). */
+window.DA = window.DA || {};
+DA.ONLINE_CONFIG = { url: "", key: "" };
 
 </script>
 <script>
@@ -5346,7 +5472,7 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
 
   DA.checkBadges = () => {
     const got = DA.state.prog.badges; const fresh = [];
-    DA.BADGES.forEach(b => { if (!got[b.id] && b.ok()) { got[b.id] = Date.now(); fresh.push(b); } });
+    DA.BADGES.forEach(b => { let ok = false; try { ok = !got[b.id] && b.ok(); } catch (e) { console.error("badge check failed:", b.id, e); } if (ok) { got[b.id] = Date.now(); fresh.push(b); } });
     fresh.forEach((b, i) => setTimeout(() => { DA.toast(`${b.em} Badge unlocked: <b>${DA.esc(b.name)}</b>`, "xp"); DA.sound("level"); }, 600 + i * 900));
     if (fresh.length) DA.save();
     return fresh;
@@ -7589,6 +7715,8 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
 
   function stage() { return DA.$("#arcade-stage"); }
   DA.arcadeStage = stage;
+  // Duels start these directly too (see js/views/friends.js).
+  setTimeout(() => Object.assign(DA.ARCADE_PLAY, { sprint, quiz }), 0);
   function intro(p) {
     const d = DA.distroById[p.d];
     stage().innerHTML = `<section class="card stack game-intro"><div class="game-em">${GAMES[p.g].em}</div><h2>${esc(p.n)} challenges you!</h2>
@@ -7645,7 +7773,7 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
       if (!v) return;
       if (t.check ? t.check(v) : t.re.test(v)) {
         combo++; score += 100 + (combo - 1) * 20; DA.sound("ok");
-        $("#sp-score").textContent = score; $("#sp-combo").hidden = combo < 2; $("#sp-combo").textContent = `x${combo} combo`;
+        $("#sp-score").textContent = score; DA.emit("arcade-score", score); $("#sp-combo").hidden = combo < 2; $("#sp-combo").textContent = `x${combo} combo`;
         $("#sp-hint").textContent = "✅ Nice!"; i++; show();
       } else { combo = 0; $("#sp-combo").hidden = true; DA.sound("bad"); input.classList.remove("shake"); void input.offsetWidth; input.classList.add("shake"); $("#sp-hint").textContent = "❌ Not quite. Try again, or skip."; }
     };
@@ -7668,7 +7796,7 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
       const answer = k => {
         clearInterval(timer);
         const right = k === q.c;
-        if (right) { score += 100 + left * 5; DA.sound("ok"); } else DA.sound("bad");
+        if (right) { score += 100 + left * 5; DA.sound("ok"); DA.emit("arcade-score", score); } else DA.sound("bad");
         document.querySelectorAll(".sprint .opt").forEach(o => { o.disabled = true; if (+o.dataset.k === q.c) o.classList.add("right"); else if (+o.dataset.k === k) o.classList.add("wrong"); });
         i++; setTimeout(next, right ? 700 : 1300);
       };
@@ -7746,7 +7874,7 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
       if (!v) return;
       if (t[2].test(v)) {
         combo++; score += 120 + (combo - 1) * 25; DA.sound("ok");
-        $("#ty-score").textContent = score; $("#ty-combo").hidden = combo < 2; $("#ty-combo").textContent = `x${combo} combo`;
+        $("#ty-score").textContent = score; DA.emit("arcade-score", score); $("#ty-combo").hidden = combo < 2; $("#ty-combo").textContent = `x${combo} combo`;
         $("#ty-hint").innerHTML = `✅ ${esc(t[4])}`; i++; show();
       } else { combo = 0; $("#ty-combo").hidden = true; DA.sound("bad"); input.classList.remove("shake"); void input.offsetWidth; input.classList.add("shake"); $("#ty-hint").textContent = "❌ Still broken. Look closely!"; }
     };
@@ -7776,7 +7904,7 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
       const answer = val => {
         clearInterval(timer);
         const right = val === q.v;
-        if (right) { streak++; score += 80 + left * 8 + Math.min(streak, 5) * 10; DA.sound("ok"); } else { streak = 0; DA.sound("bad"); }
+        if (right) { streak++; score += 80 + left * 8 + Math.min(streak, 5) * 10; DA.sound("ok"); DA.emit("arcade-score", score); } else { streak = 0; DA.sound("bad"); }
         document.querySelectorAll(".sprint .opt").forEach(o => { o.disabled = true; if (o.dataset.v === q.v) o.classList.add("right"); else if (o.dataset.v === val) o.classList.add("wrong"); });
         i++; setTimeout(next, right ? 650 : 1300);
       };
@@ -8049,6 +8177,175 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
     $$("[data-sug]", el).forEach(b => b.onclick = () => { const s = b.dataset.sug; if (s === "Why did my command fail?") { ask(`Why did this fail? ${ctx().lastFail.replace(/\u0001\w|\u0002/g, "")}`); ctx().lastFail = null; } else ask(s); });
   }
   DA.tutor = { mount, open, ask, render, suggestions, head };
+})();
+
+</script>
+<script>
+/* Distro Academy online: accounts, friends and live multiplayer, on Supabase.
+   No libraries: plain fetch for auth and the database, and a small Phoenix-protocol client for
+   Supabase Realtime (presence, broadcast and database changes). Row Level Security on the server
+   decides what each person can read and write (see server/schema.sql). */
+(function () {
+  const CFG = () => DA.ONLINE_CONFIG || {};
+  DA.online = { enabled: () => !!(CFG().url && CFG().key) };
+  const O = DA.online;
+
+  // ---------- session (kept out of backups, like the AI key) ----------
+  const S = () => DA.state.account || null;
+  const setSession = s => { DA.state.account = s; DA.save(); DA.emit("account"); };
+  O.me = () => S()?.user || null;
+  O.signedIn = () => !!S()?.access_token;
+
+  const emailFor = username => `${username.toLowerCase()}@users.distro-academy.invalid`;
+  async function req(method, path, body, { auth = true, headers = {} } = {}) {
+    if (!O.enabled()) throw new Error("Online features aren't set up in this copy of the app.");
+    if (auth) await O.freshToken();
+    const h = { apikey: CFG().key, Authorization: `Bearer ${auth && S()?.access_token ? S().access_token : CFG().key}`, ...headers };
+    if (body !== undefined) h["Content-Type"] = "application/json";
+    let r;
+    try { r = await fetch(CFG().url + path, { method, headers: h, body: body === undefined ? undefined : JSON.stringify(body) }); }
+    catch { throw new Error("Can't reach the server. Check your internet connection."); }
+    const text = await r.text(); let data = null;
+    try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+    if (!r.ok) {
+      const msg = data?.msg || data?.message || data?.error_description || data?.error || `Server error ${r.status}`;
+      if (r.status === 401 && auth) { /* token revoked or account deleted */ }
+      throw Object.assign(new Error(friendly(msg)), { status: r.status, data });
+    }
+    return data;
+  }
+  const friendly = m => /invalid login credentials/i.test(m) ? "Wrong username or password."
+    : /already registered|already exists/i.test(m) ? "That username is taken."
+    : /password should be at least/i.test(m) ? "Passwords need at least 8 characters."
+    : /duplicate key.*friendships/i.test(m) ? "You've already sent a request (or you're already friends)."
+    : m;
+  O.req = req;
+
+  // ---------- accounts ----------
+  const keepSession = d => setSession({ access_token: d.access_token, refresh_token: d.refresh_token, expires_at: Date.now() + (d.expires_in || 3600) * 1000, user: { id: d.user.id, username: d.user.user_metadata?.username || "" } });
+  O.usernameAvailable = name => req("POST", "/rest/v1/rpc/username_available", { name }, { auth: false });
+  O.signUp = async (username, password, displayName) => {
+    username = username.trim().toLowerCase();
+    if (!/^[a-z0-9_]{3,20}$/.test(username)) throw new Error("Usernames are 3–20 letters, numbers or _.");
+    if (password.length < 8) throw new Error("Passwords need at least 8 characters.");
+    if (!(await O.usernameAvailable(username))) throw new Error("That username is taken.");
+    const d = await req("POST", "/auth/v1/signup", { email: emailFor(username), password, data: { username, display_name: (displayName || "").slice(0, 30) } }, { auth: false });
+    if (!d.access_token) throw new Error("Account created, but the server wants an email confirmation. Ask the app's owner to turn that off.");
+    keepSession(d); await O.syncProfile(true); O.connect(); return O.me();
+  };
+  O.logIn = async (username, password) => {
+    const d = await req("POST", "/auth/v1/token?grant_type=password", { email: emailFor(username.trim()), password }, { auth: false });
+    keepSession(d); await O.syncProfile(true); O.connect(); return O.me();
+  };
+  O.logOut = async () => { try { await req("POST", "/auth/v1/logout", {}); } catch { /* already gone */ } O.disconnect(); setSession(null); };
+  O.deleteAccount = async () => { await req("POST", "/rest/v1/rpc/delete_my_account", {}); O.disconnect(); setSession(null); };
+  O.changePassword = password => req("PUT", "/auth/v1/user", { password });
+  let refreshing = null;
+  O.freshToken = async () => {
+    const s = S(); if (!s?.refresh_token) return;
+    if (s.expires_at - Date.now() > 60000) return;
+    refreshing = refreshing || (async () => {
+      try { const d = await req("POST", "/auth/v1/token?grant_type=refresh_token", { refresh_token: s.refresh_token }, { auth: false }); keepSession(d); rt?.setToken(d.access_token); }
+      catch (e) { if (e.status === 400 || e.status === 401) setSession(null); }
+      finally { refreshing = null; }
+    })();
+    return refreshing;
+  };
+
+  // ---------- profile & stats ----------
+  O.myStats = () => {
+    const p = DA.state.prog, rk = DA.rank(), a = p.arcade || {};
+    const weekStart = DA.weekKey(); let weekXP = 0; for (let i = 0; i < 7; i++) weekXP += p.days[DA.addDays(weekStart, i)] || 0;
+    return { xp: p.xp, rank: rk.name, rankEm: rk.em, streak: DA.streak(), best: DA.bestStreak(), weekXP, lessons: Object.keys(p.lessons).length, labs: Object.keys(p.labs || {}).length,
+      badges: Object.keys(p.badges).length, stamps: Object.keys(p.stamps).length, exams: Object.values(p.exams || {}).filter(e => e.pass).length, distro: DA.myDistro().name, distroId: DA.myDistro().id,
+      arcade: { sprint: a.sprint || 0, quiz: a.quiz || 0, typo: a.typo || 0, flags: a.flags || 0 }, larry: Object.keys(p.larryLore || {}).length, outfit: DA.state.settings.outfit, at: Date.now() };
+  };
+  O.syncProfile = async (now) => {
+    if (!O.signedIn()) return;
+    const body = { stats: O.myStats(), avatar: DA.state.profile.avatar || "tux", updated_at: new Date().toISOString() };
+    if (DA.state.profile.name) body.display_name = DA.state.profile.name.slice(0, 30);
+    await req("PATCH", `/rest/v1/profiles?id=eq.${O.me().id}`, body, { headers: { Prefer: "return=minimal" } });
+    if (now) { const [me] = await req("GET", `/rest/v1/profiles?id=eq.${O.me().id}&select=username`); if (me) { S().user.username = me.username; DA.save(); } }
+  };
+  const syncSoon = DA.debounce(() => O.syncProfile().catch(() => {}), 20000);
+  DA.on("xp", () => { if (O.signedIn()) syncSoon(); });
+
+  // ---------- friends ----------
+  const PROFILE = "id,username,display_name,avatar,stats,updated_at";
+  O.search = q => req("GET", `/rest/v1/profiles?select=${PROFILE}&username=ilike.*${encodeURIComponent(q.trim().toLowerCase().replace(/[^a-z0-9_]/g, ""))}*&id=neq.${O.me().id}&order=username&limit=12`);
+  O.friendships = () => req("GET", `/rest/v1/friendships?select=id,status,created_at,requester:profiles!friendships_requester_fkey(${PROFILE}),addressee:profiles!friendships_addressee_fkey(${PROFILE})&order=created_at.desc`);
+  O.sendRequest = id => req("POST", "/rest/v1/friendships", { requester: O.me().id, addressee: id }, { headers: { Prefer: "return=minimal" } });
+  O.accept = fid => req("PATCH", `/rest/v1/friendships?id=eq.${fid}`, { status: "accepted" }, { headers: { Prefer: "return=minimal" } });
+  O.removeFriendship = fid => req("DELETE", `/rest/v1/friendships?id=eq.${fid}`);
+  O.invite = (recipient, kind, detail = {}) => req("POST", "/rest/v1/invites", { sender: O.me().id, recipient, kind, detail }, { headers: { Prefer: "return=representation" } }).then(r => r[0]);
+  O.invites = () => req("GET", `/rest/v1/invites?select=id,kind,room,detail,status,created_at,sender:profiles!invites_sender_fkey(${PROFILE}),recipient:profiles!invites_recipient_fkey(${PROFILE})&status=eq.open&created_at=gt.${new Date(Date.now() - 30 * 60000).toISOString()}&order=created_at.desc`);
+  O.answerInvite = (id, status) => req("PATCH", `/rest/v1/invites?id=eq.${id}`, { status }, { headers: { Prefer: "return=minimal" } });
+  O.recordDuel = (room, game, opponent, score) => req("POST", "/rest/v1/duel_results", { room, game, player: O.me().id, opponent, score }, { headers: { Prefer: "return=minimal" } });
+  O.duelHistory = () => req("GET", "/rest/v1/duel_results?select=room,game,player,opponent,score,created_at&order=created_at.desc&limit=200");
+
+  // ---------- Realtime (Phoenix channels over a WebSocket) ----------
+  class Realtime {
+    constructor(token) { this.token = token; this.ref = 0; this.channels = new Map(); this.open = false; this.connect(); }
+    connect() {
+      const u = CFG().url.replace(/^http/, "ws") + `/realtime/v1/websocket?apikey=${encodeURIComponent(CFG().key)}&vsn=1.0.0`;
+      this.ws = new WebSocket(u);
+      this.ws.onopen = () => { this.open = true; this.tries = 0; this.channels.forEach(c => c.join()); this.hb = setInterval(() => this.push("phoenix", "heartbeat", {}), 25000); };
+      this.ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch { return; } this.channels.get(m.topic)?.receive(m); };
+      this.ws.onclose = () => { this.open = false; clearInterval(this.hb); if (this.closed) return; this.tries = (this.tries || 0) + 1; setTimeout(() => !this.closed && this.connect(), Math.min(30000, 1000 * 2 ** this.tries)); };
+    }
+    push(topic, event, payload, joinRef) { if (!this.open) return; this.ws.send(JSON.stringify({ topic, event, payload, ref: String(++this.ref), join_ref: joinRef })); }
+    setToken(t) { this.token = t; this.channels.forEach(c => c.joined && this.push(c.topic, "access_token", { access_token: t }, c.joinRef)); }
+    channel(name, opts = {}) { const c = new Channel(this, name, opts); this.channels.set(c.topic, c); if (this.open) c.join(); return c; }
+    close() { this.closed = true; this.channels.forEach(c => c.leave()); try { this.ws.close(); } catch { /* fine */ } }
+  }
+  class Channel {
+    constructor(rt, name, opts) { this.rt = rt; this.topic = "realtime:" + name; this.opts = opts; this.handlers = {}; this.presence = {}; }
+    join() {
+      this.joinRef = String(++this.rt.ref);
+      const config = { broadcast: { self: false, ack: false }, presence: { key: this.opts.presenceKey || "" }, postgres_changes: this.opts.changes || [], private: false };
+      this.rt.ws.send(JSON.stringify({ topic: this.topic, event: "phx_join", payload: { config, access_token: this.rt.token }, ref: this.joinRef, join_ref: this.joinRef }));
+    }
+    receive(m) {
+      if (m.event === "phx_reply" && m.ref === this.joinRef) { this.joined = m.payload?.status === "ok"; if (this.joined) { if (this.tracked) this.track(this.tracked); this.fire("joined"); } else this.fire("error", m.payload?.response); return; }
+      if (m.event === "broadcast") return this.fire("b:" + m.payload.event, m.payload.payload);
+      if (m.event === "postgres_changes") return this.fire("db", m.payload.data);
+      if (m.event === "presence_state") { this.presence = {}; Object.entries(m.payload).forEach(([k, v]) => this.presence[k] = v.metas); return this.fire("presence", this.presence); }
+      if (m.event === "presence_diff") {
+        Object.entries(m.payload.joins || {}).forEach(([k, v]) => this.presence[k] = v.metas);
+        Object.keys(m.payload.leaves || {}).forEach(k => { if (!m.payload.joins?.[k]) delete this.presence[k]; });
+        return this.fire("presence", this.presence);
+      }
+    }
+    on(ev, fn) { (this.handlers[ev] = this.handlers[ev] || []).push(fn); return this; }
+    onBroadcast(ev, fn) { return this.on("b:" + ev, fn); }
+    fire(ev, data) { (this.handlers[ev] || []).forEach(fn => { try { fn(data); } catch (e) { console.error(e); } }); }
+    send(event, payload) { this.rt.push(this.topic, "broadcast", { type: "broadcast", event, payload }, this.joinRef); }
+    track(payload) { this.tracked = payload; if (this.joined) this.rt.push(this.topic, "presence", { type: "presence", event: "track", payload }, this.joinRef); }
+    leave() { if (this.rt.open) this.rt.push(this.topic, "phx_leave", {}, this.joinRef); this.rt.channels.delete(this.topic); }
+  }
+  let rt = null, lobby = null, inbox = null;
+  O.online = {}; // who's online right now: { userId: {username, at} }
+  O.channel = (name, opts) => rt?.channel(name, opts);
+  O.connect = () => {
+    if (!O.signedIn() || rt) return;
+    rt = new Realtime(S().access_token);
+    lobby = rt.channel("lobby", { presenceKey: O.me().id });
+    lobby.on("joined", () => lobby.track({ u: O.me().username, at: Date.now() }));
+    lobby.on("presence", p => { O.online = Object.fromEntries(Object.entries(p).map(([k, metas]) => [k, metas[0]])); DA.emit("presence", O.online); });
+    inbox = rt.channel("inbox:" + O.me().id, { changes: [
+      { event: "INSERT", schema: "public", table: "invites", filter: `recipient=eq.${O.me().id}` },
+      { event: "*", schema: "public", table: "friendships" }
+    ] });
+    inbox.on("db", d => {
+      if (d.table === "invites" && d.type === "INSERT") DA.emit("invite", d.record);
+      if (d.table === "friendships") DA.emit("friends-changed", d);
+    });
+  };
+  O.disconnect = () => { rt?.close(); rt = lobby = inbox = null; O.online = {}; };
+  O.Realtime = Realtime;
+
+  // Start when the app starts, if you're signed in.
+  DA.on("ready", () => { if (O.enabled() && O.signedIn()) { O.freshToken().then(() => { O.connect(); O.syncProfile().catch(() => {}); }); } });
 })();
 
 </script>
@@ -9182,6 +9479,301 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
 
 </script>
 <script>
+/* Friends: accounts, friend requests, a friends leaderboard, stat comparisons,
+   shared terminals (#/together) and live arcade duels (#/duel). Everything a friend sends is
+   treated as untrusted text: it's escaped before it reaches the page. */
+(function () {
+  const { esc, icon, $, $$ } = DA;
+  const ui = () => DA.ui;
+  const O = new Proxy({}, { get: (_, k) => DA.online[k] });
+  const GAMES = () => DA.ARCADE_GAMES;
+  const nameOf = p => p?.display_name || p?.username || "friend";
+  const av = p => `<span class="avatar fr-av">${DA.avatarHTML(p?.avatar || "tux")}</span>`;
+  const onlineDot = id => `<span class="fr-dot ${O.online[id] ? "on" : ""}" title="${O.online[id] ? "Online now" : "Offline"}"></span>`;
+  const ago = iso => { if (!iso) return "never"; const m = Math.round((Date.now() - new Date(iso)) / 60000); return m < 2 ? "just now" : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : `${Math.round(m / 1440)} days ago`; };
+  const uuid = () => crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+  let cache = { friendships: [], invites: [], duels: [] };
+
+  // ---------- the hub ----------
+  DA.views.friends = async (v) => {
+    if (!O.enabled()) { v.innerHTML = `<div class="view">${ui().pageHead("Friends", "", "", "// online")}<div class="card empty">${DA.TUX("tux-xl")}<h2>Online features aren't set up yet</h2><p class="muted">This copy of the app doesn't have a server configured.</p></div></div>`; return; }
+    if (!O.signedIn()) return authView(v);
+    v.innerHTML = `<div class="view"><div class="fr-page">${ui().pageHead("Friends", "Add friends, see who's online, compare progress, and play or practice together live.", "", "// online")}<div class="card empty small"><p class="muted">Loading…</p></div></div></div>`;
+    try {
+      const [friendships, invites, duels] = await Promise.all([O.friendships(), O.invites(), O.duelHistory().catch(() => [])]);
+      cache = { friendships, invites, duels };
+    } catch (e) { $(".fr-page .empty", v).innerHTML = `<p>${esc(e.message)}</p><button class="btn" data-go="#/friends">Try again</button>`; return; }
+    if (!location.hash.startsWith("#/friends")) return;
+    hub(v);
+  };
+
+  function hub(v) {
+    const me = O.me(), F = cache.friendships;
+    const other = f => f.requester.id === me.id ? f.addressee : f.requester;
+    const friends = F.filter(f => f.status === "accepted").map(f => ({ f, p: other(f) }));
+    const incoming = F.filter(f => f.status === "pending" && f.addressee.id === me.id);
+    const outgoing = F.filter(f => f.status === "pending" && f.requester.id === me.id);
+    const invites = cache.invites.filter(i => i.recipient.id === me.id);
+    if (friends.length) DA.larryUnlock?.("friends");
+    const mine = O.myStats();
+    friends.sort((a, b) => (O.online[b.p.id] ? 1 : 0) - (O.online[a.p.id] ? 1 : 0) || (b.p.stats?.xp || 0) - (a.p.stats?.xp || 0));
+    const record = id => { const games = {}; cache.duels.forEach(r => { if (r.opponent === id || r.player === id) (games[r.room] = games[r.room] || {})[r.player === me.id ? "me" : "them"] = r.score; }); const done = Object.values(games).filter(g => g.me != null && g.them != null); return { w: done.filter(g => g.me > g.them).length, l: done.filter(g => g.me < g.them).length, t: done.filter(g => g.me === g.them).length }; };
+    const board = [{ p: { id: me.id, username: me.username, display_name: DA.state.profile.name, avatar: DA.state.profile.avatar }, s: mine, you: true }, ...friends.map(x => ({ p: x.p, s: x.p.stats || {} }))].sort((a, b) => (b.s.weekXP || 0) - (a.s.weekXP || 0) || (b.s.xp || 0) - (a.s.xp || 0));
+    v.innerHTML = `<div class="view"><div class="fr-page">
+      ${ui().pageHead("Friends", "Add friends, see who's online, compare progress, and play or practice together live.", `<button class="btn ghost" id="fr-acct">${icon("user")} @${esc(me.username)}</button>`, "// online")}
+      ${invites.length ? `<section class="card stack fr-invites"><h2>${icon("gift")} Invites</h2>${invites.map(i => `<div class="fr-row">${av(i.sender)}<div class="fr-who"><b>${esc(nameOf(i.sender))}</b><span class="small muted">${i.kind === "terminal" ? "wants to hack in a terminal together" : `challenges you to ${esc(GAMES()[i.detail?.game]?.name || "a duel")}`} · ${ago(i.created_at)}</span></div><div class="row" style="gap:6px"><button class="btn ghost sm" data-decline="${esc(i.id)}">Decline</button><button class="btn primary sm" data-join="${esc(i.id)}">${icon("play")} Join</button></div></div>`).join("")}</section>` : ""}
+      <div class="fr-grid">
+        <div class="stack">
+          <section class="card stack"><h2>${icon("search")} Add a friend</h2><input class="input search" id="fr-q" placeholder="Search by username…" autocomplete="off" spellcheck="false"><div id="fr-results" class="stack" style="gap:6px"></div>
+            <p class="small muted">Tell friends your username: <b class="mono">@${esc(me.username)}</b></p></section>
+          ${incoming.length ? `<section class="card stack"><h2>Friend requests <span class="count">${incoming.length}</span></h2>${incoming.map(f => `<div class="fr-row">${av(f.requester)}<div class="fr-who"><b>${esc(nameOf(f.requester))}</b><span class="small muted mono">@${esc(f.requester.username)}</span></div><div class="row" style="gap:6px"><button class="btn ghost sm" data-unfriend="${f.id}">Decline</button><button class="btn primary sm" data-accept="${f.id}">Accept</button></div></div>`).join("")}</section>` : ""}
+          ${outgoing.length ? `<section class="card stack"><h3>Sent requests</h3>${outgoing.map(f => `<div class="fr-row">${av(f.addressee)}<div class="fr-who"><b>${esc(nameOf(f.addressee))}</b><span class="small muted">waiting…</span></div><button class="btn ghost sm" data-unfriend="${f.id}">Cancel</button></div>`).join("")}</section>` : ""}
+          <section class="card stack"><h2>${icon("trophy")} This week</h2><ol class="fr-board">${board.map((x, i) => `<li class="${x.you ? "you" : ""}"><span class="fr-place">${["🥇", "🥈", "🥉"][i] || i + 1}</span>${av(x.p)}<span class="fr-who"><b>${esc(x.you ? "You" : nameOf(x.p))}</b><span class="small muted">${esc(x.s.rankEm || "")} ${esc(x.s.rank || "")}</span></span><span class="mono"><b>${(x.s.weekXP || 0).toLocaleString()}</b> <span class="small muted">XP</span></span></li>`).join("")}</ol>${friends.length ? "" : `<p class="small muted">Add a friend to start a leaderboard.</p>`}</section>
+        </div>
+        <section class="stack"><div class="row" style="justify-content:space-between"><h2>Your friends <span class="count">${friends.length}</span></h2><span class="small muted">${friends.filter(x => O.online[x.p.id]).length} online</span></div>
+          ${friends.length ? `<div class="fr-cards">${friends.map(({ f, p }) => { const s = p.stats || {}, r = record(p.id); return `<article class="card fr-card">
+            <div class="row" style="gap:12px;flex-wrap:nowrap">${av(p)}<div class="fr-who"><b>${esc(nameOf(p))} ${onlineDot(p.id)}</b><span class="small muted mono">@${esc(p.username)} · ${O.online[p.id] ? "online now" : `seen ${ago(p.updated_at)}`}</span></div></div>
+            <div class="fr-stats"><div><span>${esc(s.rankEm || "🧳")}</span><b>${esc(s.rank || "New")}</b></div><div><span>XP</span><b>${(s.xp || 0).toLocaleString()}</b></div><div><span>🔥</span><b>${s.streak || 0}d</b></div><div><span>Learning</span><b>${esc(s.distro || "?")}</b></div></div>
+            ${r.w + r.l + r.t ? `<div class="small muted">Duels: <b>${r.w}</b> won · <b>${r.l}</b> lost${r.t ? ` · ${r.t} tied` : ""}</div>` : ""}
+            <div class="row" style="gap:6px"><button class="btn sm" data-compare="${esc(p.id)}">${icon("scale")} Compare</button><button class="btn sm" data-terminal="${esc(p.id)}">${icon("terminal")} Terminal</button><button class="btn primary sm" data-duel="${esc(p.id)}">${icon("play")} Duel</button><button class="icon-btn fr-x" data-unfriend="${f.id}" data-confirm="1" title="Remove friend" aria-label="Remove friend">${icon("x")}</button></div></article>`; }).join("")}</div>`
+            : `<div class="card empty">${DA.TUX("tux-xl")}<h3>No friends yet</h3><p class="muted">Search for a username on the left and send a request. When they accept, you can compare progress, hack in a terminal together and duel in the arcade.</p></div>`}
+        </section>
+      </div></div></div>`;
+    const find = id => friends.find(x => x.p.id === id)?.p;
+    const search = DA.debounce(async q => {
+      const box = $("#fr-results"); if (!box) return;
+      if (q.trim().length < 2) { box.innerHTML = ""; return; }
+      try {
+        const res = await O.search(q), rel = id => F.find(f => f.requester.id === id || f.addressee.id === id);
+        box.innerHTML = res.length ? res.map(p => { const r = rel(p.id); return `<div class="fr-row">${av(p)}<div class="fr-who"><b>${esc(nameOf(p))}</b><span class="small muted mono">@${esc(p.username)}</span></div>${r ? `<span class="tag">${r.status === "accepted" ? "Friends" : "Pending"}</span>` : `<button class="btn primary sm" data-add="${esc(p.id)}">${icon("user")} Add</button>`}</div>`; }).join("") : `<p class="small muted">Nobody called "${esc(q)}" yet.</p>`;
+      } catch (e) { box.innerHTML = `<p class="small" style="color:var(--bad)">${esc(e.message)}</p>`; }
+    }, 300);
+    $("#fr-q").oninput = e => search(e.target.value);
+    $("#fr-acct").onclick = accountDialog;
+    v.querySelector(".fr-page").addEventListener("click", async e => {
+      const b = e.target.closest("button"); if (!b) return;
+      const act = async (fn, okMsg) => { b.disabled = true; try { await fn(); if (okMsg) DA.toast(okMsg); DA.views.friends(v); } catch (err) { DA.toast(esc(err.message)); b.disabled = false; } };
+      if (b.dataset.add) act(() => O.sendRequest(b.dataset.add), "Friend request sent 📨");
+      else if (b.dataset.accept) act(() => O.accept(b.dataset.accept), "You're friends now! 🎉");
+      else if (b.dataset.unfriend) { if (b.dataset.confirm) ui().confirmBox("Remove this friend?", "You can always send a new request later.", "Remove", () => act(() => O.removeFriendship(b.dataset.unfriend))); else act(() => O.removeFriendship(b.dataset.unfriend)); }
+      else if (b.dataset.compare) compareDialog(find(b.dataset.compare));
+      else if (b.dataset.terminal) startSession("terminal", find(b.dataset.terminal));
+      else if (b.dataset.duel) duelDialog(find(b.dataset.duel));
+      else if (b.dataset.join) joinInvite(cache.invites.find(i => i.id === b.dataset.join));
+      else if (b.dataset.decline) act(() => O.answerInvite(b.dataset.decline, "declined"));
+    });
+  }
+
+  // ---------- sign up / log in ----------
+  function authView(v) {
+    let mode = "signup";
+    const draw = () => {
+      v.innerHTML = `<div class="view"><div class="fr-auth">${ui().pageHead(mode === "signup" ? "Make an account" : "Log in", "Accounts let you add friends, compare progress, hack in a terminal together and duel live in the arcade.", "", "// online")}
+        <section class="card stack">
+          <div class="seg" style="align-self:flex-start"><button type="button" data-m="signup" class="${mode === "signup" ? "on" : ""}">Sign up</button><button type="button" data-m="login" class="${mode === "login" ? "on" : ""}">Log in</button></div>
+          <form id="fr-form" class="stack" style="gap:12px" autocomplete="off">
+            <label class="stack" style="gap:4px"><b class="small">Username</b><input class="input mono" id="fr-user" maxlength="20" placeholder="e.g. tux_fan" autocomplete="username" spellcheck="false" value="${esc(mode === "signup" ? DA.userName() === "tux" ? "" : DA.userName() : "")}"><span class="small muted" id="fr-user-hint">${mode === "signup" ? "3–20 letters, numbers or _. Friends find you with this." : ""}</span></label>
+            ${mode === "signup" ? `<label class="stack" style="gap:4px"><b class="small">Display name <span class="muted">(optional)</span></b><input class="input" id="fr-name" maxlength="30" value="${esc(DA.state.profile.name || "")}"></label>` : ""}
+            <label class="stack" style="gap:4px"><b class="small">Password</b><input class="input" type="password" id="fr-pass" minlength="8" autocomplete="${mode === "signup" ? "new-password" : "current-password"}"><span class="small muted">${mode === "signup" ? "At least 8 characters. There's no email, so pick one you'll remember." : ""}</span></label>
+            <p class="small" id="fr-err" style="color:var(--bad)" hidden></p>
+            <button class="btn primary" type="submit">${mode === "signup" ? `${icon("user")} Create my account` : `${icon("arrowR")} Log in`}</button>
+          </form>
+          <p class="small muted">Your account stores your username, display name, avatar and progress stats (XP, streak, rank, scores) so friends can see them. Your lessons and notes stay on this computer.</p>
+        </section></div></div>`;
+      $$(".seg [data-m]", v).forEach(b => b.onclick = () => { mode = b.dataset.m; draw(); });
+      if (mode === "signup") $("#fr-user").oninput = DA.debounce(async e => {
+        const n = e.target.value.trim().toLowerCase(), hint = $("#fr-user-hint"); if (!hint) return;
+        if (!/^[a-z0-9_]{3,20}$/.test(n)) { hint.textContent = "3–20 letters, numbers or _."; return; }
+        try { hint.textContent = (await O.usernameAvailable(n)) ? `✅ @${n} is free` : `❌ @${n} is taken`; } catch { /* offline */ }
+      }, 350);
+      $("#fr-form").onsubmit = async e => {
+        e.preventDefault(); const err = $("#fr-err"), btn = e.target.querySelector("[type=submit]"); err.hidden = true; btn.disabled = true;
+        try {
+          if (mode === "signup") await O.signUp($("#fr-user").value, $("#fr-pass").value, $("#fr-name").value);
+          else await O.logIn($("#fr-user").value, $("#fr-pass").value);
+          DA.toast(mode === "signup" ? `Welcome, @${esc(O.me().username)}! 🎉` : "Logged in 👋"); DA.checkBadges(); DA.views.friends(v);
+        } catch (ex) { err.textContent = ex.message; err.hidden = false; btn.disabled = false; }
+      };
+    };
+    draw();
+  }
+
+  function accountDialog() {
+    const me = O.me();
+    const m = ui().modal(`<h2>${icon("user")} @${esc(me.username)}</h2><p class="muted small" style="margin:6px 0 14px">Your online account. Progress syncs automatically so friends see your latest stats.</p>
+      <div class="stack" style="gap:10px"><label class="stack" style="gap:4px"><b class="small">New password</b><div class="row" style="flex-wrap:nowrap;gap:8px"><input class="input" type="password" id="ac-pass" minlength="8" autocomplete="new-password"><button class="btn" id="ac-save">Change</button></div></label>
+      <div class="row" style="justify-content:space-between;margin-top:8px"><button class="btn danger" id="ac-del">${icon("trash")} Delete account</button><div class="row" style="gap:8px"><button class="btn" id="ac-out">Log out</button><button class="btn primary" data-close>Done</button></div></div></div>`, { label: "Account", width: 480 });
+    $("#ac-save", m).onclick = async () => { const p = $("#ac-pass", m).value; if (p.length < 8) return DA.toast("Passwords need at least 8 characters."); try { await O.changePassword(p); DA.toast("Password changed ✅"); m.remove(); } catch (e) { DA.toast(esc(e.message)); } };
+    $("#ac-out", m).onclick = async () => { m.remove(); await O.logOut(); ui().route(); };
+    $("#ac-del", m).onclick = () => { m.remove(); ui().confirmBox("Delete your online account?", "Your account, friends and duel history are removed from the server for good. Your progress on this computer stays.", "Delete account", async () => { try { await O.deleteAccount(); DA.toast("Account deleted."); ui().route(); } catch (e) { DA.toast(esc(e.message)); } }); };
+  }
+
+  function compareDialog(p) {
+    if (!p) return;
+    const a = O.myStats(), b = p.stats || {};
+    const rows = [["XP", "xp"], ["This week", "weekXP"], ["Streak", "streak"], ["Best streak", "best"], ["Lessons", "lessons"], ["Labs fixed", "labs"], ["Exams passed", "exams"], ["Badges", "badges"], ["Passport stamps", "stamps"], ["Larry Files", "larry"]];
+    const games = Object.entries(GAMES()).map(([g, x]) => [`${x.name} best`, g]);
+    const bar = (x, y) => { const t = Math.max(x, y, 1); return `<div class="cmp-bars"><i class="me" style="width:${x / t * 100}%"></i><i class="them" style="width:${y / t * 100}%"></i></div>`; };
+    const row = (label, x, y) => `<tr><th>${esc(label)}</th><td class="${x > y ? "win" : ""}">${Number(x || 0).toLocaleString()}</td><td>${bar(+x || 0, +y || 0)}</td><td class="${y > x ? "win" : ""}">${Number(y || 0).toLocaleString()}</td></tr>`;
+    const wins = rows.filter(([, k]) => (a[k] || 0) > (b[k] || 0)).length, losses = rows.filter(([, k]) => (b[k] || 0) > (a[k] || 0)).length;
+    ui().modal(`<h2>${icon("scale")} You vs ${esc(nameOf(p))}</h2><p class="muted small" style="margin:6px 0 12px">${wins > losses ? "You're ahead. For now. 😎" : wins < losses ? `${esc(nameOf(p))} is ahead. Time to grind. 💪` : "Dead even. 🤝"} You lead in ${wins} of ${rows.length}.</p>
+      <div class="cheat-wrap"><table class="cmp-table"><thead><tr><th></th><th>You</th><th></th><th>${esc(nameOf(p))}</th></tr></thead><tbody>
+      <tr><th>Rank</th><td>${esc(a.rankEm)} ${esc(a.rank)}</td><td></td><td>${esc(b.rankEm || "")} ${esc(b.rank || "?")}</td></tr>
+      <tr><th>Learning</th><td>${esc(a.distro)}</td><td></td><td>${esc(b.distro || "?")}</td></tr>
+      ${rows.map(([l, k]) => row(l, a[k] || 0, b[k] || 0)).join("")}${games.map(([l, g]) => row(l, a.arcade?.[g] || 0, b.arcade?.[g] || 0)).join("")}</tbody></table></div>
+      <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn primary" data-close>Close</button></div>`, { label: "Compare", width: 640 });
+  }
+
+  function duelDialog(p) {
+    if (!p) return;
+    const m = ui().modal(`<h2>${icon("play")} Duel ${esc(nameOf(p))}</h2><p class="muted small" style="margin:6px 0 14px">You both play the exact same round at the same time, and see each other's score live.</p>
+      <div class="choice-grid two">${Object.entries(GAMES()).map(([g, x]) => `<button type="button" class="choice" data-g="${g}"><span class="em">${x.em}</span><b>${esc(x.name)}</b><span>${esc(x.blurb)}</span></button>`).join("")}</div>
+      <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn ghost" data-close>Cancel</button></div>`, { label: "Duel", width: 620 });
+    m.querySelectorAll("[data-g]").forEach(b => b.onclick = () => { m.remove(); startSession("duel", p, { game: b.dataset.g }); });
+  }
+
+  async function startSession(kind, p, detail = {}) {
+    if (!p) return;
+    try {
+      const inv = await O.invite(p.id, kind, detail);
+      DA.toast(`Invite sent to ${esc(nameOf(p))} 📨`);
+      ui().go(`#/${kind === "terminal" ? "together" : "duel"}/${inv.room}/host/${p.id}${detail.game ? "/" + detail.game : ""}`);
+    } catch (e) { DA.toast(esc(e.message)); }
+  }
+  async function joinInvite(i) {
+    if (!i) return;
+    try { await O.answerInvite(i.id, "accepted"); } catch { /* still join */ }
+    ui().go(`#/${i.kind === "terminal" ? "together" : "duel"}/${i.room}/guest/${i.sender.id}${i.detail?.game ? "/" + i.detail.game : ""}`);
+  }
+
+  // Invites pop up wherever you are.
+  DA.on("invite", async rec => {
+    try {
+      const [inv] = (await O.invites()).filter(i => i.id === rec.id); if (!inv) return;
+      DA.sound("level");
+      const m = ui().modal(`<div class="row" style="gap:14px;flex-wrap:nowrap">${av(inv.sender)}<div><h2>${esc(nameOf(inv.sender))} ${inv.kind === "terminal" ? "wants to hack together" : "challenges you!"}</h2><p class="muted small">${inv.kind === "terminal" ? "A shared practice terminal: you both type, you both see everything." : `${esc(GAMES()[inv.detail?.game]?.name || "An arcade duel")}, live, head to head.`}</p></div></div>
+        <div class="row" style="justify-content:flex-end;margin-top:16px"><button class="btn ghost" id="iv-no">Not now</button><button class="btn primary" id="iv-yes">${icon("play")} Join</button></div>`, { label: "Invite", width: 480 });
+      $("#iv-no", m).onclick = () => { m.remove(); O.answerInvite(inv.id, "declined").catch(() => {}); };
+      $("#iv-yes", m).onclick = () => { m.remove(); joinInvite(inv); };
+    } catch { /* offline */ }
+  });
+  DA.on("friends-changed", () => { if (location.hash.startsWith("#/friends")) DA.views.friends($("#view")); ui().topbar?.(); });
+  DA.on("presence", () => { if (location.hash.startsWith("#/friends") && cache.friendships.length) hub($("#view")); });
+
+  // ---------- room helpers ----------
+  async function roomPeer(friendId) {
+    const f = cache.friendships.find(x => x.requester.id === friendId || x.addressee.id === friendId);
+    if (f) return f.requester.id === friendId ? f.requester : f.addressee;
+    try { cache.friendships = await O.friendships(); } catch { /* offline */ }
+    const g = cache.friendships.find(x => x.requester.id === friendId || x.addressee.id === friendId);
+    return g ? (g.requester.id === friendId ? g.requester : g.addressee) : { id: friendId, username: "friend" };
+  }
+  let roomCleanup = null;
+  const leaveRoom = () => { roomCleanup?.(); roomCleanup = null; };
+  addEventListener("hashchange", () => { if (!/^#\/(together|duel)\//.test(location.hash)) leaveRoom(); });
+  const guardOnline = v => { if (O.enabled() && O.signedIn()) return true; ui().go("#/friends"); return false; };
+
+  // ---------- shared terminal ----------
+  DA.views.together = async (v, room, role, friendId) => {
+    if (!guardOnline(v) || !room) return;
+    leaveRoom();
+    const host = role === "host", peer = await roomPeer(friendId), d = ui().my(), me = O.me();
+    const myName = DA.state.profile.name || me.username;
+    v.innerHTML = `<div class="view">${ui().pageHead(`Terminal with ${esc(nameOf(peer))}`, host ? "You're hosting: this is your sandbox, and your friend types into it too. Every command is labelled with who typed it." : `You're in ${esc(nameOf(peer))}'s sandbox. Type away: you both see everything.`, `<span class="tag" id="tg-status">Connecting…</span><button class="btn ghost" data-go="#/friends">${icon("arrowL")} Leave</button>`, "// together")}
+      <div class="lesson-layout"><div id="tg-term"></div>
+        <section class="card stack tg-chat"><h3>${icon("chat")} Chat</h3><div class="tg-log" id="tg-log"><p class="small muted">Say hi 👋</p></div><form id="tg-say" class="row" style="flex-wrap:nowrap;gap:6px"><input class="input" id="tg-msg" maxlength="200" placeholder="Message…" autocomplete="off"><button class="btn primary sm" type="submit">${icon("send")}</button></form>
+          <p class="small muted">Ideas: one of you breaks something, the other fixes it. Try <code>summon-larry</code> together.</p></section></div></div>`;
+    const ch = O.channel("room:" + room, { presenceKey: me.id });
+    const term = new DA.Term($("#tg-term"), { distro: d, tall: true, id: "together", noEditor: true });
+    ui().ctx.term = term;
+    const status = t => { const el = $("#tg-status"); if (el) el.textContent = t; };
+    const chat = (who, text, mine) => { const log = $("#tg-log"); if (!log) return; log.querySelector(".muted")?.remove(); log.insertAdjacentHTML("beforeend", `<div class="tg-line ${mine ? "mine" : ""}"><b>${esc(who)}</b> ${esc(text)}</div>`); log.scrollTop = log.scrollHeight; };
+    let transcript = [];
+    if (host) {
+      // The host's terminal is the real one: it runs every command and mirrors what it prints.
+      const basePrint = term.print.bind(term), baseDraw = term.drawPrompt.bind(term), basePromptText = term.promptText.bind(term);
+      term.print = s => { basePrint(s); if (!s) return; transcript.push(s); if (transcript.length > 400) transcript.shift(); ch.send("print", { s }); };
+      term.drawPrompt = () => { baseDraw(); ch.send("prompt", { s: term.promptText() }); };
+      let who = myName;
+      term.promptText = () => (who !== myName ? DA.TERM.col("c", `[${who}] `) : "") + basePromptText();
+      ch.onBroadcast("cmd", ({ cmd, name }) => { if (typeof cmd !== "string" || cmd.length > 500) return; who = String(name || peer.username).slice(0, 30); term.inEl.value = cmd; term.submit(); who = myName; });
+      ch.onBroadcast("hello", () => ch.send("sync", { lines: transcript.slice(-200), prompt: term.promptText() }));
+    } else {
+      // Guests send what they type to the host, and show whatever the host's terminal prints.
+      term.outEl.innerHTML = ""; term.el.querySelector(".t-reset").hidden = true;
+      term.submit = () => { const cmd = term.inEl.value.trim(); term.inEl.value = ""; if (!cmd) return; term.hist.push(cmd); term.hpos = term.hist.length; ch.send("cmd", { cmd, name: myName }); };
+      const show = s => { const div = document.createElement("div"); div.innerHTML = DA.TERM.paint(String(s)); term.outEl.appendChild(div); term.outEl.scrollTop = term.outEl.scrollHeight; };
+      ch.onBroadcast("print", ({ s }) => show(s));
+      ch.onBroadcast("prompt", ({ s }) => { term.el.querySelector(".ps").innerHTML = DA.TERM.paint(String(s)); });
+      ch.onBroadcast("sync", ({ lines, prompt }) => { term.outEl.innerHTML = ""; (lines || []).slice(-200).forEach(show); term.el.querySelector(".ps").innerHTML = DA.TERM.paint(String(prompt || "")); });
+      ch.on("joined", () => ch.send("hello", {}));
+      term.el.querySelector(".ttl").textContent = `${peer.username}'s sandbox · shared`;
+    }
+    ch.onBroadcast("chat", ({ name, text }) => { chat(String(name || peer.username).slice(0, 30), String(text || "").slice(0, 200)); DA.sound("click"); });
+    ch.on("joined", () => ch.track({ u: me.username, at: Date.now() }));
+    ch.on("presence", p => { const here = !!p[peer.id]; status(here ? `🟢 ${nameOf(peer)} is here` : `Waiting for ${nameOf(peer)}…`); if (here && !host) ch.send("hello", {}); });
+    $("#tg-say").onsubmit = e => { e.preventDefault(); const t = $("#tg-msg").value.trim(); if (!t) return; ch.send("chat", { name: myName, text: t }); chat("You", t, true); $("#tg-msg").value = ""; };
+    roomCleanup = () => ch.leave();
+  };
+
+  // ---------- live duels ----------
+  DA.views.duel = async (v, room, role, friendId, game) => {
+    if (!guardOnline(v) || !room) return;
+    leaveRoom();
+    const host = role === "host", peer = await roomPeer(friendId), me = O.me(), G = GAMES()[game] ? game : "sprint";
+    const myName = DA.state.profile.name || me.username, d = ui().my();
+    let mine = 0, theirs = 0, myFinal = null, theirFinal = null, playing = false, active = true;
+    v.innerHTML = `<div class="view"><div class="duel-page">${ui().pageHead(`${esc(GAMES()[G].em)} ${esc(GAMES()[G].name)} vs ${esc(nameOf(peer))}`, "Same round, same time. Highest score wins.", `<span class="tag" id="du-status">Connecting…</span><button class="btn ghost" data-go="#/friends">${icon("arrowL")} Leave</button>`, "// duel")}
+      <section class="card duel-score"><div class="du-side"><b>You</b><span class="big-num" id="du-me">0</span></div><div class="du-vs mono">VS</div><div class="du-side them"><b>${esc(nameOf(peer))}</b><span class="big-num" id="du-them">0</span></div>
+        <div class="du-bars"><i class="me" id="du-bar-me"></i><i class="them" id="du-bar-them"></i></div></section>
+      <div id="arcade-stage"><section class="card stack game-intro" style="margin-top:var(--gap)"><div class="game-em">${esc(GAMES()[G].em)}</div><h2 id="du-wait">Waiting for ${esc(nameOf(peer))} to join…</h2><p class="muted small">${esc(GAMES()[G].blurb)}</p>${host ? `<button class="btn primary" id="du-start" disabled>${icon("play")} Start the duel</button>` : `<p class="small muted">The host starts the round when you're both here.</p>`}</section></div></div></div>`;
+    const ch = O.channel("duel:" + room, { presenceKey: me.id });
+    const status = t => { const el = $("#du-status"); if (el) el.textContent = t; };
+    const draw = () => { const a = $("#du-me"), b = $("#du-them"); if (!a) return; a.textContent = mine.toLocaleString(); b.textContent = theirs.toLocaleString(); const t = Math.max(mine, theirs, 1); $("#du-bar-me").style.width = mine / t * 50 + "%"; $("#du-bar-them").style.width = theirs / t * 50 + "%"; };
+    const onScore = s => { if (!active || !playing) return; mine = s; draw(); ch.send("score", { s }); };
+    DA.on("arcade-score", onScore);
+    const finish = () => {
+      if (myFinal == null || theirFinal == null) { const st = $("#arcade-stage"); if (myFinal != null && st) st.innerHTML = `<section class="card stack game-intro" style="margin-top:var(--gap)"><div class="game-em">⏳</div><h2>You scored ${myFinal.toLocaleString()}</h2><p class="muted">Waiting for ${esc(nameOf(peer))} to finish…</p></section>`; return; }
+      const won = myFinal > theirFinal, tie = myFinal === theirFinal;
+      if (won) { DA.celebrate(180); DA.sound("level"); } else DA.sound(tie ? "done" : "bad");
+      DA.addXP(won ? 40 : 15, "arcade");
+      const st = $("#arcade-stage"); if (!st) return;
+      st.innerHTML = `<section class="card stack game-intro" style="margin-top:var(--gap)"><div class="game-em">${won ? "🏆" : tie ? "🤝" : "😤"}</div><h2>${won ? "You win!" : tie ? "A perfect tie!" : `${esc(nameOf(peer))} wins this one.`}</h2><p class="big-num" style="font-size:2rem">${myFinal.toLocaleString()} – ${theirFinal.toLocaleString()}</p>
+        <div class="row" style="justify-content:center"><button class="btn ghost" data-go="#/friends">Back to friends</button>${host ? `<button class="btn primary" id="du-again">${icon("refresh")} Rematch</button>` : `<span class="small muted">The host can start a rematch.</span>`}</div></section>`;
+      $("#du-again")?.addEventListener("click", () => { const next = uuid(); ch.send("rematch", { room: next }); ui().go(`#/duel/${next}/host/${peer.id}/${G}`); });
+    };
+    const play = (seed, distroId) => {
+      if (playing) return;
+      playing = true; mine = 0; theirs = 0; draw();
+      const dd = DA.distroById[distroId] || d, st = $("#arcade-stage");
+      let n = 3; st.innerHTML = `<section class="card game-intro" style="margin-top:var(--gap)"><div class="duel-count" id="du-count">3</div></section>`;
+      const tick = setInterval(() => { n--; const c = $("#du-count"); if (!c) return clearInterval(tick); if (n > 0) { c.textContent = n; DA.sound("click"); } else { clearInterval(tick); DA.sound("ok"); start(); } }, 800);
+      const start = () => DA.ARCADE_PLAY[G](dd, seed, score => { playing = false; myFinal = score; mine = score; draw(); ch.send("final", { s: score }); O.recordDuel(room, G, peer.id, Math.min(100000, Math.max(0, Math.round(score)))).catch(() => {}); finish(); });
+    };
+    ch.onBroadcast("score", ({ s }) => { theirs = Math.max(0, Math.min(100000, +s || 0)); draw(); });
+    ch.onBroadcast("final", ({ s }) => { theirFinal = Math.max(0, Math.min(100000, +s || 0)); theirs = theirFinal; draw(); finish(); });
+    ch.onBroadcast("start", ({ seed, distro }) => play(String(seed).slice(0, 40), String(distro || "")));
+    ch.onBroadcast("rematch", ({ room: next }) => { if (/^[0-9a-f-]{36}$/.test(next)) ui().go(`#/duel/${next}/guest/${peer.id}/${G}`); });
+    ch.on("joined", () => ch.track({ u: me.username, at: Date.now() }));
+    ch.on("presence", p => {
+      const here = !!p[peer.id]; status(here ? `🟢 ${nameOf(peer)} is here` : `Waiting for ${nameOf(peer)}…`);
+      const w = $("#du-wait"); if (w && !playing && myFinal == null) w.textContent = here ? (host ? "Both here. Ready when you are!" : `${nameOf(peer)} is here. Get ready…`) : `Waiting for ${nameOf(peer)} to join…`;
+      const b = $("#du-start"); if (b) b.disabled = !here;
+    });
+    $("#du-start")?.addEventListener("click", () => { const seed = Date.now().toString(36) + Math.random().toString(36).slice(2, 6); ch.send("start", { seed, distro: d.id }); play(seed, d.id); });
+    roomCleanup = () => { active = false; ch.leave(); DA.arcadeStop?.(); };
+  };
+
+  // ---------- badges ----------
+  DA.BADGES.push(
+    { id: "online", em: "🌐", name: "Online", d: "Make an online account", ok: () => !!DA.state.account?.user },
+    { id: "friend1", em: "🤝", name: "Buddy System", d: "Add your first friend", ok: () => cache.friendships.some(f => f.status === "accepted") },
+    { id: "duelwin", em: "🥊", name: "Duelist", d: "Win a live duel against a friend", ok: () => { const me = O.me(); if (!me) return false; const g = {}; cache.duels.forEach(r => { (g[r.room] = g[r.room] || {})[r.player === me.id ? "me" : "them"] = r.score; }); return Object.values(g).some(x => x.me > x.them); } }
+  );
+})();
+
+</script>
+<script>
 /* SCP-096 scream (used by Larry, js/larry.js) from SCP: Containment Breach (SFX/SCP/096/Scream.ogg) by Joonas Rikkonen ("Regalis").
    Licensed CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/). Source: https://github.com/Regalis11/scpcb
    SCP-096 is based on "SCP-096 - The 'Shy Guy'" by Dr Dan on the SCP Wiki. Unmodified; credited on the About page. */
@@ -9267,22 +9859,57 @@ DA.SCREAM_096_OGG = "T2dnUwACAAAAAAAAAADTDAAAAAAAAD5jNBwBHgF2b3JiaXMAAAAAAkSsAAA
     } catch { return () => {}; }
   };
 
-  // ---------- the run ----------
+  // ---------- bone rattle (for the quieter appearances) ----------
+  DA.larryRattle = (n = 9) => {
+    if (!DA.state?.settings.learn.sound) return;
+    try {
+      const a = ctx(), len = Math.floor(a.sampleRate * 0.03);
+      for (let k = 0; k < n; k++) {
+        const t = a.currentTime + 0.02 + k * (0.05 + Math.random() * 0.04), buf = a.createBuffer(1, len, a.sampleRate), d = buf.getChannelData(0);
+        for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 6);
+        const src = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+        src.buffer = buf; f.type = "bandpass"; f.frequency.value = 1800 + Math.random() * 2200; f.Q.value = 3; g.gain.value = VOLUME * 1.4;
+        src.connect(f).connect(g).connect(a.destination); src.start(t);
+      }
+    } catch { /* no audio */ }
+  };
+
+  // ---------- appearances ----------
+  // run: the classic sprint · moonwalk: glides backwards · peek: rises from the bottom edge and looks around
+  // wave: leans in from the side to say hi · chase: flees from Tux · fall: drops in, falls apart, pulls himself together
+  const SIGNS = ["MAKE A BACKUP", "rm -rf / was a mistake", "I use Arch btw", "READ THE MAN PAGE", "chmod 777 is NOT a fix", "sudo make me a sandwich", "have you tried rebooting", "it's always DNS", "never trust a script you didn't read", "I ♥ init", "git commit early, git commit often", "test it in a VM first"];
+  const WAVES = ["hi :)", "made a backup today?", "nice terminal skills", "don't mind me", "boo.", "I'm just passing through", "you're doing great", "keep learning!"];
+  DA.LARRY_STYLES = { run: 34, moonwalk: 14, peek: 16, wave: 12, chase: 14, fall: 10 };
+  const pickStyle = () => { let r = Math.random() * 100; for (const [k, w] of Object.entries(DA.LARRY_STYLES)) { if ((r -= w) < 0) return k; } return "run"; };
   let running = false;
-  DA.summonLarry = (why = "random") => {
+  DA.summonLarry = (why = "random", style) => {
     if (running || !document.body) return false;
+    style = DA.LARRY_STYLES[style] !== undefined ? style : pickStyle();
     running = true;
-    const rtl = Math.random() < 0.5, top = 14 + Math.random() * 26;
-    const el = DA.h(`<div class="larry-run ${rtl ? "rtl" : ""}" style="top:${top}vh" aria-hidden="true"><div class="larry-flip">${DA.LARRY_SVG}</div></div>`);
+    const rtl = Math.random() < 0.5, top = 14 + Math.random() * 26, x = 12 + Math.random() * 62;
+    const sign = (style === "run" || style === "chase") && Math.random() < 0.35 ? `<div class="larry-sign">${DA.esc(DA.pick(SIGNS))}</div>` : "";
+    const L = `<div class="larry-flip">${DA.LARRY_SVG}</div>`;
+    const html = {
+      run: `<div class="larry-run ${rtl ? "rtl" : ""}" style="top:${top}vh">${sign}${L}</div>`,
+      moonwalk: `<div class="larry-run larry-moon ${rtl ? "rtl" : ""}" style="top:${top}vh"><div class="larry-notes">♪ ♫ ♪</div>${L}</div>`,
+      peek: `<div class="larry-peek" style="left:${x}vw">${L}</div>`,
+      wave: `<div class="larry-wave ${rtl ? "rtl" : ""}" style="top:${18 + Math.random() * 30}vh"><div class="larry-bubble">${DA.esc(DA.pick(WAVES))}</div>${L}</div>`,
+      chase: `<div class="larry-run larry-chase ${rtl ? "rtl" : ""}" style="top:${top}vh">${sign}${L}<div class="larry-tux">${DA.TUX("chase-tux")}</div></div>`,
+      fall: `<div class="larry-fall" style="left:${x}vw">${L}</div>`
+    }[style];
+    const el = DA.h(`<div class="larry-stage" aria-hidden="true">${html}</div>`);
     document.body.appendChild(el);
-    DA.scream(RUN + 1.1); // the scream trails behind him
+    const life = { run: RUN, moonwalk: 4.2, peek: 3.6, wave: 3.4, chase: RUN + 0.9, fall: 4.6 }[style];
+    if (style === "run" || style === "chase") DA.scream(life + 1.1);
+    else if (style === "fall") { setTimeout(() => DA.larryRattle(14), 650); setTimeout(() => DA.scream(1.6), 2900); }
+    else DA.larryRattle(style === "moonwalk" ? 16 : 8);
     const p = DA.state.prog, prev = p.larry || p.advisor || {};
-    p.larry = { seen: (prev.seen || 0) + (why === "random" ? 1 : 0), summoned: (prev.summoned || 0) + (why === "summon" ? 1 : 0), last: Date.now() };
-    DA.save(); setTimeout(() => DA.checkBadges(), RUN * 500);
-    const done = () => { if (!el.isConnected) return; el.remove(); running = false; };
-    el.addEventListener("animationend", e => { if (e.target === el) done(); });
-    setTimeout(done, RUN * 1000 + 600);
-    return true;
+    p.larry = { seen: (prev.seen || 0) + (why === "random" ? 1 : 0), summoned: (prev.summoned || 0) + (why === "summon" ? 1 : 0), last: Date.now(), styles: { ...(prev.styles || {}), [style]: (prev.styles?.[style] || 0) + 1 } };
+    DA.save(); setTimeout(() => DA.checkBadges(), life * 500);
+    DA.emit("larry", { why, style });
+    const done = () => { running = false; el.remove(); };
+    setTimeout(done, life * 1000 + 400);
+    return style;
   };
 
   // Roll the dice once a minute, only while someone can actually see it.
@@ -9291,13 +9918,230 @@ DA.SCREAM_096_OGG = "T2dnUwACAAAAAAAAAADTDAAAAAAAAD5jNBwBHgF2b3JiaXMAAAAAAkSsAAA
     if (Math.random() < CHANCE) DA.summonLarry("random");
   }, EVERY_MS);
 
-  if (DA.TERM?.CMDS) DA.TERM.CMDS["summon-larry"] = function () {
-    setTimeout(() => DA.summonLarry("summon"), 400);
-    return DA.TERM.col("d", "💀 You hear rattling bones…");
+  if (DA.TERM?.CMDS) DA.TERM.CMDS["summon-larry"] = function (a) {
+    const style = (a.find(x => x.startsWith("--")) || "").slice(2);
+    if (style && DA.LARRY_STYLES[style] === undefined) return { ok: false, out: `summon-larry: unknown style '${style}'\n` + DA.TERM.col("m", `Try: ${Object.keys(DA.LARRY_STYLES).map(k => "--" + k).join(" ")}`) };
+    setTimeout(() => DA.summonLarry("summon", style || undefined), 400);
+    return DA.TERM.col("d", { peek: "👀 Something is watching you…", moonwalk: "🕺 You hear a smooth beat… and rattling bones.", wave: "👋 Someone wants to say hi…", chase: "🐧 Tux is on the hunt…", fall: "⬇️  Look up.", run: "💀 You hear rattling bones…" }[style] || "💀 You hear rattling bones…");
   };
 
   DA.BADGES.push(
     { id: "advisor", em: "💀", name: "Meet Larry", d: "Have a surprise visit from Larry (summoning him doesn't count)", ok: () => ((DA.state.prog.larry || DA.state.prog.advisor)?.seen || 0) >= 1 }
+  );
+})();
+
+</script>
+<script>
+/* The Larry Files: twelve pieces of Larry lore, unlocked by finding him around the app.
+   Most clues live in the practice terminal: his home folder, his diary, his shell history,
+   and a few commands that react to him. The Larry Files page (#/larry) shows riddles for the rest. */
+(function () {
+  const { esc, icon } = DA;
+  const col = (c, s) => DA.TERM.col(c, s);
+  const lore = () => (DA.state.prog.larryLore = DA.state.prog.larryLore || {});
+
+  DA.LARRY_FILES = [
+    { id: "sighting", n: "001", title: "The first sighting", hint: "Meet him. Any way you can.",
+      text: "A skeleton sprinted across the screen, screaming. Then he was gone. Witnesses agree on three things: he was fast, he was loud, and he looked like he was late for something. The skeleton's name, according to the faded badge clipped to his ribcage, is LARRY." },
+    { id: "home", n: "002", title: "Somebody lives here", hint: "Every user has a home. Check who else lives in /home.",
+      text: "There is a folder called /home/larry on every practice terminal. Nobody created it. It was just there one day, owned by a user with UID 666 who never logs in. Yet the files inside keep changing." },
+    { id: "diary", n: "003", title: "Larry's diary", hint: "People write things down. Read what Larry wrote.",
+      text: "Larry was the night-shift sysadmin at a university computer lab in 1996. He loved three things: his Slackware server, his coffee mug that said 'I ♥ init', and never, ever making backups. 'Backups are for people who make mistakes,' he wrote. That was the last entry before the Friday incident." },
+    { id: "history", n: "004", title: "The last command", hint: "Your shell remembers everything you type. So does Larry's.",
+      text: "Larry's .bash_history ends with one command, typed at 4:59 pm on a Friday: rm -rf / --no-preserve-root. He meant to clean up a temp folder. He was one space off. The server took everything with it, and some say it took Larry too." },
+    { id: "man", n: "005", title: "The manual", hint: "When in doubt, read the manual. Even for Larry.",
+      text: "LARRY(6) — Games Manual. NAME: larry, a skeleton who screams. DESCRIPTION: larry appears when you least expect him. BUGS: larry cannot be stopped, killed, or reasoned with. larry has no backups. SEE ALSO: rm(1), regret(7)." },
+    { id: "kill", n: "006", title: "Kill -9", hint: "Try to stop a process that has already ended.",
+      text: "People have tried to end Larry with kill, pkill and killall. The signal goes out. Nothing happens. You can't kill what is already dead. (Real lesson: a 'zombie' process is one that has finished but whose parent hasn't collected its exit status. Larry is the worst zombie process of all.)" },
+    { id: "sudo", n: "007", title: "Not in the sudoers file", hint: "Ask for Larry's powers. Politely, with admin rights.",
+      text: "Larry is not in the sudoers file. This incident will be reported. Larry has received 4,812 such reports since 1996. He reads every one. He frames the good ones." },
+    { id: "ps", n: "008", title: "Process 666", hint: "List what's running. Sometimes something extra is running.",
+      text: "Every so often, ps aux shows a process that shouldn't be there: PID 666, user larry, command [screaming]. It uses 0.0% CPU and 0.0% memory. It has been running for 30 years." },
+    { id: "version", n: "009", title: "Larry, version 0.0.1", hint: "Most programs will tell you their version if you ask.",
+      text: "larry --version prints 'larry 0.0.1 (never updated)'. Larry has never installed an update. He says updates are how they get you. This is, of course, exactly how he ended up like this." },
+    { id: "night", n: "010", title: "The 3 am rule", hint: "Summon him when everyone else is asleep.",
+      text: "Summon Larry between midnight and 4 am and he moves differently: slower, almost thoughtful. Night-shift habits die hard. The lab was always empty at that hour. Just Larry, the hum of the server, and the blinking cursor." },
+    { id: "wild", n: "011", title: "A true sighting", hint: "Summoning doesn't count. Let him find you.",
+      text: "Larry came on his own. No command, no warning. Researchers believe he picks people who are learning: the ones typing commands, trying things, breaking things on purpose in the sandbox. He's checking on you. In his own screaming way, he's rooting for you." },
+    { id: "finger", n: "012", title: "The .plan", hint: "Old Unix had a command for looking people up. Point it at Larry.",
+      text: "finger larry still works. Last login: Fri Oct 18 16:59 1996 on tty1. Unread mail: 4,812 messages, all from sudo. Plan: haunt terminals until everyone makes backups. Status: 0% complete. (finger was how people looked each other up before social media. Really.)" },
+    { id: "incident", n: "013", title: "The incident log", hint: "Logs live in /var/log. One of them is very old.",
+      text: "/var/log/incident-1996.log records the lab server's last three seconds: rm tearing through /bin, /etc, /usr… then a kernel panic. The final line, at 16:59:59, isn't from the system at all. It just says: larry: oh no." },
+    { id: "mug", n: "014", title: "The mug", hint: "Deleted things often aren't gone. Check Larry's trash.",
+      text: "Larry's Trash folder holds a photo of a coffee mug reading 'I ♥ init'. He loved the old init scripts. He never lived to see systemd, and people still argue about which side he'd have taken. (On Linux desktops, deleted files go to ~/.local/share/Trash first. rm skips the trash entirely.)" },
+    { id: "cron", n: "015", title: "The scheduled scream", hint: "Some jobs run on a timer. Look at Larry's (you'll need root).",
+      text: "Larry's crontab holds a single job: * * * * * /usr/bin/scream. Five stars means every minute of every hour of every day. That's why he can turn up any time. Cron never forgets, and neither does Larry." },
+    { id: "fortune", n: "016", title: "Larry's wisdom", hint: "Larry gives advice, if you ask his command for a fortune.",
+      text: "larry fortune dispenses ancient wisdom. Every single fortune is about backups. When asked if he had any other advice, Larry screamed for nine seconds and left." },
+    { id: "moonwalk", n: "017", title: "Smooth criminal", hint: "Catch Larry dancing.",
+      text: "Witnesses report Larry moonwalking across their screens. Night shifts in 1996 were long and the server room floor was freshly waxed. He practiced. A lot." },
+    { id: "chase", n: "018", title: "Tux and Larry", hint: "Catch Tux chasing someone.",
+      text: "Tux has been chasing Larry for years. Some say Tux is trying to hand him a backup drive. Others say Larry still owes Tux a coffee from 1996. Tux isn't talking. Tux never talks." },
+    { id: "friends", n: "019", title: "Larry's friends", hint: "Larry worked alone. Don't be like Larry.",
+      text: "Larry spent every night alone with a humming server. When you made a friend in Distro Academy, somewhere a skeleton nodded approvingly. Hack with friends. Ask for help. Have someone check your rm commands." },
+    { id: "truth", n: "020", title: "The truth about Larry", hint: "Collect every other file.",
+      text: "Larry isn't a curse. He's a reminder. Every time he screams across your screen, he's yelling the thing he never got to hear in 1996: MAKE A BACKUP. Read your commands before pressing Enter. Test things in a sandbox first. Learn from the skeleton. Be better than Larry. (He'd want that.)" }
+  ];
+  const unlocked = id => !!lore()[id];
+  DA.larryUnlock = id => {
+    if (unlocked(id) || !DA.LARRY_FILES.some(f => f.id === id)) return;
+    lore()[id] = Date.now();
+    const f = DA.LARRY_FILES.find(x => x.id === id);
+    if (!unlocked("truth") && DA.LARRY_FILES.filter(x => x.id !== "truth").every(x => unlocked(x.id))) lore().truth = Date.now() + 1;
+    DA.save(); DA.checkBadges(); DA.ui?.topbar?.();
+    setTimeout(() => DA.toast(`💀 Larry File ${f.n} unlocked: <b>${esc(f.title)}</b>`, "xp"), 700);
+    if (lore().truth && id !== "truth") setTimeout(() => DA.toast(`💀 Larry File 012 unlocked: <b>The truth about Larry</b>`, "xp"), 2200);
+  };
+
+  // ---------- clues in the practice terminal ----------
+  (DA.TERM_SEED = DA.TERM_SEED || []).push((root, d, user) => {
+    const { dir, file } = DA.TERM;
+    root.kids.home.kids.larry = dir({
+      "diary.txt": file("Oct 3 1996: Night shift again. Server's purring. Coffee's cold. Life is good.\nOct 10 1996: Someone asked if I back up the server. Backups are for people who make mistakes.\nOct 17 1996: Disk is getting full. I'll clean out /tmp on Friday.\nOct 18 1996, 4:58 pm: Friday. Cleaning up. Then home for the weekend.", "larry", "644"),
+      ".bash_history": file("ls\ncd /tmp\nls -la\nsudo rm -rf / tmp/old-logs\nsudo rm -rf / --no-preserve-root\n# why is it taking so long", "larry", "600"),
+      "README": file("if you are reading this, MAKE A BACKUP.\n            - L", "larry", "644"),
+      ".plan": file("Plan: haunt terminals until everyone makes backups.\nStatus: 0% complete.", "larry", "644"),
+      ".local": dir({ share: dir({ Trash: dir({ files: dir({ "mug-photo.txt": file("[photo] A chipped coffee mug. It says: I ♥ init\n(found in Larry's trash. He never emptied it.)", "larry", "644") }, "larry", "755") }, "larry", "755") }, "larry", "755") }, "larry", "755")
+    }, "larry", "755");
+    root.kids.var.kids.log.kids["incident-1996.log"] = file("Oct 18 16:59:57 labserver sudo:   larry : COMMAND=/bin/rm -rf / --no-preserve-root\nOct 18 16:59:57 labserver rm: removing /bin/...\nOct 18 16:59:58 labserver rm: removing /etc/...\nOct 18 16:59:58 labserver rm: removing /usr/...\nOct 18 16:59:59 labserver kernel: Kernel panic - not syncing: Attempted to kill init!\nOct 18 16:59:59 labserver larry: oh no", "root", "644");
+    root.kids.etc.kids.passwd.text += "\nlarry:x:666:666:Larry,,,night shift:/home/larry:/bin/scream";
+  });
+  (DA.TERM_RESET = DA.TERM_RESET || []).push(function () { if (this.users) this.users.larry = { uid: 666, groups: ["larry", "night-shift"] }; });
+  const T = DA.TERM.CMDS;
+  const baseCat = T.cat;
+  T.cat = function (a, o) {
+    const r = baseCat.call(this, a, o);
+    const paths = a.map(p => this.abs(p));
+    if (paths.includes("/home/larry/.bash_history") && !o.sudo && this.user !== "larry") return { ok: false, out: `cat: ${a.find(p => this.abs(p) === "/home/larry/.bash_history")}: Permission denied\n` + col("m", "💡 It's Larry's private file (mode 600). Only Larry, or root, can read it.") };
+    if (paths.includes("/home/larry/diary.txt")) DA.larryUnlock("diary");
+    if (paths.includes("/var/log/incident-1996.log")) DA.larryUnlock("incident");
+    if (paths.includes("/home/larry/.local/share/Trash/files/mug-photo.txt")) DA.larryUnlock("mug");
+    if (paths.includes("/home/larry/.bash_history")) DA.larryUnlock("history");
+    return r;
+  };
+  const baseLs = T.ls;
+  T.ls = function (a, o) {
+    const r = baseLs.call(this, a, o);
+    const named = a.filter(x => !x.startsWith("-")), targets = (named.length ? named : ["."]).map(p => this.abs(p));
+    if (targets.some(p => p === "/home" || p.startsWith("/home/larry"))) DA.larryUnlock("home");
+    return r;
+  };
+  const SKULL = "        .-\"\"\"-.\n       /  x  x \\\n       |   ^   |\n        \\ '-' /\n         '---'";
+  const FORTUNES = ["There are two kinds of people: those who back up, and those who will.", "rm doesn't ask twice. Neither does fate.", "A backup you never tested is just a hope.", "Read the command. Then read it again. Then press Enter.", "The cloud is just someone else's computer. Back that up too.", "Friday 4:59 pm is not the time for rm -rf.", "Snapshots are cheap. Regret is expensive.", "If it's not in two places, it doesn't exist.", "sudo means 'I know what I'm doing'. Do you?", "Today is a good day to run rsync."];
+  const say = text => { const t = String(text || "boo.").slice(0, 60); return ` ${"_".repeat(t.length + 2)}\n< ${t} >\n ${"-".repeat(t.length + 2)}\n    \\\n     \\\n` + SKULL; };
+  T.larry = function (a) {
+    const sub = a[0] || "";
+    if (sub === "--version" || sub === "-v") { DA.larryUnlock("version"); return "larry 0.0.1 (never updated)\nCopyright (C) 1996 Larry. No backups reserved."; }
+    if (sub === "say") return col("d", say(a.slice(1).join(" ")));
+    if (sub === "fortune") { DA.larryUnlock("fortune"); return col("d", say(DA.pick(FORTUNES))); }
+    if (sub === "joke") return col("d", say(DA.pick(["Why did I cross the screen? To get to the other backup.", "I'd tell you a UDP joke but you might not get it.", "My favourite file system? ext4. I'm very attached to my bones.", "I don't have a body. Just a shell.", "Knock knock. Who's there? 404. 404 who? Exactly."])));
+    if (sub === "dance") { setTimeout(() => DA.summonLarry("summon", "moonwalk"), 300); return col("d", "🕺 larry: hit it!"); }
+    if (sub === "scream") { setTimeout(() => DA.summonLarry("summon", "run"), 300); return col("d", "AAAAAAAAAAAAAAAAAAAAAAAAA"); }
+    if (sub === "peek") { setTimeout(() => DA.summonLarry("summon", "peek"), 300); return col("d", "👀"); }
+    if (sub === "help" || sub === "--help" || sub === "-h") return `larry 0.0.1, a skeleton who screams\n\n${col("k", "usage:")} larry <command>\n  say TEXT   larry says something\n  fortune    ancient backup wisdom\n  joke       a skeleton joke\n  dance      you'll see\n  peek       he's watching\n  scream     why would you\n  --version  version info\n\nAlso: summon-larry [--run|--moonwalk|--peek|--wave|--chase|--fall]`;
+    return col("d", SKULL + "   AAAAAAAAAAAAAAA") + "\n" + col("m", "larry: try 'larry help'");
+  };
+  T.finger = function (a) {
+    const who = a.filter(x => !x.startsWith("-"))[0] || this.user;
+    if (who === "larry") { DA.larryUnlock("finger"); return "Login: larry          \t\t\tName: Larry\nDirectory: /home/larry          \tShell: /bin/scream\nLast login Fri Oct 18 16:59 (CDT) 1996 on tty1\nNew mail received Fri Oct 16 19:00 2026\n     Unread since Fri Oct 18 16:59 1996 (4,812 messages, all from sudo)\nPlan:\nhaunt terminals until everyone makes backups.\nStatus: 0% complete."; }
+    if (who === this.user) return `Login: ${who}          \t\t\tName: ${DA.displayName()}\nDirectory: ${this.home}          \tShell: /usr/bin/${DA.shellName(this.d)}\nOn since today on pts/0\nNo Plan.`;
+    return { ok: false, out: `finger: ${who}: no such user.` };
+  };
+  const baseCron = T.crontab;
+  T.crontab = function (a, o) {
+    const u = a.indexOf("-u");
+    if (u >= 0 && a[u + 1] === "larry") {
+      if (!o.sudo) return { ok: false, out: "must be privileged to use -u\n" + col("m", "💡 Reading someone else's crontab needs sudo.") };
+      DA.larryUnlock("cron"); return "# m h dom mon dow command\n* * * * * /usr/bin/scream";
+    }
+    return baseCron.call(this, a, o);
+  };
+  const baseMan = T.man;
+  T.man = function (a, o) {
+    if (a[0] === "larry") { DA.larryUnlock("man"); return `${col("k", "LARRY(6)")}                    Games Manual                    ${col("k", "LARRY(6)")}\n\n${col("k", "NAME")}\n       larry - a skeleton who screams\n\n${col("k", "SYNOPSIS")}\n       summon-larry\n\n${col("k", "DESCRIPTION")}\n       larry appears when you least expect him.\n\n${col("k", "BUGS")}\n       larry cannot be stopped, killed, or reasoned with.\n       larry has no backups.\n\n${col("k", "SEE ALSO")}\n       rm(1), backup(8), regret(7)`; }
+    return baseMan.call(this, a, o);
+  };
+  ["kill", "pkill", "killall"].forEach(name => {
+    const base = T[name];
+    T[name] = function (a, o) {
+      if (a.some(x => /^(larry|666)$/.test(x))) { DA.larryUnlock("kill"); return { ok: false, out: `${name}: (666) - Operation not permitted\n` + col("d", "You can't kill what is already dead.") }; }
+      return base.call(this, a, o);
+    };
+  });
+  const baseSu = T.su;
+  T.su = function (a, o) {
+    if (a.includes("larry")) return { ok: false, out: "su: Authentication failure\n" + col("m", "(Larry's password was lost in the incident.)") };
+    return baseSu ? baseSu.call(this, a, o) : "";
+  };
+  // sudo larry: the classic refusal
+  DA.on("term-cmd", ({ line }) => {
+    if (/^sudo larry\b/.test(line.trim())) DA.larryUnlock("sudo");
+  });
+  const baseRunOne = DA.Term.prototype.runOne;
+  DA.Term.prototype.runOne = function (text, stdin, depth) {
+    if (/^sudo\s+larry\b/.test(text.trim())) return { ok: false, out: `${this.user} is not in the sudoers file. This incident will be reported.\n` + col("m", "(Larry is not in the sudoers file either. He's received 4,812 reports.)") };
+    return baseRunOne.call(this, text, stdin, depth);
+  };
+  // Every so often, Larry's process shows up in ps.
+  const basePs = T.ps;
+  T.ps = function (a, o) {
+    const r = basePs.call(this, a, o);
+    if (Math.random() < 0.25 || unlocked("ps")) {
+      DA.larryUnlock("ps");
+      return String(r).replace(/\n([^\n]*\bps)$/, `\nlarry      666  0.0  0.0 [screaming]\n$1`);
+    }
+    return r;
+  };
+
+  // Sightings, styles and the 3 am rule come from the appearance itself.
+  DA.on("larry", ({ why, style }) => {
+    DA.larryUnlock("sighting");
+    if (style === "moonwalk") setTimeout(() => DA.larryUnlock("moonwalk"), 1500);
+    if (style === "chase") setTimeout(() => DA.larryUnlock("chase"), 1500);
+    if (why === "random") DA.larryUnlock("wild");
+    const h = new Date().getHours();
+    if (why === "summon" && h < 4) DA.larryUnlock("night");
+  });
+
+  // ---------- the Larry Files page ----------
+  DA.views.larry = (v) => {
+    const got = DA.LARRY_FILES.filter(f => unlocked(f.id)).length, p = DA.state.prog.larry || DA.state.prog.advisor || {};
+    v.innerHTML = `<div class="view"><div class="larry-page">
+      ${DA.ui.pageHead("The Larry Files", `${got} of ${DA.LARRY_FILES.length} files recovered. Larry sightings: <b>${p.seen || 0}</b> in the wild, <b>${p.summoned || 0}</b> summoned. Clues are hidden in the practice terminals.`, `<button class="btn" data-term="summon-larry">${icon("terminal")} Summon Larry</button>`, "// classified · night shift, 1996")}
+      <div class="larry-hero card"><div class="larry-hero-art">${DA.LARRY_SVG}</div><div><div class="eyebrow mono">// subject</div><h2>LARRY</h2><dl class="larry-facts"><div><dt>Former job</dt><dd>Night-shift sysadmin</dd></div><div><dt>Last seen alive</dt><dd>Fri, Oct 18 1996, 4:59 pm</dd></div><div><dt>UID</dt><dd>666</dd></div><div><dt>Shell</dt><dd>/bin/scream</dd></div><div><dt>Backups</dt><dd>None. Ever.</dd></div></dl></div></div>
+      <div class="bar" style="margin:var(--gap) 0"><i style="width:${got / DA.LARRY_FILES.length * 100}%"></i></div>
+      <div class="larry-files">${DA.LARRY_FILES.map(f => unlocked(f.id)
+        ? `<article class="card larry-file"><div class="row" style="justify-content:space-between"><span class="mono small faint">FILE ${f.n}</span><span class="small faint">${new Date(lore()[f.id]).toLocaleDateString()}</span></div><h3>${esc(f.title)}</h3><p>${esc(f.text)}</p></article>`
+        : `<article class="card larry-file locked"><div class="row" style="justify-content:space-between"><span class="mono small faint">FILE ${f.n}</span>${icon("lock")}</div><h3>[REDACTED]</h3><p class="muted"><i>Clue: ${esc(f.hint)}</i></p></article>`).join("")}</div>
+    </div></div>`;
+  };
+
+  // Every so often, Larry says something in your terminal.
+  const LINES = ["did you make a backup today?", "nice command.", "careful with that one.", "I'm watching. Supportively.", "read the man page, it's good.", "remember: rm doesn't ask twice.", "you type faster than I did.", "boo."];
+  const baseSubmit = DA.Term.prototype.submit;
+  DA.Term.prototype.submit = function () {
+    baseSubmit.call(this);
+    if (Math.random() < 1 / 120 && this.o.id !== "daily" && this.el?.isConnected) this.print(col("d", `💀 larry@${this.d.id}: `) + col("m", DA.pick(LINES)));
+  };
+  // ...and very occasionally sends you a message.
+  setInterval(() => {
+    if (document.hidden || !DA.state?.profile.onboarded || Math.random() > 1 / 400) return;
+    DA.toast(`📨 <b>larry</b>: ${esc(DA.pick(LINES))}`); DA.larryRattle?.(5);
+  }, 60000);
+
+  // The tutor knows a little.
+  const baseAnswer = DA.tutorAnswer;
+  DA.tutorAnswer = (input, ctx) => {
+    if (/\blarry\b/i.test(input)) {
+      const got = DA.LARRY_FILES.filter(f => unlocked(f.id)).length;
+      return { special: true, html: `<p>Ah. Larry. 💀 We don't talk about Larry much.</p><p>${got ? `You've recovered ${got} of ${DA.LARRY_FILES.length} Larry Files.` : "Nobody knows much about him."} If you want to know more, start by looking around <code>/home</code> in a practice terminal. And make a backup. Just in case.</p>`, actions: [{ label: "Open the Larry Files", go: "#/larry" }] };
+    }
+    return baseAnswer(input, ctx);
+  };
+
+  DA.BADGES.push(
+    { id: "larryfiles", em: "🗂️", name: "Larry Scholar", d: "Recover every Larry File", ok: () => DA.LARRY_FILES.every(f => unlocked(f.id)) },
+    { id: "larry3", em: "🦴", name: "Bone Collector", d: "Recover 3 Larry Files", ok: () => DA.LARRY_FILES.filter(f => unlocked(f.id)).length >= 3 }
   );
 })();
 
@@ -9438,8 +10282,8 @@ DA.SCREAM_096_OGG = "T2dnUwACAAAAAAAAAADTDAAAAAAAAD5jNBwBHgF2b3JiaXMAAAAAAkSsAAA
   const NAV = [
     ["Learn", [["home", "home", "Home"], ["distros", "grid", "Distros"], ["mine", "star", "My course"], ["review", "refresh", "Review"], ["missions", "target", "Missions"]]],
     ["Practice", [["playground", "terminal", "Playground"], ["labs", "flask", "Labs"], ["arcade", "play", "Arcade"]]],
-    ["Library", [["commands", "code", "Commands"], ["glossary", "book", "Glossary"], ["notebook", "file", "Notebook"], ["guide", "compass", "Try a distro"], ["finder", "radar", "Distro finder"], ["compare", "scale", "Compare"], ["history", "history", "History"]]],
-    ["You", [["achievements", "trophy", "Achievements"], ["whats-new", "spark", "What's new"], ["settings", "settings", "Settings"]]]
+    ["Library", [["commands", "code", "Commands"], ["glossary", "book", "Glossary"], ["notebook", "file", "Notebook"], ["guide", "compass", "Try a distro"], ["finder", "radar", "Distro finder"], ["compare", "scale", "Compare"], ["history", "history", "History"], ["larry", "skull", "Larry Files"]]],
+    ["You", [["friends", "user", "Friends"], ["achievements", "trophy", "Achievements"], ["whats-new", "spark", "What's new"], ["settings", "settings", "Settings"]]]
   ];
   const NAV_FLAT = NAV.flatMap(([, items]) => items);
   const navHref = id => id === "mine" ? `#/distro/${my().id}` : `#/${id}`;
@@ -9507,6 +10351,10 @@ DA.SCREAM_096_OGG = "T2dnUwACAAAAAAAAAADTDAAAAAAAAD5jNBwBHgF2b3JiaXMAAAAAAkSsAAA
     $("#side-rank").hidden = !show;
     const due = DA.srsStats().due, badge = $('[data-badge="review"]');
     if (badge) { badge.hidden = !due; badge.textContent = due > 99 ? "99+" : due; }
+    const friendsNav = $('[data-nav="friends"]');
+    if (friendsNav) friendsNav.hidden = !DA.online?.enabled();
+    const larryNav = $('[data-nav="larry"]');
+    if (larryNav) larryNav.hidden = !Object.keys(DA.state.prog.larryLore || {}).length; // a secret until you've met him
     const newBadge = $('[data-badge="whats-new"]');
     if (newBadge) { const unseen = DA.state.prog.changelogSeen !== DA.VERSION; newBadge.hidden = !unseen; newBadge.textContent = "NEW"; }
     const dailyBadge = $('[data-badge="home"]');
@@ -9515,15 +10363,15 @@ DA.SCREAM_096_OGG = "T2dnUwACAAAAAAAAAADTDAAAAAAAAD5jNBwBHgF2b3JiaXMAAAAAAkSsAAA
 
   // ---------- router ----------
   function route() {
-    const [page, a, b] = (location.hash || "#/" + (DA.state.settings.startPage || "home")).slice(2).split("/");
+    const [page, a, b, ...more] = (location.hash || "#/" + (DA.state.settings.startPage || "home")).slice(2).split("/").map(x => decodeURIComponent(x || ""));
     ctx.lesson = null; ctx.distro = my(); ctx.term = null; ctx.lab = null;
     DA.arcadeStop?.();
-    const navId = page === "distro" && a === my().id ? "mine" : page === "lesson" || page === "exam" ? (a === my().id ? "mine" : "distros") : page === "distro" ? "distros" : page;
+    const navId = page === "distro" && a === my().id ? "mine" : page === "lesson" || page === "exam" ? (a === my().id ? "mine" : "distros") : page === "distro" ? "distros" : page === "together" || page === "duel" ? "friends" : page;
     $$(".nav-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.nav === navId));
     $(".app").classList.toggle("focus-mode", page === "lesson" && DA.state.settings.focusLessons);
     const v = $("#view");
     const fn = DA.views[page] || DA.views.home;
-    try { fn(v, a, b); }
+    try { const r = fn(v, a, b, ...more); r?.catch?.(err => { console.error(err); v.innerHTML = `<div class="view"><div class="card empty"><h2>Something went wrong.</h2><p class="muted">${esc(err.message)}</p><button class="btn primary" data-go="#/home">Go home</button></div></div>`; }); }
     catch (err) { console.error(err); v.innerHTML = `<div class="view"><div class="card empty">${DA.TUX("tux-xl")}<h2>Oops, that page tripped over a cable.</h2><p class="muted">${esc(err.message)}</p><button class="btn primary" data-go="#/home">Go home</button></div></div>`; }
     $("#main").scrollTop = 0;
     DA.tutor.suggestions();
@@ -9653,6 +10501,7 @@ DA.SCREAM_096_OGG = "T2dnUwACAAAAAAAAAADTDAAAAAAAAD5jNBwBHgF2b3JiaXMAAAAAAkSsAAA
       else if (!p.device) DA.machinePrompt();
       else DA.maybeRecap();
       topbar();
+      DA.emit("ready");
     });
   }
   DA.boot = boot;
