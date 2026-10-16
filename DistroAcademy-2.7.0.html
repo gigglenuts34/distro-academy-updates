@@ -810,6 +810,17 @@ svg.larry-svg { width: 100%; height: auto; display: block; overflow: visible; fi
 .larry-fall .larry-svg * { transform-origin: 104px 140px; }
 .larry-wave .larry-bubble { left: 34%; }
 .larry-wave.rtl .larry-bubble { left: 66%; }
+.doc-page { max-width: 900px; }
+.doc-card.top { border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+.doc-steps { margin: 0; padding-left: 22px; display: grid; gap: 4px; }
+#doc-in { width: 100%; resize: vertical; min-height: 120px; }
+.cotd-name { font-size: 1.05rem; padding: 4px 10px; border-radius: 8px; background: var(--accent-soft, color-mix(in srgb, var(--accent) 18%, transparent)); white-space: nowrap; }
+.cp-nav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.cp-dot { width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--line); background: var(--card); color: var(--muted); font: 600 .78rem var(--mono, monospace); cursor: pointer; }
+.cp-dot.ans { background: color-mix(in srgb, var(--accent) 22%, var(--card)); color: var(--ink); }
+.cp-dot.flag { box-shadow: inset 0 -3px 0 #f2a65a; }
+.cp-dot.cur { outline: 2px solid var(--accent); outline-offset: 1px; }
+#cp-time.warn { background: color-mix(in srgb, #f27a7a 30%, transparent); }
 
 </style>
 </head>
@@ -2040,6 +2051,185 @@ DA.DISTROS.sort((a, b) => DA.FAMILIES.findIndex(f => f.id === a.family) - DA.FAM
         { q: "What's the right boot order?", a: ["Kernel → firmware → init", "Firmware → bootloader → kernel → init", "Init → kernel → bootloader", "Bootloader → firmware → kernel"], c: 1, why: "Each stage hands off to the next." },
         { q: "What is PID 1?", a: ["The kernel", "The init system", "Your browser", "The bootloader"], c: 1, why: `On ${d.name} that's ${DA.initOf(d).name}.` },
         { q: "Where do you see the parameters the kernel booted with?", a: ["/proc/cmdline", "/etc/hosts", "~/.bashrc", "/boot/grub.png"], c: 0, why: "The kernel exposes them in /proc/cmdline." }
+      ]
+    }
+  ];
+})();
+
+</script>
+<script>
+/* Bash scripting: 8 lessons shared by every distro. The practice terminal runs real Bash syntax
+   (if, loops, functions, arguments, exit codes) thanks to js/terminal-shell.js. */
+(function () {
+  const tip = (t, kind = "tip") => `<div class="callout ${kind}">${DA.icon(kind === "warn" ? "alert" : "spark")}<div>${t}</div></div>`;
+  const c = s => `<code>${DA.esc(s)}</code>`;
+  const pre = s => `<pre class="mono small code-block">${DA.esc(s)}</pre>`;
+
+  DA.CORE3 = [
+    {
+      id: "bash1", title: "Your first script", mins: 8, icon: "file",
+      blurb: "A file full of commands that runs with one word. This is where automation starts.",
+      body: () => `
+        <p>A <b>script</b> is just a text file of commands. Instead of typing five commands every morning, you write them once and run the file.</p>
+        ${pre("#!/bin/bash\necho \"Hello, $USER!\"\necho \"Today is $(date +%F)\"")}
+        <ul><li>Line 1, the <b>shebang</b> (${c("#!/bin/bash")}), tells Linux which program runs the file.</li>
+        <li>${c("chmod +x hello.sh")} makes it executable. Without it you get <i>Permission denied</i>.</li>
+        <li>Run it with ${c("./hello.sh")}. The ${c("./")} means "the one in this folder".</li></ul>
+        ${tip(`Writing longer scripts? ${c("nano hello.sh")} opens a real editor right here. ^O saves, ^X exits.`)}`,
+      cmds: () => [["nano hello.sh", "Write a script in an editor"], ["chmod +x hello.sh", "Make it executable"], ["./hello.sh", "Run it"], ["bash -n hello.sh", "Check it for syntax errors without running it"]],
+      steps: () => [
+        { t: "Start the script: <code>echo '#!/bin/bash' > hello.sh</code>", re: /^echo ['"]#!\/bin\/(ba)?sh['"] > ?hello\.sh$/ },
+        { t: "Add a line: <code>echo 'echo \"Hello, $USER!\"' >> hello.sh</code>", re: /^echo .+ >> ?hello\.sh$/ },
+        { t: "Make it executable: <code>chmod +x hello.sh</code>", re: /^chmod (\+x|u\+x|a\+x|7[0-7][0-7]) hello\.sh$/ },
+        { t: "Run it: <code>./hello.sh</code>", re: /^(\.\/hello\.sh|bash hello\.sh)$/ }
+      ],
+      quiz: [
+        { q: "What does the first line <code>#!/bin/bash</code> do?", a: ["Tells Linux which program should run the script", "It's a comment that does nothing", "Makes the file executable", "Deletes old versions"], c: 0, why: "The shebang picks the interpreter. Without it, your current shell guesses." },
+        { q: "You run <code>./backup.sh</code> and get <i>Permission denied</i>. What's the fix?", a: ["chmod +x backup.sh", "sudo rm backup.sh", "Rename it to .exe", "Reboot"], c: 0, why: "Scripts need the execute (x) permission." }
+      ]
+    },
+    {
+      id: "bash2", title: "Variables and quotes", mins: 9, icon: "code",
+      blurb: "Store values, reuse them, and learn why quotes matter so much.",
+      body: () => `
+        <p>Set a variable with ${c('name="Tux"')} (<b>no spaces</b> around ${c("=")}!) and use it with ${c("$name")}.</p>
+        <ul><li><b>Double quotes</b> expand variables: ${c('echo "Hi $name"')} prints <i>Hi Tux</i>.</li>
+        <li><b>Single quotes</b> keep everything literal: ${c("echo 'Hi $name'")} prints <i>Hi $name</i>.</li>
+        <li><b>Command substitution</b> stores a command's output: ${c("today=$(date +%F)")}</li>
+        <li>Defaults: ${c('${1:-Documents}')} means "the first argument, or Documents if there isn't one".</li></ul>
+        ${tip(`Always quote variables that hold file names: ${c('rm "$file"')}. A file called "my notes.txt" would otherwise become two arguments.`, "warn")}`,
+      cmds: () => [['name="Tux"', "Set a variable"], ['echo "Hello, $name"', "Use it"], ["today=$(date +%F)", "Store a command's output"], ['echo "${#name} letters"', "Length of a variable"]],
+      steps: () => [
+        { t: "Set a variable: <code>name=\"Tux\"</code>", re: /^name=["']?\w+["']?$/ },
+        { t: "Use it in double quotes: <code>echo \"Hello, $name\"</code>", re: /^echo "[^"]*\$\{?name\}?[^"]*"$/ },
+        { t: "See single quotes stay literal: <code>echo 'Hello, $name'</code>", re: /^echo '[^']*\$name[^']*'$/ },
+        { t: "Store a command's output: <code>today=$(date +%F)</code> then <code>echo \"Today is $today\"</code>", re: /^today=\$\(date( \+%F)?\)$/ }
+      ],
+      quiz: [
+        { q: "What does <code>echo 'Cost: $price'</code> print?", a: ["Cost: $price", "The value of price", "Nothing", "An error"], c: 0, why: "Single quotes are literal: no expansion." },
+        { q: "Which assignment is correct?", a: ['name="Tux"', 'name = "Tux"', '$name="Tux"', 'set name Tux'], c: 0, why: "No spaces around = in Bash." }
+      ]
+    },
+    {
+      id: "bash3", title: "Arguments: talking to your script", mins: 8, icon: "terminal",
+      blurb: "$1, $2, $# and $@: how scripts receive what you type after them.",
+      body: () => `
+        <p>Words after a script's name become <b>arguments</b>: ${c("./greet.sh Ethan Tux")}.</p>
+        <ul><li>${c("$1")}, ${c("$2")}…: the first, second… argument</li><li>${c("$#")}: how many there are</li><li>${c('"$@"')}: all of them, each kept whole (perfect for loops)</li><li>${c("$0")}: the script's own name</li></ul>
+        ${pre('#!/bin/bash\necho "Hi $1, you gave me $# arguments"\nfor person in "$@"; do\n  echo "Welcome, $person"\ndone')}`,
+      cmds: () => [["./greet.sh Ethan", "One argument"], ["./greet.sh Ethan Tux Larry", "Three"], ['echo "$#"', "How many arguments"]],
+      steps: () => [
+        { t: "Write it: <code>echo 'echo \"Hi $1, you gave me $# arguments\"' > greet.sh</code>", re: /^echo '.*\$1.*' > ?greet\.sh$/ },
+        { t: "Make it executable: <code>chmod +x greet.sh</code>", re: /^chmod (\+x|u\+x|a\+x|7[0-7][0-7]) greet\.sh$/ },
+        { t: "Run it with one argument: <code>./greet.sh Ethan</code>", re: /^(\.\/|bash )greet\.sh \S+$/ },
+        { t: "Run it with three: <code>./greet.sh Ethan Tux Larry</code>", re: /^(\.\/|bash )greet\.sh( \S+){3,}$/ }
+      ],
+      quiz: [
+        { q: "In <code>./copy.sh notes.txt backup/</code>, what is <code>$2</code>?", a: ["backup/", "notes.txt", "./copy.sh", "2"], c: 0, why: "$1 is notes.txt, $2 is backup/." },
+        { q: "What does <code>$#</code> hold?", a: ["The number of arguments", "The last argument", "The script's name", "A comment"], c: 0, why: "$# counts the arguments." }
+      ]
+    },
+    {
+      id: "bash4", title: "Decisions: if, test and exit codes", mins: 10, icon: "target",
+      blurb: "Make scripts react: does the file exist? Is the number big? Did that command work?",
+      body: () => `
+        <p>Every command finishes with an <b>exit code</b>: ${c("0")} means success, anything else means failure. ${c("echo $?")} shows the last one.</p>
+        ${pre('if [ -f notes.txt ]; then\n  echo "found it"\nelif [ -d notes ]; then\n  echo "it\'s a folder"\nelse\n  echo "nothing there"\nfi')}
+        <ul><li>Files: ${c("-f")} file exists, ${c("-d")} folder exists, ${c("-x")} is executable</li>
+        <li>Text: ${c('[ "$a" = "$b" ]')}, ${c('[ -z "$a" ]')} (empty)</li>
+        <li>Numbers: ${c("-eq -ne -lt -le -gt -ge")}, as in ${c('[ "$n" -gt 5 ]')}</li>
+        <li>Shortcuts: ${c("cmd && echo worked")}, ${c("cmd || echo failed")}</li></ul>
+        ${tip(`The spaces inside ${c("[ ]")} are required: ${c("[ -f x ]")}, never ${c("[-f x]")}.`, "warn")}`,
+      cmds: () => [["if [ -d Documents ]; then echo yes; fi", "Is there a Documents folder?"], ["grep -q apple Documents/fruits.txt; echo $?", "Exit code of a search"], ["[ -f nope.txt ] || echo missing", "Run something only if a test fails"]],
+      steps: () => [
+        { t: "Test for a folder: <code>if [ -d Documents ]; then echo \"found it\"; fi</code>", re: /^if \[ -d \S+ \]; then echo .+; fi$/ },
+        { t: "See an exit code: <code>grep -q apple Documents/fruits.txt; echo $?</code>", re: /^grep -q \S+ \S+; echo \$\?$/ },
+        { t: "Use || for failures: <code>[ -f nope.txt ] || echo \"no such file\"</code>", re: /^\[ -[fde] \S+ \] \|\| echo .+$/ },
+        { t: "Compare numbers: <code>x=7; if [ $x -gt 5 ]; then echo big; else echo small; fi</code>", re: /^x=\d+; if \[ \$x -(gt|lt|ge|le|eq|ne) \d+ \]; then echo .+; else echo .+; fi$/ }
+      ],
+      quiz: [
+        { q: "What exit code means success?", a: ["0", "1", "255", "-1"], c: 0, why: "Zero is success; anything else is a kind of failure." },
+        { q: "Which test checks that a folder exists?", a: ["[ -d path ]", "[ -f path ]", "[ -z path ]", "[ -x path ]"], c: 0, why: "-d is for directories." }
+      ]
+    },
+    {
+      id: "bash5", title: "Loops: doing things again and again", mins: 10, icon: "refresh",
+      blurb: "for, while and reading files line by line.",
+      body: () => `
+        <ul><li>Over a list: ${c("for f in *.txt; do echo \"$f\"; done")}</li>
+        <li>Over numbers: ${c("for i in {1..5}; do echo $i; done")}</li>
+        <li>Until something changes: ${c("while [ $n -gt 0 ]; do …; n=$((n-1)); done")}</li>
+        <li>Every line of a file: ${c('while read line; do echo "$line"; done < todo.txt')}</li>
+        <li>${c("break")} leaves a loop early, ${c("continue")} skips to the next round.</li></ul>
+        ${tip(`A while loop whose condition never becomes false runs forever. Ctrl+C stops it in a real terminal (the practice one stops after 1000 rounds).`, "warn")}`,
+      cmds: () => [["for i in {1..5}; do echo round $i; done", "Count to 5"], ["for f in Documents/*; do echo file: $f; done", "Every file in a folder"], ["while read line; do echo todo: $line; done < Documents/todo.txt", "Each line of a file"]],
+      steps: () => [
+        { t: "Count: <code>for i in {1..5}; do echo \"round $i\"; done</code>", re: /^for \w+ in \{\d+\.\.\d+\}; do .+; done$/ },
+        { t: "Loop over files: <code>for f in Documents/*; do echo \"file: $f\"; done</code>", re: /^for \w+ in \S*\*\S*; do .+; done$/ },
+        { t: "Count down: <code>n=3; while [ $n -gt 0 ]; do echo $n; n=$((n-1)); done; echo liftoff</code>", re: /^n=\d+; while \[ \$n -gt 0 \]; do .+; done(; .+)?$/ },
+        { t: "Read a file: <code>while read line; do echo \"todo: $line\"; done < Documents/todo.txt</code>", re: /^while read \w+; do .+; done < ?\S+$/ }
+      ],
+      quiz: [
+        { q: "What does <code>for i in {1..3}</code> loop over?", a: ["1, 2 and 3", "The letters i, n", "Three files", "Nothing"], c: 0, why: "{1..3} expands to 1 2 3." },
+        { q: "How do you process a file one line at a time?", a: ["while read line; do …; done < file", "for line in file", "cat file | for", "if read file"], c: 0, why: "read takes one line per round from the redirected file." }
+      ]
+    },
+    {
+      id: "bash6", title: "Functions: name your tricks", mins: 8, icon: "spark",
+      blurb: "Wrap a few commands under a name, then call it like any command.",
+      body: () => `
+        ${pre('greet() {\n  local who=${1:-friend}\n  echo "Hello, $who!"\n}\n\ngreet Ethan     # Hello, Ethan!\ngreet           # Hello, friend!')}
+        <ul><li>Inside a function, ${c("$1")}, ${c("$2")}… are the <i>function's</i> arguments.</li><li>${c("local")} keeps a variable inside the function.</li><li>${c("return 1")} ends it with an exit code, just like a command.</li></ul>
+        ${tip(`Functions you put in ${c("~/.bashrc")} are available in every terminal you open. That's how people build their own little commands.`)}`,
+      cmds: () => [['greet() { echo "Hello, $1"; }', "Define a function"], ["greet Ethan", "Call it"], ["type greet", "Ask the shell what greet is"]],
+      steps: () => [
+        { t: "Define it: <code>greet() { echo \"Hello, $1\"; }</code>", re: /^greet\s*\(\)\s*\{ .+; \}$/ },
+        { t: "Call it: <code>greet Ethan</code>", re: /^greet \S+$/ },
+        { t: "Make a math function: <code>square() { echo $(( $1 * $1 )); }; square 12</code>", re: /^square\s*\(\)\s*\{ .+; \}; square \d+$/ }
+      ],
+      quiz: [
+        { q: "Inside a function, what is <code>$1</code>?", a: ["The function's first argument", "The script's first argument, always", "The function's name", "An error"], c: 0, why: "Functions get their own positional arguments." },
+        { q: "What does <code>local</code> do?", a: ["Keeps a variable inside the function", "Makes a variable global", "Deletes a variable", "Exports it"], c: 0, why: "local variables vanish when the function ends." }
+      ]
+    },
+    {
+      id: "bash7", title: "Math and exit codes", mins: 7, icon: "target",
+      blurb: "Arithmetic with $(( )), and scripts that report success or failure properly.",
+      body: () => `
+        <ul><li>${c("echo $(( 17 / 5 ))")} gives 3 (whole numbers only) and ${c("$(( 17 % 5 ))")} gives the remainder, 2.</li>
+        <li>${c("(( count++ ))")} adds one to a counter.</li>
+        <li>End a script with ${c("exit 0")} (worked) or ${c("exit 1")} (failed), so other scripts can check with ${c("$?")} or ${c("&&")}.</li></ul>
+        ${tip(`Need decimals? Bash only does whole numbers. Use ${c("awk 'BEGIN{print 17/5}'")} or ${c("bc")}.`)}`,
+      cmds: () => [["echo $(( 17 / 5 )) $(( 17 % 5 ))", "Division and remainder"], ["bash -c 'exit 3'; echo $?", "See a custom exit code"], ["mkdir test && echo created || echo failed", "Success and failure paths"]],
+      steps: () => [
+        { t: "Do some math: <code>echo $(( 17 / 5 )) $(( 17 % 5 ))</code>", re: /^echo .*\$\(\(.+\)\).*$/ },
+        { t: "Set an exit code: <code>bash -c 'exit 3'; echo $?</code>", re: /^bash -c ['"]exit \d+['"]; echo \$\?$/ },
+        { t: "Branch on success: <code>mkdir test && echo created || echo failed</code>", re: /^mkdir \S+ && echo .+ \|\| echo .+$/ }
+      ],
+      quiz: [
+        { q: "What is <code>$(( 17 % 5 ))</code>?", a: ["2", "3", "3.4", "17"], c: 0, why: "% is the remainder: 17 = 3×5 + 2." },
+        { q: "Why should scripts end with a meaningful exit code?", a: ["So other commands and scripts can tell whether they worked", "It makes them faster", "It's required to run", "It deletes temp files"], c: 0, why: "&&, || and if all rely on exit codes." }
+      ]
+    },
+    {
+      id: "bash8", title: "Project: a real backup script", mins: 14, icon: "trophy",
+      blurb: "Put it all together: arguments, checks, a date-stamped archive and a clear report.",
+      body: () => `
+        <p>Here's a backup script a real sysadmin would be happy with. Type it into ${c("nano backup.sh")}:</p>
+        ${pre('#!/bin/bash\n# Back up a folder into ~/backups with today\'s date in the name.\nsrc=${1:-Documents}\ndest=~/backups\n\nif [ ! -d "$src" ]; then\n  echo "error: $src is not a folder"\n  exit 1\nfi\n\nmkdir -p "$dest"\nname="$dest/$(basename "$src")-$(date +%F).tar.gz"\ntar -czf "$name" "$src"\necho "backed up $src to $name"\nexit 0')}
+        <ul><li>${c("src=${1:-Documents}")}: use the first argument, or Documents</li><li>${c('[ ! -d "$src" ]')}: stop with an error if it isn't a folder</li><li>${c("$(date +%F)")} puts today's date in the file name, so backups never overwrite each other</li></ul>
+        ${tip(`Larry never made backups. You just wrote a backup script. 💀 Pair it with the cron lesson to run it every night.`)}`,
+      cmds: () => [["nano backup.sh", "Write the script"], ["chmod +x backup.sh", "Make it executable"], ["./backup.sh Documents", "Back up Documents"], ["./backup.sh nope", "See the error path"], ["ls ~/backups", "Check the result"]],
+      steps: () => [
+        { t: "Write the script: <code>nano backup.sh</code> (type it in, ^O to save, ^X to exit)", re: /^(nano|vi|vim) backup\.sh$/ },
+        { t: "Check the syntax: <code>bash -n backup.sh</code>", re: /^bash -n backup\.sh$/ },
+        { t: "Make it executable: <code>chmod +x backup.sh</code>", re: /^chmod (\+x|u\+x|a\+x|7[0-7][0-7]) backup\.sh$/ },
+        { t: "Run it: <code>./backup.sh Documents</code>", re: /^(\.\/|bash )backup\.sh( \S+)?$/ },
+        { t: "Check the archive: <code>ls ~/backups</code>", re: /^ls( -\w+)? (~\/|\/home\/\w+\/)?backups\/?$/ }
+      ],
+      quiz: [
+        { q: "Why put <code>$(date +%F)</code> in the backup's file name?", a: ["So each day's backup gets a new name instead of overwriting the last", "To make it compress better", "Because tar requires it", "To hide it"], c: 0, why: "A date stamp keeps a history of backups." },
+        { q: "What does <code>exit 1</code> after the error message tell other programs?", a: ["The script failed", "The script worked", "Retry once", "Nothing"], c: 0, why: "A non-zero exit code means failure." }
       ]
     }
   ];
@@ -5149,6 +5339,21 @@ DA.CMD_REF = {
 /* Every release, newest first. The What's New page and the after-update popup read from here.
    Add a new entry at the top whenever DA.VERSION changes. */
 DA.CHANGELOG = [
+  { v: "2.7.0", date: "2026-10-16", title: "Write real scripts", items: [
+    ["📜", "Bash scripting course", "Eight new lessons on every distro: variables, arguments, if, loops, functions, exit codes, and a real backup script. The practice terminal now runs actual Bash: if/elif/else, for and while loops, functions, $(( math )), read, printf and more."],
+    ["🩺", "Error Doctor", "Paste an error from your real computer and get what it means in plain English, plus the commands to fix it on your distro. Works offline. Tux uses it too when you paste an error into the chat."],
+    ["🏗️", "Real-world projects", "Three bigger labs: build a morning system report with cron, launch a website with nginx, and make the shell yours with aliases and your own commands."],
+    ["⚔️", "Boss fight: Larry's Revenge", "Larry has taken over a machine. Find his process, break his crontab, fix your ls, rescue your Documents, then give him what he always wanted."],
+    ["📜", "Cert prep", "Timed, unofficial practice exams styled after Linux+ and RHCSA topics, with a score for each topic so you know what to study."],
+    ["⌨️", "Command of the day", "A new useful command on your home screen every day, with a Try it button."],
+    ["🛠️", "Better terminal", "OpenRC, runit, dinit and SysVinit service commands work now (rc-service, rc-update, sv, dinitctl, service). Plus source, unalias, chown -R, grep -q, and your own commands in ~/bin."]
+  ] },
+  { v: "2.6.0", date: "2026-10-16", title: "Friends!", items: [
+    ["👥", "Accounts and friends", "Make an account with just a username and password (no email), then add friends by username. Find it under You → Friends."],
+    ["💻", "Terminals together", "Invite a friend into your practice terminal. You both type, you both see everything, every command is labelled with who typed it, and there's a chat on the side."],
+    ["🥊", "Live arcade duels", "Challenge a friend to any arcade game. Same round, same time, and you watch each other's score climb live. Then rematch."],
+    ["📊", "Compare and compete", "Side-by-side stats with any friend, a weekly friends leaderboard, and your win/loss record against each of them."]
+  ] },
   { v: "2.5.0", date: "2026-10-16", title: "Larry's world gets bigger", items: [
     ["💀", "Six kinds of Larry sightings", "He runs, moonwalks, peeks up from the bottom of the screen, leans in to say hi, gets chased by Tux, and sometimes falls from the sky and has to pull himself back together."],
     ["🗂️", "20 Larry Files", "Eight new files to uncover. Try finger, check old logs in /var/log, dig through Larry's trash, and peek at his crontab (you'll need sudo)."],
@@ -5230,7 +5435,7 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
 /* State, persistence (native file via the launcher, else localStorage), lessons and the user's machine. */
 (function () {
   const KEY = "distro-academy-v1";
-  DA.VERSION = "2.5.0";
+  DA.VERSION = "2.7.0";
 
   DA.defaults = () => ({
     v: 2,
@@ -5245,7 +5450,7 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
       updates: { auto: true, autoApply: true, feed: "" },
       ai: { provider: "off", model: "claude-opus-5-5", key: "", ollamaUrl: "http://localhost:11434", ollamaModel: "llama3.2", mode: "always" },
       widgets: [
-        { id: "continue", on: true }, { id: "daily", on: true }, { id: "quests", on: true }, { id: "dotd", on: true }, { id: "review", on: true }, { id: "week", on: true }, { id: "streak", on: true },
+        { id: "continue", on: true }, { id: "daily", on: true }, { id: "quests", on: true }, { id: "dotd", on: true }, { id: "cotd", on: true }, { id: "review", on: true }, { id: "week", on: true }, { id: "streak", on: true },
         { id: "picks", on: true }, { id: "passport", on: true }, { id: "tip", on: true }, { id: "badges", on: true }
       ]
     },
@@ -5330,7 +5535,7 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
 
   // ---- lessons ----
   // Course order: Core skills → the distro's own track → Core skills II.
-  DA.TIERS = [["core", "Core skills"], ["track", "Only on"], ["core2", "Core skills II"]];
+  DA.TIERS = [["core", "Core skills"], ["track", "Only on"], ["core2", "Core skills II"], ["core3", "Bash scripting"]];
   const cache = new Map();
   DA.invalidate = () => cache.clear();
   const ctxKey = () => `${DA.userName()}|${DA.machine().id}|${DA.state?.settings.term.prompt}`;
@@ -5340,7 +5545,8 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
     const core = DA.CORE.map(l => ({ ...l, kind: "core", distro: d.id }));
     const track = (DA.TRACKS[d.id] || []).filter(l => !l.device || l.device === DA.machine().id).map(l => ({ ...l, kind: "track", distro: d.id }));
     const core2 = (DA.CORE2 || []).map(l => ({ ...l, kind: "core2", distro: d.id }));
-    const all = [...core, ...track, ...core2];
+    const core3 = (DA.CORE3 || []).map(l => ({ ...l, kind: "core3", distro: d.id }));
+    const all = [...core, ...track, ...core2, ...core3];
     cache.set(key, all);
     return all;
   };
@@ -5363,8 +5569,8 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
   };
   DA.nextLesson = (d) => {
     const ls = DA.lessonsFor(d), lvl = DA.state.profile.level;
-    const core = ls.filter(l => l.kind === "core"), track = ls.filter(l => l.kind === "track"), core2 = ls.filter(l => l.kind === "core2");
-    const order = lvl === "pro" ? [...track, ...core2, ...core] : lvl === "basics" ? [...core.slice(2), ...track, ...core2, ...core.slice(0, 2)] : ls;
+    const core = ls.filter(l => l.kind === "core"), track = ls.filter(l => l.kind === "track"), core2 = ls.filter(l => l.kind === "core2"), core3 = ls.filter(l => l.kind === "core3");
+    const order = lvl === "pro" ? [...track, ...core2, ...core3, ...core] : lvl === "basics" ? [...core.slice(2), ...track, ...core2, ...core3, ...core.slice(0, 2)] : ls;
     return order.find(l => !DA.isDone(d.id, l.id)) || null;
   };
   DA.totalLessons = () => DA.DISTROS.reduce((n, d) => n + DA.lessonsFor(d).length, 0);
@@ -5375,7 +5581,7 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
 /* The online server (Supabase). The key is the public "anon" key: it's meant to ship inside apps.
    What each signed-in person may do is enforced on the server by Row Level Security (server/schema.sql). */
 window.DA = window.DA || {};
-DA.ONLINE_CONFIG = { url: "", key: "" };
+DA.ONLINE_CONFIG = { url: "https://erstexcypkidzvzjajod.supabase.co", key: "sb_publishable_xQsD9W8Ivfhr6okUGlFJdA_26PA4l6A" };
 
 </script>
 <script>
@@ -5467,6 +5673,8 @@ DA.ONLINE_CONFIG = { url: "", key: "" };
     { id: "nano", em: "✍️", name: "Editor Wars Veteran", d: "Save a file in nano", ok: () => (DA.state.prog.nanoSaves || 0) >= 1 },
     { id: "typo", em: "🐛", name: "Bug Squasher", d: "Score 1,200+ in Typo Hunter", ok: () => (DA.state.prog.arcade?.typo || 0) >= 1200 },
     { id: "flags", em: "🚩", name: "Flag Bearer", d: "Score 1,200+ in Flag Frenzy", ok: () => (DA.state.prog.arcade?.flags || 0) >= 1200 },
+    { id: "bash", em: "📜", name: "Shell Scripter", d: "Finish the Bash scripting course on any distro", ok: () => DA.DISTROS.some(d => (DA.CORE3 || []).every(l => DA.isDone(d.id, l.id))) },
+    { id: "doctor", em: "🩺", name: "House Call", d: "Diagnose a real error with the Error Doctor", ok: () => (DA.state.prog.doctorUses || 0) >= 1 },
     { id: "polyglot", em: "🌐", name: "Package Polyglot", d: "Earn stamps on distros with 6 different package managers", ok: () => new Set(Object.keys(DA.state.prog.stamps).map(id => DA.distroById[id]?.pkg).filter(Boolean)).size >= 6 }
   ];
 
@@ -5794,18 +6002,19 @@ DA.ONLINE_CONFIG = { url: "", key: "" };
         const out = words(loop[2], this.env, this.home).map(v => { this.env[loop[1]] = v; return this.runLine(loop[3], depth + 1).out; });
         return { ...res, out: out.filter(Boolean).join("\n") };
       }
-      const outs = []; let ok = true, prev = null;
+      const outs = []; let ok = true, prev = null, code = 0;
       for (const part of splitTop(line, ["&&", "||", ";"])) {
         if ((prev === "&&" && !ok) || (prev === "||" && ok)) { prev = part.sep; continue; }
         const r = this.runPipe(part.text, depth);
         if (r.clear) return r;
         if (r.out) outs.push(r.out);
-        res.acts.push(...(r.acts || [])); ok = r.ok !== false; prev = part.sep;
+        res.acts.push(...(r.acts || [])); ok = r.ok !== false; code = r.code ?? (ok ? 0 : 1); prev = part.sep;
       }
-      return { ...res, ok, out: outs.join("\n") };
+      return { ...res, ok, code, out: outs.join("\n") };
     }
     runPipe(text, depth) {
-      text = text.replace(/\$\(([^()]*)\)/g, (_, inner) => (this.runLine(inner, depth + 1).out || "").replace(/\u0001\w|\u0002/g, "").split("\n").map(l => l.split(/\s+/)[0]).join(" ").trim());
+      // $(command) runs and is replaced by its output, except inside 'single quotes'.
+      text = text.split(/('[^']*')/).map(seg => seg.startsWith("'") && seg.endsWith("'") && seg.length > 1 ? seg : seg.replace(/\$\(([^()]*)\)/g, (_, inner) => (this.runLine(inner, depth + 1).out || "").replace(/\u0001\w|\u0002/g, "").trim().split(/\s*\n\s*/).join(" "))).join("");
       let input = null, r = { ok: true, out: "" }, acts = [];
       for (const stage of splitTop(text, ["|"])) {
         let cmd = stage.text, target = null;
@@ -5816,7 +6025,7 @@ DA.ONLINE_CONFIG = { url: "", key: "" };
           input = src.text; cmd = inRe[1] + (inRe[3] || "");
         }
         const m = cmd.match(/^(.*?)\s*(>>?)\s*([^\s>]+)$/);
-        if (m && m[1]) { cmd = m[1]; target = { file: m[3], append: m[2] === ">>" }; }
+        if (m && m[1]) { cmd = m[1]; target = { file: words(m[3], this.env, this.home)[0] || m[3], append: m[2] === ">>" }; }
         r = this.runOne(cmd, input, depth);
         acts.push(...(r.acts || []));
         if (r.clear) return r;
@@ -5828,7 +6037,7 @@ DA.ONLINE_CONFIG = { url: "", key: "" };
     runOne(text, stdin, depth) {
       let w = words(text, this.env, this.home);
       if (!w.length) return { ok: true, out: "" };
-      if (w.length === 1 && /^[A-Za-z_]\w*=/.test(w[0])) { const i = w[0].indexOf("="); this.env[w[0].slice(0, i)] = w[0].slice(i + 1); return { ok: true, out: "" }; }
+      if (w.length === 1 && /^[A-Za-z_]\w*=/.test(w[0])) { const i = w[0].indexOf("="); this.env[w[0].slice(0, i)] = w[0].slice(i + 1).replace(/^~(?=\/|$)/, this.home); return { ok: true, out: "" }; }
       if (this.alias[w[0]]) { text = this.alias[w[0]] + text.slice(w[0].length); w = words(text, this.env, this.home); }
       if (depth >= 0) for (const [re, out] of (this.lesson?.fake || [])) { const m = text.trim().match(re); if (m && !/^(mkdir|file):/.test(out)) return { ok: true, out: out.replace(/\$(\d)/g, (_, i) => m[i] || "").replace(/\{user\}/g, this.user) }; }
       const pk = this.packages(text);
@@ -6779,6 +6988,425 @@ DA.ONLINE_CONFIG = { url: "", key: "" };
 
 </script>
 <script>
+/* A small Bash interpreter for the practice terminal: if/elif/else, while/until, for (with {1..5}
+   ranges), functions, break/continue/return/exit, $? $# $@, $(( arithmetic )), (( )), [ ] / test,
+   read, printf and echo -e. Loops are capped so a runaway script can't freeze the app.
+   Simple commands still run through the terminal's normal machinery (pipes, redirects, && and ||). */
+(function () {
+  const Term = DA.Term, { CMDS, col } = DA.TERM;
+  const MAX_ITER = 1000, MAX_STEPS = 20000;
+
+  // ---------- splitting a script into statements ----------
+  // Splits on newlines and top-level ';' (not inside quotes, $( ), $(( )) or [[ ]]). Comments are dropped.
+  function statements(src) {
+    const out = []; let buf = "", q = null, depth = 0;
+    const push = () => { const s = buf.trim(); if (s) out.push(s); buf = ""; };
+    for (let i = 0; i < src.length; i++) {
+      const ch = src[i];
+      if (q) { buf += ch; if (ch === "\\" && q === '"') { buf += src[++i] || ""; continue; } if (ch === q) q = null; continue; }
+      if (ch === "'" || ch === '"') { q = ch; buf += ch; continue; }
+      if (ch === "#" && (!buf.trim() || /\s$/.test(buf)) && depth === 0 && src[i - 1] !== "$") { while (i < src.length && src[i] !== "\n") i++; push(); continue; }
+      if (ch === "(") depth++; else if (ch === ")") depth = Math.max(0, depth - 1);
+      if (depth === 0 && (ch === "\n" || (ch === ";" && src[i + 1] !== ";"))) { push(); continue; }
+      if (ch === "\\" && src[i + 1] === "\n") { i++; continue; }
+      buf += ch;
+    }
+    push();
+    // Keywords can share a statement with the command after them: "then echo hi", "do x", "else y".
+    const toks = [];
+    for (let s of out) {
+      while (true) {
+        let m;
+        if ((m = s.match(/^(then|do|else|\{)\s+(.+)$/s))) { toks.push(m[1]); s = m[2]; continue; }
+        if ((m = s.match(/^(?:function\s+)?([A-Za-z_][\w-]*)\s*\(\)\s*\{\s*(.*)$/s)) || (m = s.match(/^function\s+([A-Za-z_][\w-]*)\s*\{\s*(.*)$/s))) { toks.push({ func: m[1] }); s = m[2]; if (!s) break; continue; }
+        if ((m = s.match(/^(.+?)\s*\}$/s)) && !/^\{/.test(s) && braces(s) < 0) { toks.push(m[1]); toks.push("}"); break; }
+        toks.push(s); break;
+      }
+    }
+    return toks.filter(t => t !== "");
+  }
+
+  // More closing than opening braces (outside quotes) means the statement ends a { } block.
+  function braces(s) { let n = 0, q = null; for (const ch of s) { if (q) { if (ch === q) q = null; continue; } if (ch === "'" || ch === '"') q = ch; else if (ch === "{") n++; else if (ch === "}") n--; } return n; }
+
+  // ---------- parsing into a tree ----------
+  function parse(toks) {
+    let i = 0;
+    const kw = (t, ...names) => typeof t === "string" && names.some(n => t === n || t.startsWith(n + " "));
+    function list(stops) {
+      const nodes = [];
+      while (i < toks.length) {
+        const t = toks[i];
+        if (stops.some(s => kw(t, s))) break;
+        nodes.push(node());
+      }
+      return nodes;
+    }
+    const expect = (name) => { const t = toks[i]; if (!kw(t, name)) throw new Error(`syntax error: expected '${name}'${t ? ` near '${typeof t === "string" ? t.split(" ")[0] : "{"}'` : " at the end of the script"}`); i++; return t; };
+    function node() {
+      const t = toks[i++];
+      if (typeof t === "object" && t.func) { const body = list(["}"]); expect("}"); return { t: "func", name: t.func, body }; }
+      if (t === "{") { const body = list(["}"]); expect("}"); return { t: "group", body }; }
+      if (kw(t, "if")) {
+        const branches = []; let cond = [{ t: "cmd", text: t.slice(2).trim() }], els = null;
+        cond = cond.concat(list(["then"])); expect("then");
+        branches.push({ cond, body: list(["elif", "else", "fi"]) });
+        while (kw(toks[i], "elif")) { const e = toks[i++]; const c = [{ t: "cmd", text: e.slice(4).trim() }].concat(list(["then"])); expect("then"); branches.push({ cond: c, body: list(["elif", "else", "fi"]) }); }
+        if (kw(toks[i], "else")) { i++; els = list(["fi"]); }
+        expect("fi"); return { t: "if", branches, els };
+      }
+      if (kw(t, "while") || kw(t, "until")) {
+        const until = t.startsWith("until"), cond = [{ t: "cmd", text: t.slice(until ? 5 : 5).trim() }].concat(list(["do"]));
+        expect("do"); const body = list(["done"]); const d = expect("done");
+        const r = d.match(/^done\s*<\s*(\S+)$/);
+        return { t: "while", until, cond, body, from: r ? r[1] : null };
+      }
+      if (kw(t, "for")) {
+        const m = t.match(/^for\s+([A-Za-z_]\w*)(?:\s+in\s+(.*))?$/s);
+        if (!m) throw new Error("syntax error in for loop: use  for NAME in WORDS; do ...; done");
+        expect("do"); const body = list(["done"]); expect("done");
+        return { t: "for", v: m[1], words: m[2] ?? '"$@"', body };
+      }
+      if (kw(t, "then", "do", "done", "fi", "else", "elif", "}")) throw new Error(`syntax error near unexpected token '${t.split(" ")[0]}'`);
+      return { t: "cmd", text: t };
+    }
+    const tree = list([]);
+    if (i < toks.length) throw new Error(`syntax error near unexpected token '${String(toks[i]).split(" ")[0]}'`);
+    return tree;
+  }
+
+  // ---------- arithmetic ----------
+  function arith(expr, env, set) {
+    const src = String(expr);
+    // assignments and ++/-- (the common forms)
+    let m;
+    if ((m = src.trim().match(/^([A-Za-z_]\w*)\s*(\+\+|--)$/)) || (m = src.trim().match(/^(\+\+|--)\s*([A-Za-z_]\w*)$/))) {
+      const name = /^[A-Za-z_]/.test(m[1]) ? m[1] : m[2], op = /^[A-Za-z_]/.test(m[1]) ? m[2] : m[1], old = parseInt(env[name], 10) || 0;
+      set(name, String(old + (op === "++" ? 1 : -1))); return /^[A-Za-z_]/.test(m[1]) ? old : old + (op === "++" ? 1 : -1);
+    }
+    if ((m = src.trim().match(/^([A-Za-z_]\w*)\s*([+\-*/%]?)=(?!=)\s*(.+)$/))) {
+      const cur = parseInt(env[m[1]], 10) || 0, v = arith(m[3], env, set);
+      const r = !m[2] ? v : m[2] === "+" ? cur + v : m[2] === "-" ? cur - v : m[2] === "*" ? cur * v : m[2] === "/" ? (v ? Math.trunc(cur / v) : 0) : (v ? cur % v : 0);
+      set(m[1], String(r)); return r;
+    }
+    const toks = src.match(/\d+|[A-Za-z_]\w*|\*\*|==|!=|<=|>=|&&|\|\||[-+*/%()<>!]/g) || [];
+    let i = 0;
+    const val = () => {
+      const t = toks[i++];
+      if (t === "(") { const v = or(); i++; return v; }
+      if (t === "-") return -val(); if (t === "+") return val(); if (t === "!") return val() ? 0 : 1;
+      if (/^\d+$/.test(t || "")) return parseInt(t, 10);
+      if (/^[A-Za-z_]/.test(t || "")) { const v = env[t]; return /^-?\d+$/.test(String(v ?? "").trim()) ? parseInt(v, 10) : 0; }
+      throw new Error(`arithmetic syntax error: '${src.trim()}'`);
+    };
+    const pow = () => { const b = val(); if (toks[i] === "**") { i++; return b ** pow(); } return b; };
+    const mul = () => { let v = pow(); while (["*", "/", "%"].includes(toks[i])) { const op = toks[i++], r = pow(); if ((op === "/" || op === "%") && r === 0) throw new Error("division by 0"); v = op === "*" ? v * r : op === "/" ? Math.trunc(v / r) : v % r; } return v; };
+    const add = () => { let v = mul(); while (toks[i] === "+" || toks[i] === "-") { const op = toks[i++]; v = op === "+" ? v + mul() : v - mul(); } return v; };
+    const cmp = () => { let v = add(); while (["<", ">", "<=", ">="].includes(toks[i])) { const op = toks[i++], r = add(); v = +(op === "<" ? v < r : op === ">" ? v > r : op === "<=" ? v <= r : v >= r); } return v; };
+    const eq = () => { let v = cmp(); while (toks[i] === "==" || toks[i] === "!=") { const op = toks[i++], r = cmp(); v = +(op === "==" ? v === r : v !== r); } return v; };
+    const and = () => { let v = eq(); while (toks[i] === "&&") { i++; const r = eq(); v = +(v && r); } return v; };
+    const or = () => { let v = and(); while (toks[i] === "||") { i++; const r = and(); v = +(v || r); } return v; };
+    const r = or();
+    if (i < toks.length) throw new Error(`arithmetic syntax error: '${src.trim()}'`);
+    return r;
+  }
+  DA.TERM.arith = arith;
+
+  // ---------- running ----------
+  const baseRunLine = Term.prototype.runLine, baseRunOne = Term.prototype.runOne;
+  const COMPOUND = /^(if|while|until|for|function)\b|^[A-Za-z_][\w-]*\s*\(\)\s*\{|^\{\s|^\(\(|^(break|continue|exit|return|local)\b/;
+
+  Term.prototype.runScript = function (src, args, depth = 0) {
+    let tree;
+    try { tree = parse(statements(src)); } catch (e) { this.lastStatus = 2; return { ok: false, out: `bash: ${e.message}`, acts: [] }; }
+    const frame = { args: args || [], out: [], acts: [], steps: 0 };
+    const sig = this.exec(tree, frame, depth);
+    const status = sig?.code ?? this.lastStatus ?? 0;
+    return { ok: status === 0, out: frame.out.filter(s => s !== "" && s != null).join("\n"), acts: frame.acts, code: status };
+  };
+
+  // Expand $? $# $@ $* $(( )) before handing a command to the normal runner.
+  // Single-quoted text is left exactly as written, like real Bash.
+  Term.prototype.expandSpecial = function (text, frame) {
+    const setVar = (k, v) => { this.env[k] = v; };
+    const vars = e => e.replace(/\$\{?([A-Za-z_]\w*|\d)\}?/g, (_, k) => this.env[k] ?? "0");
+    const one = seg => seg
+      .replace(/\$\{(\w+):-([^}]*)\}/g, (_, k, d) => (this.env[k] ?? "") !== "" ? this.env[k] : d)
+      .replace(/\$\{#(\w+)\}/g, (_, k) => String((this.env[k] ?? "").length))
+      .replace(/\$\(\((.+?)\)\)/g, (_, e) => String(arith(vars(e), this.env, setVar)))
+      .replace(/\$\?/g, String(this.lastStatus ?? 0))
+      .replace(/\$#/g, String(frame.args.length))
+      .replace(/"\$@"|\$@|"\$\*"|\$\*/g, () => frame.args.map(a => /\s/.test(a) ? `"${a}"` : a).join(" "));
+    return text.split(/('[^']*')/).map(seg => seg.startsWith("'") && seg.endsWith("'") && seg.length > 1 ? seg : one(seg)).join("");
+  };
+
+  Term.prototype.exec = function (nodes, frame, depth) {
+    for (const n of nodes) {
+      if (++frame.steps > MAX_STEPS) { frame.out.push(col("d", "bash: stopped: the script ran too long (is there an endless loop?)")); return { kind: "exit", code: 1 }; }
+      const sig = this.execNode(n, frame, depth);
+      if (sig) return sig;
+    }
+    return null;
+  };
+
+  Term.prototype.cond = function (nodes, frame, depth) {
+    const sig = this.exec(nodes, frame, depth);
+    if (sig) return sig;
+    return this.lastStatus === 0;
+  };
+
+  Term.prototype.execNode = function (n, frame, depth) {
+    if (n.t === "func") { (this.funcs = this.funcs || {})[n.name] = n.body; this.lastStatus = 0; return null; }
+    if (n.t === "group") return this.exec(n.body, frame, depth);
+    if (n.t === "if") {
+      for (const b of n.branches) { const c = this.cond(b.cond, frame, depth); if (typeof c === "object") return c; if (c) return this.exec(b.body, frame, depth); }
+      if (n.els) return this.exec(n.els, frame, depth);
+      this.lastStatus = 0; return null;
+    }
+    if (n.t === "for") {
+      const words = DA.TERM.words(this.expandSpecial(n.words, frame).replace(/\{(-?\d+)\.\.(-?\d+)\}/g, (_, a, b) => { a = +a; b = +b; const out = []; for (let x = a; a <= b ? x <= b : x >= b; x += a <= b ? 1 : -1) { out.push(x); if (out.length > MAX_ITER) break; } return out.join(" "); }).replace(/\$\(([^()]*)\)/g, (_, inner) => (baseRunLine.call(this, inner, depth + 1).out || "").replace(/\u0001\w|\u0002/g, "")), this.env, this.home);
+      let it = 0;
+      for (const w of this.expand ? this.expand(words) : words) {
+        if (++it > MAX_ITER) { frame.out.push(col("d", "bash: loop stopped after 1000 rounds")); break; }
+        this.env[n.v] = w;
+        const sig = this.exec(n.body, frame, depth);
+        if (sig?.kind === "break") break; if (sig?.kind === "continue") continue; if (sig) return sig;
+      }
+      return null;
+    }
+    if (n.t === "while") {
+      let it = 0, saved = this.readQueue;
+      if (n.from) { const f = this.get(n.from); if (!f || f.dir) { frame.out.push(`bash: ${n.from}: No such file or directory`); this.lastStatus = 1; return null; } this.readQueue = f.text.split("\n"); if (this.readQueue[this.readQueue.length - 1] === "") this.readQueue.pop(); }
+      try {
+        while (true) {
+          if (++it > MAX_ITER) { frame.out.push(col("d", "bash: loop stopped after 1000 rounds (is the condition ever false?)")); break; }
+          const c = this.cond(n.cond, frame, depth); if (typeof c === "object") return c;
+          if (c === n.until) break;
+          const sig = this.exec(n.body, frame, depth);
+          if (sig?.kind === "break") break; if (sig?.kind === "continue") continue; if (sig) return sig;
+        }
+      } finally { if (n.from) this.readQueue = saved; }
+      this.lastStatus = 0; return null;
+    }
+    // a simple command (which may still contain pipes, && and ||)
+    let text = n.text.trim(), m;
+    if ((m = text.match(/^(break|continue)(?:\s+\d+)?$/))) return { kind: m[1] };
+    if ((m = text.match(/^(exit|return)(?:\s+(\S+))?$/))) { const code = m[2] === undefined ? (this.lastStatus ?? 0) : parseInt(this.expandSpecial(m[2], frame).replace(/^\$(\w+)$/, (_, k) => this.env[k] ?? ""), 10) || 0; this.lastStatus = code; return { kind: m[1], code }; }
+    if ((m = text.match(/^\(\((.+)\)\)$/s))) { try { const v = arith(m[1].replace(/\$\{?([A-Za-z_]\w*|\d)\}?/g, (_, k) => this.env[k] ?? "0"), this.env, (k, x) => { this.env[k] = x; }); this.lastStatus = v ? 0 : 1; } catch (e) { frame.out.push(`bash: ${e.message}`); this.lastStatus = 1; } return null; }
+    if ((m = text.match(/^local\s+(.+)$/))) text = m[1];
+    try { text = this.expandSpecial(text, frame); } catch (e) { frame.out.push(`bash: ${e.message}`); this.lastStatus = 1; return null; }
+    const savedArgs = this.frameArgs; this.frameArgs = frame.args;
+    let r;
+    try { r = baseRunLine.call(this, text, depth + 1); } finally { this.frameArgs = savedArgs; }
+    if (r.clear) frame.out.length = 0; else if (r.out) frame.out.push(r.out);
+    frame.acts.push(...(r.acts || []));
+    this.lastStatus = r.code ?? (r.ok === false ? 1 : 0);
+    if (r.exitSig) return r.exitSig;
+    return null;
+  };
+
+  // Typed at the prompt: compound commands go to the interpreter; everything else runs as before.
+  Term.prototype.runLine = function (line, depth) {
+    const t = line.trim();
+    if (depth === 0 && (COMPOUND.test(t) || /\$\(\(|\$\?|\$#|\$\{\w+:-|\$\{#/.test(t) || /;\s*(then|do)\b/.test(t))) {
+      const r = this.runScript(t, this.frameArgs || [], depth);
+      return r;
+    }
+    const r = baseRunLine.call(this, line, depth);
+    if (depth === 0) this.lastStatus = r.code ?? (r.ok === false ? 1 : 0);
+    return r;
+  };
+
+  // Functions you've defined can be called like commands.
+  Term.prototype.runOne = function (text, stdin, depth) {
+    const w = DA.TERM.words(text, this.env, this.home);
+    if (w.length && this.funcs?.[w[0]]) {
+      const saved = {}; for (let i = 1; i <= 9; i++) saved[i] = this.env[i];
+      w.slice(1).forEach((a, i) => { this.env[i + 1] = a; }); for (let i = w.length; i <= 9; i++) delete this.env[i];
+      const frame = { args: w.slice(1), out: [], acts: [], steps: 0 };
+      const savedQueue = this.readQueue; if (stdin != null) this.readQueue = String(stdin).split("\n");
+      let sig;
+      try { sig = this.exec(this.funcs[w[0]], frame, depth + 1); } finally { this.readQueue = savedQueue; for (let i = 1; i <= 9; i++) { if (saved[i] === undefined) delete this.env[i]; else this.env[i] = saved[i]; } }
+      const code = sig?.kind === "return" || sig?.kind === "exit" ? sig.code : this.lastStatus ?? 0;
+      return { ok: code === 0, code, out: frame.out.filter(Boolean).join("\n"), acts: frame.acts, exitSig: sig?.kind === "exit" ? sig : undefined };
+    }
+    if (w[0] === "[" || w[0] === "test" || w[0] === "[[") return CMDS.test.call(this, w.slice(1), { stdin, depth });
+    // A plain name that isn't a known command: look for an executable script in each $PATH folder.
+    if (w.length && /^[\w.-]+$/.test(w[0]) && !CMDS[w[0]] && !this.alias[w[0]] && !this.hooks?.cmd?.[w[0]] && !this.installed.has(w[0])) {
+      for (const dirPath of String(this.env.PATH || "").split(":")) {
+        const p = dirPath.replace(/^~(?=\/|$)/, this.home).replace(/\$HOME/, this.home) + "/" + w[0], n = this.get(p);
+        if (n && !n.dir && /[1357]/.test(n.mode[0])) return this.script(p, w.slice(1), depth);
+      }
+    }
+    return baseRunOne.call(this, text, stdin, depth);
+  };
+
+  // Scripts use the interpreter too.
+  Term.prototype.script = function (path, args, depth, viaBash) {
+    const n = this.get(path);
+    if (!n) return { ok: false, out: `bash: ${path}: No such file or directory` };
+    if (n.dir) return { ok: false, out: `bash: ${path}: Is a directory` };
+    if (!viaBash && !/[1357]/.test(n.mode[0])) return { ok: false, out: `bash: ${path}: Permission denied\n` + col("m", "💡 Make it executable first: chmod +x " + path.replace(/^\.\//, "")) };
+    const saved = {}; for (let i = 1; i <= 9; i++) saved[i] = this.env[i];
+    args.forEach((a, i) => { this.env[i + 1] = a; }); for (let i = args.length + 1; i <= 9; i++) delete this.env[i];
+    const savedFuncs = this.funcs; this.funcs = { ...(this.funcs || {}) };
+    const savedCwd = this.cwd;
+    const r = this.runScript(n.text, args, (depth || 0) + 1);
+    this.funcs = savedFuncs; this.cwd = savedCwd; // a script runs in its own shell
+    for (let i = 1; i <= 9; i++) { if (saved[i] === undefined) delete this.env[i]; else this.env[i] = saved[i]; }
+    return r;
+  };
+
+  // ---------- builtins ----------
+  // grep -q: quiet, just the exit status
+  const baseGrep = CMDS.grep;
+  CMDS.grep = function (a, o) {
+    const q = a.some(x => /^-\w*q/.test(x)), r = baseGrep.call(this, a.map(x => /^-\w*q/.test(x) ? x.replace("q", "") : x).filter(x => x !== "-"), o);
+    const ok = typeof r === "object" ? r.ok !== false : !!r;
+    return q ? { ok, code: ok ? 0 : 1, out: "" } : (typeof r === "object" ? { ...r, code: ok ? 0 : 1 } : r);
+  };
+  CMDS.test = function (a) {
+    let args = a.slice(); if (args[args.length - 1] === "]" || args[args.length - 1] === "]]") args.pop();
+    let neg = false; if (args[0] === "!") { neg = true; args = args.slice(1); }
+    const node = p => this.get(p);
+    const num = x => { if (!/^-?\d+$/.test(String(x).trim())) throw new Error(`integer expression expected: ${x}`); return parseInt(x, 10); };
+    let r;
+    try {
+      if (args.length === 0) r = false;
+      else if (args.length === 1) r = args[0] !== "";
+      else if (args.length === 2) {
+        const [op, x] = args, n = node(x);
+        r = { "-f": !!n && !n.dir, "-d": !!n?.dir, "-e": !!n, "-s": !!n && !n.dir && (n.size || n.text.length) > 0, "-r": !!n, "-w": !!n && this.mayWrite(x), "-x": !!n && /[1357]/.test(n.mode[0]), "-z": x === "", "-n": x !== "", "-L": !!n && /^-> /.test(n.text || "") }[op];
+        if (r === undefined) return { ok: false, code: 2, out: `bash: test: ${op}: unary operator expected` };
+      } else {
+        const [x, op, y] = args;
+        const s = { "=": x === y, "==": x === y, "!=": x !== y, "<": x < y, ">": x > y }[op];
+        r = s !== undefined ? s : { "-eq": () => num(x) === num(y), "-ne": () => num(x) !== num(y), "-lt": () => num(x) < num(y), "-le": () => num(x) <= num(y), "-gt": () => num(x) > num(y), "-ge": () => num(x) >= num(y) }[op]?.();
+        if (r === undefined) return { ok: false, code: 2, out: `bash: test: ${op}: binary operator expected` };
+      }
+    } catch (e) { return { ok: false, code: 2, out: `bash: test: ${e.message}` }; }
+    if (neg) r = !r;
+    return { ok: r, code: r ? 0 : 1, out: "" };
+  };
+  CMDS["["] = CMDS.test;
+  CMDS.true = () => ({ ok: true, out: "" });
+  CMDS.false = () => ({ ok: false, code: 1, out: "" });
+  CMDS[":"] = CMDS.true;
+
+  const unescape = s => s.replace(/\\(n|t|\\|e|a)/g, (_, c) => ({ n: "\n", t: "\t", "\\": "\\", e: "", a: "" })[c]);
+  CMDS.echo = function (a) {
+    let i = 0, nl = true, esc = false;
+    while (a[i] && /^-[neE]+$/.test(a[i])) { if (a[i].includes("n")) nl = false; if (a[i].includes("e")) esc = true; if (a[i].includes("E")) esc = false; i++; }
+    const s = a.slice(i).join(" ");
+    return esc ? unescape(s) : s;
+  };
+  CMDS.printf = function (a) {
+    if (!a.length) return { ok: false, out: "printf: usage: printf FORMAT [ARGUMENTS...]" };
+    const [fmt, ...rest] = a; let k = 0, out = "";
+    const one = () => unescape(fmt).replace(/%(-?\d*)(?:\.(\d+))?([sdif%])/g, (_, w, p, t) => {
+      if (t === "%") return "%";
+      let v = rest[k++] ?? (t === "s" ? "" : "0");
+      if (t === "d" || t === "i") v = String(parseInt(v, 10) || 0);
+      if (t === "f") v = (parseFloat(v) || 0).toFixed(p === undefined ? 6 : +p);
+      const width = parseInt(w, 10) || 0; return width < 0 ? String(v).padEnd(-width) : String(v).padStart(width);
+    });
+    do { out += one(); } while (k > 0 && k < rest.length);
+    return out.replace(/\n$/, "");
+  };
+  CMDS.read = function (a, o) {
+    let prompt = "", names = [];
+    for (let i = 0; i < a.length; i++) { if (a[i] === "-p") prompt = a[++i] || ""; else if (a[i] === "-r" || a[i] === "-s") continue; else names.push(a[i]); }
+    if (!names.length) names = ["REPLY"];
+    let line;
+    if (this.readQueue) { if (!this.readQueue.length) return { ok: false, code: 1, out: "" }; line = this.readQueue.shift(); }
+    else if (o.stdin != null) line = String(o.stdin).split("\n")[0];
+    else { line = DA.userName(); }
+    const parts = line.trim().split(/\s+/);
+    names.forEach((n, i) => { this.env[n] = i === names.length - 1 ? parts.slice(i).join(" ") : (parts[i] || ""); });
+    return { ok: true, out: this.readQueue || o.stdin != null ? "" : (prompt ? prompt : "") + col("m", `${line}   (simulated input: the practice terminal types "${line}" for you)`) };
+  };
+  CMDS.declare = CMDS.typeset = function (a) { a.filter(x => !x.startsWith("-")).forEach(x => { const i = x.indexOf("="); if (i > 0) this.env[x.slice(0, i)] = x.slice(i + 1); }); return ""; };
+  CMDS.unset = function (a) { a.forEach(k => { delete this.env[k]; if (this.funcs) delete this.funcs[k]; }); return ""; };
+  CMDS.shift = function () { return ""; };
+  CMDS.sleep = () => "";
+  const baseType = CMDS.type;
+  CMDS.type = function (a, o) { if (a[0] && this.funcs?.[a[0]]) return `${a[0]} is a function`; return baseType.call(this, a, o); };
+
+  // `bash -c "..."` and `bash script.sh` both use the interpreter.
+  const baseBash = CMDS.bash;
+  CMDS.bash = function (a, o) {
+    if (a[0] === "-c" && a[1] !== undefined) return this.runScript(a[1], a.slice(2), o.depth);
+    if (a[0] === "-n" && a[1]) { const n = this.get(a[1]); if (!n) return { ok: false, out: `bash: ${a[1]}: No such file or directory` }; try { parse(statements(n.text)); return ""; } catch (e) { return { ok: false, out: `${a[1]}: ${e.message}` }; } }
+    return baseBash.call(this, a, o);
+  };
+  // source / . run a file in the *current* shell, so its aliases, functions and variables stick.
+  CMDS.source = CMDS["."] = function (a, o) {
+    if (!a[0]) return { ok: false, out: "bash: source: filename argument required" };
+    const n = this.get(a[0]);
+    if (!n || n.dir) return { ok: false, out: `bash: ${a[0]}: No such file or directory` };
+    if (this.sourcing > 3) return "";
+    this.sourcing = (this.sourcing || 0) + 1;
+    try { return this.runScript(n.text, a.slice(1), (o.depth || 0) + 1); } finally { this.sourcing--; }
+  };
+  CMDS.unalias = function (a) {
+    if (a[0] === "-a") { this.alias = {}; return ""; }
+    const missing = a.filter(k => !(k in this.alias)); a.forEach(k => delete this.alias[k]);
+    return missing.length ? { ok: false, out: missing.map(k => `bash: unalias: ${k}: not found`).join("\n") } : "";
+  };
+  // chown with -R, user:group and several paths
+  CMDS.chown = function (a, o) {
+    if (!o.sudo) return { ok: false, out: "chown: Operation not permitted\n" + col("m", "💡 Changing ownership needs sudo.") };
+    const rec = a.some(x => /^-\w*R/.test(x)), rest = a.filter(x => !x.startsWith("-"));
+    if (rest.length < 2) return { ok: false, out: "chown: missing operand" };
+    const who = rest[0].split(/[:.]/)[0] || this.user, errs = [];
+    const walk = n => { n.owner = who; if (rec && n.dir) Object.values(n.kids).forEach(walk); };
+    rest.slice(1).forEach(p => { const n = this.get(p); if (!n) errs.push(`chown: cannot access '${p}': No such file or directory`); else walk(n); });
+    return { ok: !errs.length, out: errs.join("\n") };
+  };
+  CMDS.sh = function (a, o) { return CMDS.bash.call(this, a, o); };
+})();
+
+/* Service commands for distros without systemd (OpenRC, runit, dinit, SysVinit). They share the
+   same pretend service state as systemctl, so labs and lessons work the same on every distro. */
+(function () {
+  const { CMDS, col } = DA.TERM;
+  const sys = (t, act, name, o, now) => CMDS.systemctl.call(t, now ? [act, "--now", name] : [act, name], o);
+  const wrap = (r, okText) => { const ok = typeof r === "string" || r.ok !== false; return ok ? (okText ?? (typeof r === "string" ? r : r.out)) : r; };
+  CMDS["rc-service"] = function (a, o) {
+    const [name, act] = a.filter(x => !x.startsWith("-"));
+    if (!name || !act) return { ok: false, out: "Usage: rc-service <service> <start|stop|restart|status>" };
+    if (act === "status") { const s = this.services[name]; return ` * status: ${s?.running ? "started" : "stopped"}`; }
+    const r = sys(this, act, name, o);
+    return wrap(r, ` * ${act === "stop" ? "Stopping" : "Starting"} ${name} ...${" ".repeat(Math.max(1, 30 - name.length))}[ ok ]`);
+  };
+  CMDS["rc-update"] = function (a, o) {
+    const [op, name, lvl = "default"] = a;
+    if (!op || op === "show") return Object.entries(this.services).filter(([, s]) => s.enabled).map(([n]) => `${n.padStart(18)} | ${lvl}`).join("\n") || "                 sshd | default";
+    if (!name) return { ok: false, out: "rc-update: usage: rc-update add|del <service> [runlevel]" };
+    const r = sys(this, op === "add" ? "enable" : "disable", name, o);
+    return wrap(r, ` * service ${name} ${op === "add" ? "added to" : "removed from"} runlevel ${lvl}`);
+  };
+  CMDS["rc-status"] = function () { return `Runlevel: default\n${Object.entries(this.services).map(([n, s]) => ` ${n.padEnd(36)}[  ${s.running ? "started" : "stopped"}  ]`).join("\n") || " sshd                                [  started  ]"}`; };
+  CMDS.sv = function (a, o) {
+    const [act, name] = a; if (!act || !name) return { ok: false, out: "usage: sv [-v] [-w sec] command service ..." };
+    const map = { up: "start", start: "start", down: "stop", stop: "stop", restart: "restart", status: "status" };
+    if (map[act] === "status") { const s = this.services[name]; return `${s?.running ? "run" : "down"}: ${name}: (pid ${s?.running ? 1200 + DA.hash(name) % 800 : 0}) 42s`; }
+    const r = sys(this, map[act] || act, name, o); return wrap(r, `ok: ${map[act] === "stop" ? "down" : "run"}: ${name}`);
+  };
+  CMDS.dinitctl = function (a, o) {
+    const [act, name] = a; if (act === "list" || !act) return Object.entries(this.services).map(([n, s]) => `[${s.running ? "{+}" : "   "}     ] ${n}`).join("\n");
+    if (act === "status") return `Service: ${name}\n    State: ${this.services[name]?.running ? "STARTED" : "STOPPED"}`;
+    const r = sys(this, act, name, o); return wrap(r, `Service '${name}' ${act === "stop" ? "stopped" : act === "enable" ? "enabled" : act === "disable" ? "disabled" : "started"}.`);
+  };
+  CMDS.service = function (a, o) {
+    const [name, act] = a; if (!name || !act) return { ok: false, out: "Usage: service < option > | --status-all | [ service_name [ command | --full-restart ] ]" };
+    return sys(this, act, name, o);
+  };
+  CMDS["update-rc.d"] = function (a, o) { const [name, act] = a; return wrap(sys(this, act === "disable" || act === "remove" ? "disable" : "enable", name, o), ""); };
+})();
+
+</script>
+<script>
 /* Break/Fix Labs: a broken sandbox, a story, and goals checked after every command.
    setup(t) runs on a fresh practice terminal; goal.ok(t, c) gets c = { line, out, ok, kind }.
    Goals latch once passed. `solution` is a known-good command list (used by the self-check). */
@@ -6999,6 +7627,140 @@ DA.ONLINE_CONFIG = { url: "", key: "" };
   DA.labById = Object.fromEntries(DA.LABS.map(l => [l.id, l]));
   DA.labHints = (lab, t) => lab.hints.map(h => typeof h === "function" ? h(t) : h);
   DA.labSolution = (lab, t) => typeof lab.solution === "function" ? lab.solution(t) : lab.solution;
+})();
+
+</script>
+<script>
+/* Real-world Projects (level 4) and the Larry boss fight (level 5). Same format as data/labs.js. */
+(function () {
+  const { dir, file } = DA.TERM;
+  const plain = s => String(s || "").replace(/\u0001\w|\u0002/g, "");
+  const home = t => t.get(t.home);
+  const ran = (c, re) => c.kind === "cmd" && re.test(c.line);
+  const out = (c, re) => c.kind === "cmd" && re.test(plain(c.out));
+  const fw = t => ["fedora", "suse"].includes(t.d.family) || ["rhel", "rocky", "alma", "centos", "oracle"].includes(t.d.id) ? "firewalld" : "ufw";
+  const P = t => DA.pkgOf(t.d), I = t => DA.initOf(t.d);
+  // systemd's "enable --now" does both at once; other init systems need an enable and a start.
+  const startAtBoot = (t, s) => I(t).name === "systemd" ? [DA.fill(I(t).enable, s)] : [DA.fill(I(t).enable, s), DA.fill(I(t).start, s)];
+  const kidsOf = (t, p) => Object.entries(t.get(p)?.kids || {});
+
+  DA.LABS.push(
+    {
+      id: "sysreport", em: "📊", title: "Project: the morning report", level: 4, xp: 110,
+      story: "Your boss wants a system report waiting every morning: disk space and memory, saved as a dated file in <code>~/reports</code>. Write the script, test it, and schedule it for 8:00 every day. Tip: <code>nano report.sh</code> opens a real editor.",
+      setup() {},
+      goals: [
+        { t: "Make the folder <code>~/reports</code>", ok: t => !!t.get("~/reports")?.dir },
+        { t: "Write <code>~/report.sh</code>: it should run <code>df -h</code> and <code>free -h</code>", ok: t => { const x = t.get("~/report.sh")?.text || ""; return /\bdf\b/.test(x) && /\bfree\b/.test(x); } },
+        { t: "Check its syntax with <code>bash -n</code>", ok: (t, c) => ran(c, /^bash -n (~\/)?report\.sh$/) && c.ok !== false },
+        { t: "Make it executable", ok: t => /[1357]/.test(t.get("~/report.sh")?.mode[0] || "") },
+        { t: "Run it: a report file with disk AND memory info appears in ~/reports", ok: t => kidsOf(t, "~/reports").some(([, n]) => !n.dir && /Filesystem/.test(n.text) && /Mem:/.test(n.text)) },
+        { t: "Schedule it for 8:00 every morning", ok: t => (t.crontab || "").split("\n").some(l => /^0\s+8\s+\*\s+\*\s+\*\s+.*report\.sh/.test(l.trim())) }
+      ],
+      hints: ["Inside the script, <code>df -h &gt; ~/reports/report.txt</code> writes the first part and <code>free -h &gt;&gt; ~/reports/report.txt</code> adds to it (two &gt; means append).", "Want a new file each day? Put the date in the name: <code>~/reports/report-$(date +%F).txt</code>.", "Cron fields are minute, hour, day, month, weekday, so 8:00 daily is <code>0 8 * * *</code>: <code>echo \"0 8 * * * ~/report.sh\" | crontab -</code>."],
+      solution: ["mkdir reports", "echo '#!/bin/bash' > report.sh", "echo 'f=~/reports/report-$(date +%F).txt' >> report.sh", "echo 'df -h > $f' >> report.sh", "echo 'free -h >> $f' >> report.sh", "bash -n report.sh", "chmod +x report.sh", "./report.sh", "ls reports", "echo \"0 8 * * * ~/report.sh\" | crontab -", "crontab -l"]
+    },
+    {
+      id: "website", em: "🚀", title: "Project: launch a website", level: 4, xp: 120,
+      story: "Time to put your own page on the internet (well, this pretend one). Install the <b>nginx</b> web server, write a homepage with your name on it, put it in nginx's web folder <code>/srv/www</code>, start the server at boot, open the firewall for web traffic, and check it with <code>curl localhost</code>.",
+      setup(t) {
+        t.fs.kids.etc.kids.nginx = dir({ "nginx.conf": file("events {}\n\nhttp {\n    server {\n        listen 80;\n        server_name localhost;\n        root /srv/www;\n    }\n}", "root") });
+        t.fs.kids.srv = dir({ www: dir({}, "root") });
+        t.hooks = { cmd: {
+          curl(a) {
+            const url = a.filter(x => !x.startsWith("-"))[0] || "";
+            if (!/^(https?:\/\/)?(localhost|127\.0\.0\.1)(:80)?\/?$/.test(url)) return undefined;
+            if (!this.services.nginx?.running) return { ok: false, out: "curl: (7) Failed to connect to localhost port 80 after 0 ms: Couldn't connect to server" };
+            const page = this.get("/srv/www/index.html");
+            if (a.includes("-I")) return page ? "HTTP/1.1 200 OK\nServer: nginx\nContent-Type: text/html" : "HTTP/1.1 403 Forbidden\nServer: nginx";
+            return page ? page.text : "<html><head><title>403 Forbidden</title></head><body><center><h1>403 Forbidden</h1></center><hr><center>nginx</center></body></html>";
+          }
+        } };
+      },
+      goals: [
+        { t: "Install nginx", ok: t => t.installed.has("nginx") },
+        { t: "Write <code>~/index.html</code> with your name in it", ok: t => { const x = t.get("~/index.html")?.text || ""; return /<h1|<p|<html|<body/i.test(x) && x.length > 10; } },
+        { t: "Copy it into <code>/srv/www</code> (that folder belongs to root)", ok: t => !!t.get("/srv/www/index.html") },
+        { t: "Start nginx and enable it at boot", ok: t => !!t.services.nginx?.running && !!t.services.nginx?.enabled },
+        { t: "Allow web traffic (http, port 80) through the firewall", ok: t => (t.fwRules || []).some(r => /\b(http|80)(\/tcp)?$/.test(r)) },
+        { t: "See your page: <code>curl localhost</code>", ok: (t, c) => ran(c, /^curl\b.*localhost|^curl\b.*127\.0\.0\.1/) && !!t.get("/srv/www/index.html") && out(c, new RegExp(String(t.get("/srv/www/index.html")?.text || "^$").slice(0, 20).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))) }
+      ],
+      hints: [t => `Install it with <code>${DA.esc(DA.fill(P(t).install, "nginx"))}</code>.`, "<code>echo '&lt;h1&gt;Hi, I am Tux&lt;/h1&gt;' &gt; index.html</code> writes a tiny page. Copying into /srv/www needs <code>sudo cp</code>.", t => startAtBoot(t, "nginx").map(c => `<code>${DA.esc(c)}</code>`).join(" then ") + (startAtBoot(t, "nginx").length > 1 ? ": enable it at boot, then start it now." : " starts it and turns it on at boot."), t => fw(t) === "ufw" ? "<code>sudo ufw allow http</code>" : "<code>sudo firewall-cmd --permanent --add-service=http</code> then <code>sudo firewall-cmd --reload</code>"],
+      solution: t => [DA.fill(P(t).install, "nginx"), "echo '<h1>Hi, I am Tux</h1>' > index.html", "sudo cp index.html /srv/www/", ...startAtBoot(t, "nginx"), ...(fw(t) === "ufw" ? ["sudo ufw allow http"] : ["sudo firewall-cmd --permanent --add-service=http", "sudo firewall-cmd --reload"]), "curl localhost"]
+    },
+    {
+      id: "dotfiles", em: "🎛️", title: "Project: make the shell yours", level: 4, xp: 100,
+      story: "Real Linux users build up their own little toolkit. Add a handy alias to <code>~/.bashrc</code>, make a personal <code>~/bin</code> folder for your own commands, put it on your <code>PATH</code>, and write a command called <code>hello</code> that you can run from anywhere, just by typing its name.",
+      setup(t) { home(t).kids[".bashrc"] = file("# ~/.bashrc: runs every time you open a terminal\nexport PATH=/usr/local/bin:/usr/bin\n", t.user); t.env.PATH = "/usr/local/bin:/usr/bin"; },
+      goals: [
+        { t: "Add <code>alias ll='ls -la'</code> to <code>~/.bashrc</code>", ok: t => /^alias ll=['"]?ls -l?a?l?a?['"]?/m.test(t.get("~/.bashrc")?.text || "") },
+        { t: "Make the folder <code>~/bin</code>", ok: t => !!t.get("~/bin")?.dir },
+        { t: "Write an executable script <code>~/bin/hello</code>", ok: t => { const n = t.get("~/bin/hello"); return !!n && !n.dir && /[1357]/.test(n.mode[0]) && /echo|printf/.test(n.text); } },
+        { t: "Add ~/bin to your PATH in <code>~/.bashrc</code>", ok: t => /^export PATH=.*(~|\$HOME|\/home\/\w+)\/bin/m.test(t.get("~/.bashrc")?.text || "") },
+        { t: "Reload it with <code>source ~/.bashrc</code>", ok: (t, c) => ran(c, /^(source|\.) (~\/)?\.bashrc$/) },
+        { t: "Run <code>ll</code>, then run <code>hello</code> by name", ok: (t, c) => ran(c, /^hello\b/) && c.ok !== false && !/command not found|Unknown command/.test(plain(c.out)) && !!t.alias.ll }
+      ],
+      hints: ["<code>&gt;&gt;</code> adds a line to the end of a file: <code>echo \"alias ll='ls -la'\" &gt;&gt; ~/.bashrc</code>.", "A command is just an executable script: <code>echo 'echo Hello from my own command!' &gt; ~/bin/hello</code>, then <code>chmod +x ~/bin/hello</code>.", "<code>echo 'export PATH=$HOME/bin:$PATH' &gt;&gt; ~/.bashrc</code>, then <code>source ~/.bashrc</code> so this terminal picks it up."],
+      solution: ["echo \"alias ll='ls -la'\" >> ~/.bashrc", "mkdir ~/bin", "echo 'echo Hello from my own command!' > ~/bin/hello", "chmod +x ~/bin/hello", "echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc", "source ~/.bashrc", "ll", "hello"]
+    },
+    {
+      id: "revenge", em: "💀", title: "Boss: Larry's Revenge", level: 5, xp: 250,
+      story: "Larry has had enough. He's taken over this machine: something screams at 66.6% CPU, your <code>ls</code> command just yells at you, and your <b>Documents folder is gone</b>. Every time you kill his process it comes back. Use everything you've learned to take your computer back, then give Larry what he's always wanted: <b>a backup</b>.",
+      setup(t) {
+        const h = home(t), larryHome = t.get("/home/larry");
+        const docs = h.kids.Documents; delete h.kids.Documents;
+        const own = n => { n.owner = "larry"; if (n.dir) Object.values(n.kids).forEach(own); }; own(docs);
+        larryHome.kids[".stash"] = dir({ Documents: docs }, "larry", "700");
+        h.kids[".bashrc"] = file("# ~/.bashrc\nalias ls='echo AAAAAAAAAAAAAAAAAAAAAAAAAAAA'\n", t.user);
+        t.alias.ls = "echo AAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+        t.boss = { proc: true, cron: true, respawns: 0 };
+        t.hooks = { cmd: {
+          ps(a) { const base = DA.TERM.CMDS.ps.call(this, a); return this.boss.proc ? base.replace(/\n(\S+\s+2244)/, `\nlarry      666 66.6  6.6 /usr/bin/scream --forever --louder\n$1`) : base; },
+          top() { return this.hooks.cmd.ps.call(this, []); }, htop() { return this.hooks.cmd.ps.call(this, []); },
+          pgrep(a) { return a.some(x => /scream|larry/.test(x)) && this.boss.proc ? "666" : { ok: false, out: "" }; },
+          kill(a, o) {
+            if (!a.includes("666")) return undefined;
+            if (!this.boss.proc) return { ok: false, out: "kill: (666) - No such process" };
+            if (!o.sudo) return { ok: false, out: "kill: (666) - Operation not permitted\n" + DA.TERM.col("m", "💡 That process belongs to larry, not you.") };
+            if (this.boss.cron) { this.boss.respawns++; return { ok: true, out: DA.TERM.col("d", "💀 AAAAA... a moment later, scream is back. Something keeps restarting it. (Who schedules things to run every minute?)") }; }
+            this.boss.proc = false; return "";
+          },
+          pkill(a, o) { if (!a.some(x => /scream|larry/.test(x))) return undefined; return this.hooks.cmd.kill.call(this, ["666"], o); },
+          killall(a, o) { return this.hooks.cmd.pkill.call(this, a, o); },
+          crontab(a, o) {
+            const u = a.indexOf("-u"); if (u < 0 || a[u + 1] !== "larry") return undefined;
+            if (!o.sudo) return { ok: false, out: "must be privileged to use -u" };
+            if (a.includes("-r")) { this.boss.cron = false; return ""; }
+            return this.boss.cron ? "# m h dom mon dow command\n* * * * * /usr/bin/scream --forever --louder   # u can't stop me - L" : "no crontab for larry";
+          }
+        } };
+      },
+      goals: [
+        { t: "Find the screaming process", ok: (t, c) => ran(c, /^(sudo )?(ps|top|htop|pgrep)\b/) && out(c, /scream|^666$/m) },
+        { t: "Find what keeps restarting it (check larry's crontab)", ok: (t, c) => ran(c, /^sudo crontab -u larry -l$/) && out(c, /scream/) },
+        { t: "Remove larry's crontab", ok: t => !t.boss.cron },
+        { t: "Kill the process for good", ok: t => !t.boss.proc && !t.boss.cron },
+        { t: "Fix <code>ls</code>: remove the alias now AND from ~/.bashrc", ok: t => !/AAAA/.test(t.alias.ls || "") && !/AAAA/.test(t.get("~/.bashrc")?.text || "") },
+        { t: "Find your Documents and move them back home", ok: t => !!t.get("~/Documents/todo.txt") },
+        { t: "Take ownership of them again", ok: t => t.get("~/Documents")?.owner === t.user && t.get("~/Documents/todo.txt")?.owner === t.user },
+        { t: "Give Larry peace: back up Documents into <code>~/backups</code>", ok: t => kidsOf(t, "~/backups").some(([k]) => /\.tar(\.gz|\.xz|\.zst)?$|\.tgz$/.test(k)) }
+      ],
+      hints: ["<code>ps aux</code> shows every process. Larry's has PID 666. It isn't yours, so killing it needs <code>sudo</code>.", "Things that come back every minute are usually cron jobs. <code>sudo crontab -u larry -l</code> lists Larry's; <code>sudo crontab -u larry -r</code> removes them. Then <code>sudo kill 666</code>.", "<code>unalias ls</code> fixes this terminal. <code>sed -i '/AAAA/d' ~/.bashrc</code> deletes the line so it never comes back.", "Larry hides things in his home folder: <code>sudo ls -a /home/larry</code>. Then <code>sudo mv /home/larry/.stash/Documents ~/</code> and <code>sudo chown -R $USER: ~/Documents</code>.", "<code>mkdir ~/backups</code> then <code>tar -czf ~/backups/docs.tar.gz Documents</code>."],
+      solution: ["ps aux", "sudo kill 666", "sudo crontab -u larry -l", "sudo crontab -u larry -r", "sudo kill 666", "unalias ls", "sed -i '/AAAA/d' ~/.bashrc", "sudo ls -a /home/larry", "sudo mv /home/larry/.stash/Documents ~/", "sudo chown -R $USER: ~/Documents", "mkdir ~/backups", "tar -czf ~/backups/docs.tar.gz Documents"]
+    }
+  );
+  DA.labById = Object.fromEntries(DA.LABS.map(l => [l.id, l]));
+
+  // Beating the boss: Larry waves goodbye, at peace at last.
+  DA.on("lab-done", lab => {
+    if (lab.id !== "revenge") return;
+    setTimeout(() => DA.summonLarry?.("summon", "wave"), 1200);
+    setTimeout(() => DA.toast("💀 <b>larry</b>: a backup... for me? ...thank you. i can rest now. (for a while.)", "xp"), 2600);
+  });
+  DA.BADGES.push(
+    { id: "project3", em: "🏗️", name: "Builder", d: "Finish all three real-world projects", ok: () => ["sysreport", "website", "dotfiles"].every(id => DA.state.prog.labs?.[id]) },
+    { id: "revenge", em: "⚔️", name: "Larry Slayer", d: "Beat Larry's Revenge", ok: () => !!DA.state.prog.labs?.revenge }
+  );
 })();
 
 </script>
@@ -8401,7 +9163,7 @@ DA.ONLINE_CONFIG = { url: "", key: "" };
     continue: { name: "Continue learning", render() {
       const d = ui().my(), n = DA.nextLesson(d), p = DA.distroProgress(d);
       if (!n) return `<h3>${icon("book")} ${esc(d.name)} complete! 🎓</h3><p class="muted">You finished every lesson. Pick a new distro and keep the streak alive.</p><div><button class="btn primary" data-go="#/distros">Find a new distro</button></div>`;
-      const r = DA.resolve(n, d), tier = { core: "Core skills", track: `Only on ${d.name}`, core2: "Core skills II" }[r.kind];
+      const r = DA.resolve(n, d), tier = { core: "Core skills", track: `Only on ${d.name}`, core2: "Core skills II", core3: "Bash scripting" }[r.kind];
       return `<h3>${icon("book")} Continue learning</h3><div class="row" style="gap:12px;flex-wrap:nowrap"><div class="logo-chip hue-${d.hue}">${esc(d.logo)}</div><div style="min-width:0"><b>${esc(r.title)}</b><div class="small muted">${esc(tier)} · ~${r.mins} min</div></div></div>
         <div class="row" style="gap:10px;flex-wrap:nowrap"><div class="bar" style="flex:1"><i style="width:${p.pct}%"></i></div><span class="small muted mono">${p.done}/${p.total}</span></div>
         <div><button class="btn primary" data-go="#/lesson/${d.id}/${n.id}">${icon("play")} ${p.done ? "Continue" : "Start"}</button></div>`;
@@ -8445,6 +9207,14 @@ DA.ONLINE_CONFIG = { url: "", key: "" };
       return `<h3>${icon("compass")} Distro of the day</h3><div class="row" style="gap:12px;flex-wrap:nowrap"><div class="logo-chip hue-${d.hue}" style="width:46px;height:46px">${esc(d.logo)}</div><div style="min-width:0"><b>${esc(d.name)}</b> ${ui().dots(d.d)}<div class="small muted">${esc(d.tagline)}</div></div></div>
         <p class="small"><b>Did you know?</b> ${esc(d.fact)}</p><div class="small muted mono">${esc(d.base)} · ${esc(P.name)} · ${esc(d.release)}</div>
         <div class="row" style="gap:8px">${stamped ? `<span class="tag mint">${icon("check")} Stamped</span>` : ""}<button class="btn primary sm" data-go="#/distro/${d.id}">${icon("play")} Explore</button><button class="btn ghost sm" data-term="${esc(DA.fill(P.search, "htop"))}" title="Try its package manager in the Playground">${icon("terminal")} Try ${esc(P.name)}</button></div>`;
+    } },
+    cotd: { name: "Command of the day", render() {
+      const [name, ex, what] = DA.COTD[DA.hash("cotd" + DA.today()) % DA.COTD.length], got = DA.state.prog.cotd?.[DA.today()];
+      return `<h3>${icon("terminal")} Command of the day</h3><div class="row" style="gap:10px;flex-wrap:nowrap"><code class="cotd-name">${esc(name)}</code><span class="small muted">${esc(what)}</span></div>
+        <div class="cmd"><code>${esc(ex)}</code><span class="cmd-actions"><button type="button" data-copy="${esc(ex)}">Copy</button></span></div>
+        <div class="row" style="gap:8px">${/^ctrl|^!!/i.test(name) ? "" : `<button class="btn ghost sm" data-term="${esc(ex)}">${icon("terminal")} Try it</button>`}${got ? `<span class="tag mint">${icon("check")} Learned today</span>` : `<button class="btn soft sm" data-cotd>${icon("check")} Got it (+5 XP)</button>`}</div>`;
+    }, after(el) {
+      el.querySelector("[data-cotd]")?.addEventListener("click", () => { (DA.state.prog.cotd = DA.state.prog.cotd || {})[DA.today()] = 1; DA.addXP(5, "Command of the day"); DA.save(); el.innerHTML = W.cotd.render(); W.cotd.after(el); });
     } },
     tip: { name: "Tip of the day", render() { return `<h3>${icon("bulb")} Tip of the day</h3><p>${DA.TIPS[DA.dayOfYear() % DA.TIPS.length]}</p>`; } },
     badges: { name: "Badges", render() {
@@ -8555,7 +9325,7 @@ DA.ONLINE_CONFIG = { url: "", key: "" };
       const ls = DA.lessonsFor(d).map(l => DA.resolve(l, d));
       let num = 0;
       const row = l => { num++; const done = DA.isDone(d.id, l.id), next = n && n.id === l.id; return `<button type="button" class="lesson-row ${done ? "done" : ""} ${next ? "next" : ""}" data-go="#/lesson/${d.id}/${l.id}"><span class="num mono">${done ? icon("check") : String(num).padStart(2, "0")}</span><span><b>${esc(l.title)}</b><span class="small">${esc(l.blurb)}</span></span><span class="small muted mono">${l.mins}m</span></button>`; };
-      const groups = [["core", `Core skills`, `The essentials, taught with ${d.name}'s own commands`], ["track", `Only on ${d.name}`, "What makes this distro special"], ["core2", "Core skills II", "Deeper skills for serious Linux users"]];
+      const groups = [["core", `Core skills`, `The essentials, taught with ${d.name}'s own commands`], ["track", `Only on ${d.name}`, "What makes this distro special"], ["core2", "Core skills II", "Deeper skills for serious Linux users"], ["core3", "Bash scripting", "Automate anything: write real scripts that run in the practice terminal"]];
       body.innerHTML = groups.map(([k, title, sub]) => { const items = ls.filter(l => l.kind === k); if (!items.length) return ""; const done = items.filter(l => DA.isDone(d.id, l.id)).length; return `<div class="section-head tier"><h2>${esc(title)} <span class="count mono">${done}/${items.length}</span></h2><span class="small muted">${esc(sub)}</span></div><div class="lesson-list">${items.map(row).join("")}</div>`; }).join("");
     } else if (tab === "cheat") {
       const pk = [["Install", P.install], ["Remove", P.remove], ["Update everything", P.update], ["Search", P.search], ["List installed", P.list], ["Package info", P.info], ["Clean up", P.clean]];
@@ -8616,7 +9386,7 @@ DA.ONLINE_CONFIG = { url: "", key: "" };
     prog.last = key; DA.save();
     const challenge = DA.state.settings.learn.quizMode === "challenge";
     const quizItems = l.quiz.map((q, i) => ({ ...q, i, order: challenge ? DA.shuffleSeeded(q.a.map((_, k) => k), key + i) : q.a.map((_, k) => k) }));
-    const tier = { core: "Core skills", track: `Only on ${d.name}`, core2: "Core skills II" }[l.kind];
+    const tier = { core: "Core skills", track: `Only on ${d.name}`, core2: "Core skills II", core3: "Bash scripting" }[l.kind];
     const focus = DA.state.settings.focusLessons;
     v.innerHTML = `<div class="view lesson-view">
       <nav class="crumbs small mono"><a href="#/distro/${d.id}">${esc(d.name)}</a><span>/</span><span>${esc(tier)}</span><span>/</span><span>${idx + 1} of ${all.length}</span></nav>
@@ -9163,7 +9933,7 @@ DA.ONLINE_CONFIG = { url: "", key: "" };
   const { esc, icon, $, $$ } = DA;
   const ui = () => DA.ui;
   const fmtTime = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-  const LEVEL = ["", "Warm-up", "Real-world", "Sysadmin"];
+  const LEVEL = ["", "Warm-up", "Real-world", "Sysadmin", "Projects", "Boss fight"];
 
   // Shared goal checker (also used by the self-check): latches goals once they pass.
   DA.labCheck = (t, lab, passed, c) => {
@@ -9180,9 +9950,9 @@ DA.ONLINE_CONFIG = { url: "", key: "" };
     const done = DA.state.prog.labs || {}, n = DA.LABS.filter(l => done[l.id]).length;
     v.innerHTML = `<div class="view">
       ${ui().pageHead("Break/Fix Labs", "Something on this (pretend) computer is broken. Read the story, poke around in the terminal and fix it. Goals tick off as you go. This is exactly how real sysadmins learn.", `<span class="tag mint">${n}/${DA.LABS.length} fixed</span>`, "// break · fix · learn")}
-      ${[1, 2, 3].map(lv => `<div class="section-head tier"><h2>${LEVEL[lv]}</h2><span class="muted small">${lv === 1 ? "Short fixes to get comfortable" : lv === 2 ? "Problems you'll actually hit one day" : "Multi-step jobs: write, test, automate"}</span></div>
+      ${[1, 2, 3, 4, 5].map(lv => `<div class="section-head tier"><h2>${LEVEL[lv]}</h2><span class="muted small">${["", "Short fixes to get comfortable", "Problems you'll actually hit one day", "Multi-step jobs: write, test, automate", "Build something real from start to finish", "Everything you've learned, against something that screams"][lv]}</span></div>
         <div class="grid g3">${DA.LABS.filter(l => l.level === lv).map(l => `<button type="button" class="card lab-card ${done[l.id] ? "done" : ""}" data-go="#/labs/${l.id}">
-          <div class="row" style="gap:12px;flex-wrap:nowrap"><span class="mission-em">${l.em}</span><div style="flex:1;min-width:0"><h3>${esc(l.title)}</h3><div class="small muted">${l.goals.length} goals · ${ui().dots(l.level + 1)}</div></div></div>
+          <div class="row" style="gap:12px;flex-wrap:nowrap"><span class="mission-em">${l.em}</span><div style="flex:1;min-width:0"><h3>${esc(l.title)}</h3><div class="small muted">${l.goals.length} goals · ${ui().dots(Math.min(5, l.level + 1))}</div></div></div>
           <p class="small muted">${l.story.replace(/<[^>]+>/g, "")}</p>
           <div class="row" style="justify-content:space-between">${done[l.id] ? `<span class="tag mint">${icon("check")} Fixed in ${fmtTime(done[l.id].time)}</span>` : `<span class="tag">+${l.xp} XP</span>`}<span class="small mono faint">${done[l.id]?.best ? `best ${fmtTime(done[l.id].best)}` : ""}</span></div></button>`).join("")}</div>`).join("")}
     </div>`;
@@ -9236,7 +10006,7 @@ DA.ONLINE_CONFIG = { url: "", key: "" };
       const time = Math.max(1, Math.round((Date.now() - start) / 1000)), labs = DA.state.prog.labs = DA.state.prog.labs || {}, prev = labs[lab.id];
       const xp = prev ? Math.round(lab.xp / 4) : Math.max(Math.round(lab.xp / 2), lab.xp - Math.min(hintsShown, hints.length) * 10 - (hintsShown > hints.length ? lab.xp : 0));
       labs[lab.id] = { at: Date.now(), time, best: Math.min(time, prev?.best || prev?.time || Infinity), hints: hintsShown, clean: hintsShown === 0 || prev?.clean };
-      DA.addXP(xp, "lab"); DA.celebrate(130); DA.sound("done"); DA.checkBadges(); DA.save();
+      DA.addXP(xp, "lab"); DA.celebrate(130); DA.sound("done"); DA.checkBadges(); DA.save(); DA.emit("lab-done", lab);
       const next = DA.LABS.find(l => !labs[l.id]);
       const box = $("#lab-done"); box.hidden = false;
       box.innerHTML = `<span class="done-tux">${DA.TUX()}</span><div style="flex:1"><b>Fixed! 🔧 ${prev && time < (prev.best || prev.time) ? "New best time!" : ""}</b><div class="small muted">Solved in ${fmtTime(time)}${hintsShown ? ` with ${Math.min(hintsShown, hints.length)} hint${hintsShown > 1 ? "s" : ""}` : " with no hints"} · +${xp} XP</div></div>${next ? `<button class="btn primary" data-go="#/labs/${next.id}">Next lab ${icon("arrowR")}</button>` : `<button class="btn primary" data-go="#/labs">All labs</button>`}`;
@@ -9696,7 +10466,7 @@ DA.ONLINE_CONFIG = { url: "", key: "" };
       term.drawPrompt = () => { baseDraw(); ch.send("prompt", { s: term.promptText() }); };
       let who = myName;
       term.promptText = () => (who !== myName ? DA.TERM.col("c", `[${who}] `) : "") + basePromptText();
-      ch.onBroadcast("cmd", ({ cmd, name }) => { if (typeof cmd !== "string" || cmd.length > 500) return; who = String(name || peer.username).slice(0, 30); term.inEl.value = cmd; term.submit(); who = myName; });
+      ch.onBroadcast("cmd", ({ cmd, name }) => { if (typeof cmd !== "string" || cmd.length > 500) return; who = String(name || peer.username).slice(0, 30); term.inEl.value = cmd; term.submit(); who = myName; term.drawPrompt(); });
       ch.onBroadcast("hello", () => ch.send("sync", { lines: transcript.slice(-200), prompt: term.promptText() }));
     } else {
       // Guests send what they type to the host, and show whatever the host's terminal prints.
@@ -10147,6 +10917,380 @@ DA.SCREAM_096_OGG = "T2dnUwACAAAAAAAAAADTDAAAAAAAAD5jNBwBHgF2b3JiaXMAAAAAAkSsAAA
 
 </script>
 <script>
+/* Error Doctor: common real-world Linux errors, how to recognize them, and how to fix them.
+   Each entry: re (matches the pasted text), title, why (plain English), fix (steps), cmds (d) => [[cmd, what]]. */
+(function () {
+  const P = d => DA.pkgOf(d), I = d => DA.initOf(d);
+  const fill = (t, x) => DA.fill(t, x);
+  DA.ERRORS = [
+    { id: "perm", re: /permission denied/i, title: "Permission denied", why: "Your user isn't allowed to do this to that file or folder. Either it belongs to someone else (often root), or it's missing the permission you need (read, write or execute).",
+      fix: ["Check who owns it and its permissions with ls -l.", "If it's a script, it may just need execute permission: chmod +x.", "If it's a system file, run the command with sudo (only if you trust it).", "Never fix this with chmod 777: that lets everyone change the file."],
+      cmds: () => [["ls -l FILE", "See the owner and permissions"], ["chmod +x script.sh", "Let a script run"], ["sudo COMMAND", "Run as admin"]] },
+    { id: "notfound", re: /command not found|unknown command/i, title: "Command not found", why: "The shell can't find a program with that name. Either it isn't installed, it's spelled wrong, or it lives in a folder that isn't on your PATH.",
+      fix: ["Check the spelling (Linux is case-sensitive).", "Search your distro's repositories for it.", "If you installed it yourself, check that its folder is on your PATH (echo $PATH)."],
+      cmds: d => [[fill(P(d).search, "NAME"), "Search for the package"], [fill(P(d).install, "NAME"), "Install it"], ["echo $PATH", "Folders searched for commands"]] },
+    { id: "nospace", re: /no space left on device/i, title: "No space left on device", why: "The disk (or partition) is full, so nothing can be written. Programs crash, updates fail and logins can break.",
+      fix: ["See which disk is full with df -h.", "Find what's using the space with du (start at / or /var, then drill down).", "Common culprits: huge log files in /var/log, old package caches, and the trash.", "Clear the package cache, empty big logs with truncate, and remove what you don't need."],
+      cmds: d => [["df -h", "Which disk is full"], ["sudo du -sh /var/* | sort -h", "Biggest folders in /var"], [P(d).clean, "Clean up packages"], ["sudo journalctl --vacuum-size=200M", "Shrink the system journal"]] },
+    { id: "dns", re: /could not resolve host|temporary failure in name resolution|name or service not known|could not resolve/i, title: "Can't resolve a host name", why: "Your computer can't turn a name like github.com into an IP address. Usually there's no internet connection, or DNS isn't working.",
+      fix: ["Check you're online: ping 1.1.1.1 (an IP, no DNS needed).", "If that works but names don't, DNS is the problem: restart NetworkManager or check /etc/resolv.conf.", "On Wi-Fi, reconnect or try another network."],
+      cmds: () => [["ping -c 3 1.1.1.1", "Am I online at all?"], ["ping -c 3 archlinux.org", "Do names work?"], ["sudo systemctl restart NetworkManager", "Restart networking"], ["cat /etc/resolv.conf", "Which DNS servers are used"]] },
+    { id: "pacmanlock", re: /(unable|could not|failed) to lock database|db\.lck/i, title: "pacman: unable to lock database", why: "pacman thinks another pacman is already running. Either one really is (an update in another window), or an earlier one crashed and left its lock file behind.",
+      fix: ["Make sure no other pacman, yay or software center is running.", "If nothing is running, remove the stale lock file.", "Then run your command again."],
+      cmds: () => [["ps aux | grep -E 'pacman|yay|paru'", "Is something running?"], ["sudo rm /var/lib/pacman/db.lck", "Remove a stale lock (only if nothing is running!)"]] },
+    { id: "pacmankeys", re: /invalid or corrupted package|signature .* is (unknown trust|invalid)|key .* could not be (looked up|imported)/i, title: "pacman: invalid signature or unknown key", why: "pacman checks that every package was signed by a trusted developer. If your keyring is out of date, new packages look 'untrusted'. This often happens after a long time without updates.",
+      fix: ["Update the keyring packages first, then everything else.", "If that still fails, re-initialize and re-populate the keyring."],
+      cmds: d => [[d.id === "cachyos" ? "sudo pacman -Sy archlinux-keyring cachyos-keyring" : "sudo pacman -Sy archlinux-keyring", "Update the keyring first"], ["sudo pacman -Syu", "Then update everything"], ["sudo pacman-key --init && sudo pacman-key --populate", "Reset the keyring (if still broken)"]] },
+    { id: "pacmanconflict", re: /conflicting files|exists in filesystem/i, title: "pacman: conflicting files", why: "A package wants to install a file that already exists, and pacman won't overwrite it without asking. Often a leftover from something you installed by hand, or a package that moved files around.",
+      fix: ["Find out who owns the file: pacman -Qo /path/to/file.", "If no package owns it, it's a leftover: move it away and try again.", "Avoid --overwrite unless you understand which file you're replacing."],
+      cmds: () => [["pacman -Qo /path/to/file", "Which package owns this file?"], ["sudo mv /path/to/file /path/to/file.bak", "Move a leftover out of the way"]] },
+    { id: "pacman404", re: /failed retrieving file|404|failed to retrieve some files/i, title: "Failed to download packages (404)", why: "Your package lists are older than what the mirror has. The files your system asked for have already been replaced by newer versions.",
+      fix: ["Refresh the package lists and update everything together.", "On Arch-based systems, never install packages without updating first (-Syu)."],
+      cmds: d => [[P(d).update, "Refresh and update"], ...(d.family === "arch" ? [["sudo pacman -Syyu", "Force-refresh every mirror"]] : [])] },
+    { id: "dpkglock", re: /could not get lock|dpkg frontend lock|lock-frontend/i, title: "apt: could not get lock", why: "Another apt is running: often automatic updates, or the Software Updater in the background.",
+      fix: ["Wait a few minutes: automatic updates usually finish on their own.", "Check what's running. Don't delete lock files while apt is really running."],
+      cmds: () => [["ps aux | grep -E 'apt|dpkg|unattended'", "What's running?"], ["sudo dpkg --configure -a", "Finish an interrupted install"]] },
+    { id: "brokenpkgs", re: /unmet dependencies|held broken packages|you have held broken packages/i, title: "apt: unmet dependencies", why: "Two packages want incompatible versions of something, or an earlier install was interrupted.",
+      fix: ["Let apt try to repair itself.", "Finish any half-finished installs.", "If you added a PPA or third-party repo recently, it's a likely cause."],
+      cmds: () => [["sudo apt --fix-broken install", "Repair dependencies"], ["sudo dpkg --configure -a", "Finish interrupted installs"], ["sudo apt update && sudo apt full-upgrade", "Bring everything in line"]] },
+    { id: "dnf", re: /no match for argument|unable to find a match/i, title: "dnf: no match for argument", why: "There's no package with that exact name in your enabled repositories. The name may be different on Fedora, or it's in a repo you haven't enabled (like RPM Fusion).",
+      fix: ["Search for the right name with dnf search.", "Some software needs RPM Fusion, or is only available as a Flatpak."],
+      cmds: () => [["dnf search NAME", "Find the right name"], ["dnf provides */COMMAND", "Which package provides a command"], ["flatpak search NAME", "Try Flathub"]] },
+    { id: "sudoers", re: /is not in the sudoers file/i, title: "Not in the sudoers file", why: "Your user isn't allowed to use sudo. Admin rights come from being in the right group (wheel on Arch and Fedora, sudo on Debian and Ubuntu).",
+      fix: ["Log in as an admin (or root) and add your user to the admin group.", "Log out and back in for group changes to apply."],
+      cmds: d => [[`su -c 'usermod -aG ${d.family === "debian" ? "sudo" : "wheel"} YOURNAME'`, "Add yourself to the admin group (needs the root password)"], ["groups", "Check your groups after logging back in"]] },
+    { id: "sshkey", re: /permissions .* are too open|unprotected private key/i, title: "SSH: private key permissions are too open", why: "SSH refuses to use a private key that other people on the computer could read.",
+      fix: ["Make the key readable only by you."], cmds: () => [["chmod 600 ~/.ssh/id_ed25519", "Lock down the key"], ["chmod 700 ~/.ssh", "Lock down the folder"]] },
+    { id: "sshrefused", re: /connection refused/i, title: "Connection refused", why: "Your computer reached the other machine, but nothing was listening on that port. The service (like sshd or a web server) isn't running, or a firewall is rejecting you.",
+      fix: ["On the server, check the service is running.", "Check you're using the right port.", "Check the server's firewall allows it."], cmds: d => [[fill(I(d).status, "sshd"), "Is the SSH server running?"], ["ss -tlnp", "What's listening, on which ports"], ["sudo ufw status", "Firewall rules (ufw)"]] },
+    { id: "timeout", re: /connection timed out|operation timed out/i, title: "Connection timed out", why: "Nothing answered at all. The machine may be off, the IP address may be wrong, or a firewall is silently dropping your packets.",
+      fix: ["Double-check the address.", "Ping it to see if it's reachable.", "Check firewalls on both ends and on the router."], cmds: () => [["ping -c 3 ADDRESS", "Is it reachable?"], ["ip a", "Your own address"]] },
+    { id: "hostkey", re: /remote host identification has changed/i, title: "SSH: remote host identification has changed", why: "The server's identity key is different from last time. Usually it was reinstalled, but it can also mean someone is intercepting the connection. SSH stops to protect you.",
+      fix: ["If you know the server was reinstalled, remove the old key and connect again.", "If you don't know why it changed, ask whoever runs the server before continuing."], cmds: () => [["ssh-keygen -R HOSTNAME", "Forget the old key"]] },
+    { id: "unitnotfound", re: /unit .*\.service (could not be found|not found)/i, title: "Unit not found", why: "systemd doesn't know a service by that name. It's misspelled, not installed, or called something slightly different on your distro.",
+      fix: ["List the services that exist and look for the right name.", "Install the package that provides it."], cmds: () => [["systemctl list-unit-files --type=service | grep NAME", "Find the real name"]] },
+    { id: "unitfailed", re: /job for .* failed|failed with result|control process exited with error/i, title: "A service failed to start", why: "systemd tried to start the service and it crashed or exited with an error. The real reason is in its logs.",
+      fix: ["Read the service's logs: the error is almost always in the last few lines.", "Fix the config file it complains about, then restart it.", "Many programs can test their own config first (nginx -t, sshd -t)."], cmds: () => [["systemctl status NAME", "Status and recent log lines"], ["journalctl -xeu NAME", "Full logs for the service"]] },
+    { id: "readonly", re: /read-only file system/i, title: "Read-only file system", why: "The disk is mounted read-only. On immutable distros (Silverblue, SteamOS, Bazzite, MicroOS) that's by design. On others, the system may have switched to read-only after detecting disk errors.",
+      fix: ["On an immutable distro, install software another way (Flatpak, toolbox, distrobox) or layer it.", "On a normal distro, check the disk for errors and back up your data."], cmds: () => [["findmnt /", "How / is mounted"], ["sudo dmesg | grep -i error", "Disk errors?"]] },
+    { id: "segfault", re: /segmentation fault|core dumped/i, title: "Segmentation fault", why: "The program crashed by touching memory it wasn't allowed to. It's a bug in that program (or a mismatched library), not something you typed wrong.",
+      fix: ["Update your system: a fixed version may exist.", "Check the program's bug tracker for the same crash.", "coredumpctl shows details of recent crashes."], cmds: () => [["coredumpctl list", "Recent crashes"], ["coredumpctl info", "Details of the last one"]] },
+    { id: "killed", re: /\bkilled\b|out of memory|oom-killer/i, title: "Killed (out of memory)", why: "The system ran out of RAM and the kernel's OOM killer stopped a program to save the rest.",
+      fix: ["Close memory-hungry programs (browsers with lots of tabs!).", "Check memory use with free -h.", "Consider zram or a swap file, especially on low-RAM machines like Chromebooks."], cmds: () => [["free -h", "Memory use"], ["sudo dmesg | grep -i 'out of memory'", "What got killed"], ["ps aux --sort=-rss | head", "Biggest memory users"]] },
+    { id: "nosuchfile", re: /no such file or directory/i, title: "No such file or directory", why: "The path doesn't exist exactly as typed. Check spelling, capital letters, spaces (which need quotes), and which folder you're in.",
+      fix: ["Print where you are with pwd.", "List the folder with ls to see the real names.", "Use Tab to auto-complete paths: it never misspells.", "Wrap names with spaces in quotes."], cmds: () => [["pwd", "Where am I?"], ["ls -la", "What's really here"]] },
+    { id: "isdir", re: /is a directory/i, title: "Is a directory", why: "You gave a folder to a command that expects a file (like cat, or rm without -r).",
+      fix: ["Use ls to look inside a folder.", "To copy or delete a folder, add -r."], cmds: () => [["ls FOLDER", "Look inside"], ["cp -r FOLDER DEST", "Copy a folder"], ["rm -r FOLDER", "Delete a folder (careful!)"]] },
+    { id: "exec", re: /exec format error|cannot execute binary file/i, title: "Exec format error", why: "The program was built for a different kind of processor (for example an ARM program on an x86 PC), or the file isn't a program at all.",
+      fix: ["Check your architecture with uname -m and download the matching version.", "If it's a script, add a shebang line like #!/bin/bash at the top."], cmds: () => [["uname -m", "Your CPU architecture"], ["file PROGRAM", "What the file really is"]] },
+    { id: "badinterp", re: /bad interpreter/i, title: "Bad interpreter", why: "The script's first line (the shebang) points to a program that doesn't exist. Often the file was saved on Windows with \\r\\n line endings, so the shell looks for 'bash\\r'.",
+      fix: ["Check the first line with head -1.", "Convert Windows line endings with dos2unix, or sed -i 's/\\r$//' script.sh."], cmds: () => [["head -1 script.sh | cat -A", "Shows hidden \\r characters as ^M"], ["sed -i 's/\\r$//' script.sh", "Remove Windows line endings"]] },
+    { id: "syntax", re: /syntax error near unexpected token|unexpected end of file/i, title: "Bash syntax error", why: "The shell couldn't make sense of the script: usually a missing fi, done or quote, or a missing space inside [ ].",
+      fix: ["Check every if has a fi, every do has a done, and every quote is closed.", "There must be spaces inside brackets: [ -f x ].", "bash -n script.sh checks the syntax without running anything.", "shellcheck finds lots of mistakes automatically."], cmds: d => [["bash -n script.sh", "Check syntax"], [fill(P(d).install, "shellcheck"), "Install ShellCheck"], ["shellcheck script.sh", "Find mistakes"]] },
+    { id: "portinuse", re: /address already in use|eaddrinuse/i, title: "Address already in use", why: "Another program is already listening on that port.", fix: ["Find who's using the port, then stop it or pick another port."], cmds: () => [["sudo ss -tlnp | grep :PORT", "Who's on that port"]] },
+    { id: "nvidia", re: /nvidia.*(failed|couldn't|could not)|nouveau/i, title: "NVIDIA driver trouble", why: "The NVIDIA driver didn't load, often right after a kernel update when the driver module wasn't rebuilt for the new kernel.",
+      fix: ["Update everything and reboot.", "Make sure the NVIDIA package matches your kernel (on Arch-based systems, nvidia-dkms rebuilds itself for each kernel).", "Check whether the module loaded with lsmod."], cmds: d => [[P(d).update, "Update everything"], ["lsmod | grep nvidia", "Is the driver loaded?"], ["nvidia-smi", "Driver status"]] },
+    { id: "grub", re: /grub rescue|unknown filesystem|error: no such partition/i, title: "GRUB rescue / can't find the system", why: "The bootloader can't find the partition it expects. This often happens after resizing partitions or installing another OS.",
+      fix: ["Boot from a live USB.", "Mount your system and reinstall or regenerate GRUB from a chroot.", "Your files are almost certainly still there, so don't panic and don't reformat."], cmds: () => [["lsblk -f", "Find your partitions (from a live USB)"], ["sudo grub-mkconfig -o /boot/grub/grub.cfg", "Regenerate the GRUB menu (inside a chroot)"]] },
+    { id: "flatpak", re: /no remote refs found|error: .*flathub/i, title: "Flatpak can't find the app", why: "Flathub isn't added as a source on this system, or the app ID is wrong.", fix: ["Add Flathub, then search again."], cmds: () => [["flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo", "Add Flathub"], ["flatpak search NAME", "Find the exact app ID"]] },
+    { id: "git", re: /not a git repository/i, title: "Not a git repository", why: "You ran a git command outside a project that git is tracking.", fix: ["cd into the project folder, or start tracking this folder with git init."], cmds: () => [["git init", "Start a repository here"], ["git status", "Check the state"]] },
+    { id: "gitauth", re: /authentication failed|support for password authentication was removed/i, title: "Git authentication failed", why: "GitHub (and most hosts) no longer accept your account password over HTTPS.", fix: ["Log in with the GitHub CLI, or use an SSH key, or a personal access token instead of your password."], cmds: d => [[fill(P(d).install, "github-cli"), "Install GitHub's CLI"], ["gh auth login", "Log in properly"]] },
+    { id: "mountbusy", re: /target is busy|device or resource busy/i, title: "Target is busy", why: "Something is still using files on that disk, so it can't be unmounted safely. Often a terminal that is still cd'd into it.",
+      fix: ["Leave the folder in every terminal (cd ~).", "Find what's using it with lsof or fuser."], cmds: () => [["lsof +f -- /mnt", "What's using it"], ["fuser -vm /mnt", "Which processes"]] }
+  ];
+  DA.diagnose = text => {
+    const t = String(text || ""); if (!t.trim()) return [];
+    return DA.ERRORS.filter(e => e.re.test(t));
+  };
+})();
+
+</script>
+<script>
+/* Command of the Day: one genuinely useful command each day, with a real example to try. */
+DA.COTD = [
+  ["tldr", "tldr tar", "Short, example-first help pages. Much friendlier than man for a quick reminder."],
+  ["ncdu", "ncdu ~", "An interactive disk-usage browser. Find what's eating your storage in seconds."],
+  ["htop", "htop", "A colorful, interactive process viewer. F6 sorts, F9 kills, q quits."],
+  ["journalctl", "journalctl -b -p err", "Every error logged since this boot. The first place to look when something breaks."],
+  ["ss", "ss -tulpn", "Every open network port and which program is listening on it."],
+  ["lsblk", "lsblk -f", "All your disks and partitions, with filesystems and mount points."],
+  ["df", "df -h", "How full each disk is, in human-friendly sizes."],
+  ["du", "du -sh * | sort -h", "Size of everything in this folder, smallest to biggest."],
+  ["find", "find ~ -name '*.pdf' -mtime -7", "Every PDF in your home folder changed in the last 7 days."],
+  ["grep", "grep -rn TODO ~/project", "Search inside every file in a folder, with file names and line numbers."],
+  ["xargs", "find . -name '*.tmp' | xargs rm", "Turn a list of lines into arguments for another command."],
+  ["tee", "echo hi | sudo tee /etc/motd", "Write output to a file (even a root-owned one) and the screen at once."],
+  ["watch", "watch -n 2 free -h", "Re-run a command every 2 seconds. Great for watching something change."],
+  ["history", "history | grep pacman", "Find that command you ran last week."],
+  ["ctrl+r", "Ctrl+R then type a word", "Search your command history as you type. Press Ctrl+R again for older matches."],
+  ["!!", "sudo !!", "Re-run the last command. 'sudo !!' fixes 'permission denied' in one go."],
+  ["cd -", "cd -", "Jump back to the folder you were just in."],
+  ["pushd", "pushd /etc && popd", "A stack of folders: hop somewhere, then pop straight back."],
+  ["alias", "alias update='sudo pacman -Syu'", "Give a long command a short name. Put it in ~/.bashrc to keep it."],
+  ["type", "type ls", "Is it a program, an alias, a builtin or a function? type tells you."],
+  ["which", "which python3", "Where on disk a command actually lives."],
+  ["file", "file mystery.bin", "What a file really is, no matter its name."],
+  ["stat", "stat notes.txt", "Everything about a file: size, owner, permissions and every timestamp."],
+  ["chmod", "chmod u+x script.sh", "Let yourself run a script, without touching anyone else's permissions."],
+  ["chown", "sudo chown -R $USER: ~/stuff", "Take ownership of a folder and everything in it."],
+  ["ln", "ln -s ~/Documents/notes.md ~/notes", "Make a shortcut (symlink) to a file or folder."],
+  ["tar", "tar -czf backup.tar.gz Documents", "Pack and compress a folder into one file."],
+  ["rsync", "rsync -avh --progress src/ dest/", "Copy folders smartly: only what changed, with progress. The backup king."],
+  ["scp", "scp file.txt user@host:~/", "Copy a file to another machine over SSH."],
+  ["ssh", "ssh -J jump user@server", "Hop through one machine to reach another."],
+  ["curl", "curl -I https://archlinux.org", "Just the HTTP headers of a website. Is it up? What server is it?"],
+  ["wget", "wget -c URL", "Download a file, and continue where it left off if it was interrupted."],
+  ["ip", "ip -br a", "Your network interfaces and addresses, one tidy line each."],
+  ["ping", "ping -c 3 1.1.1.1", "Am I online? Three pings and done."],
+  ["dig", "dig +short archlinux.org", "Look up a domain's IP address."],
+  ["systemctl", "systemctl --failed", "Every service that failed to start."],
+  ["systemd-analyze", "systemd-analyze blame", "Which services slowed down your boot, slowest first."],
+  ["uptime", "uptime", "How long since the last boot, and how busy the CPU has been."],
+  ["free", "free -h", "RAM and swap in use, in human sizes."],
+  ["lscpu", "lscpu", "Everything about your processor."],
+  ["lspci", "lspci -k", "Your hardware and the driver each part is using."],
+  ["dmesg", "sudo dmesg -w", "The kernel's own messages, live. Plug in a USB stick and watch."],
+  ["uname", "uname -r", "Which kernel you're running."],
+  ["fastfetch", "fastfetch", "Show off your system with a logo. Required before posting any screenshot."],
+  ["kill", "pkill -f firefox", "Stop programs by name instead of hunting for their PID."],
+  ["nohup", "nohup ./long-job.sh &", "Keep a command running even after you close the terminal."],
+  ["jobs", "sleep 100 & jobs", "Background jobs in this terminal. fg brings one back."],
+  ["sort", "sort -u names.txt", "Sort lines and drop duplicates in one step."],
+  ["uniq", "sort access.log | uniq -c | sort -rn | head", "The most common lines in a file, counted."],
+  ["cut", "cut -d: -f1 /etc/passwd", "Pull one column out of every line."],
+  ["awk", "awk '{print $1}' access.log", "Print the first column of each line."],
+  ["sed", "sed -i 's/old/new/g' file.txt", "Find and replace across a whole file."],
+  ["diff", "diff -u old.conf new.conf", "Exactly what changed between two files."],
+  ["column", "mount | column -t", "Line messy output up into neat columns."],
+  ["less", "less +F /var/log/pacman.log", "Read a file and follow new lines as they arrive. Ctrl+C to scroll."],
+  ["tail", "tail -f /var/log/syslog", "Watch a log grow, live."],
+  ["crontab", "crontab -e", "Schedule commands to run automatically."],
+  ["date", "date +%F", "Today's date as 2026-10-16. Perfect for file names."],
+  ["seq", "seq 1 5", "Print a sequence of numbers, for loops and tests."],
+  ["printf", "printf '%-10s %s\\n' name Tux", "Neatly formatted output, much more control than echo."],
+  ["bash -x", "bash -x script.sh", "Run a script and print every line as it runs. Debugging made easy."],
+  ["shellcheck", "shellcheck script.sh", "Finds bugs in your shell scripts before they bite."],
+  ["man -k", "man -k partition", "Search every man page for a word when you don't know the command's name."],
+  ["flatpak", "flatpak update", "Update every Flatpak app."],
+  ["paccache", "sudo paccache -rk2", "Arch-based: keep only the last 2 versions of each cached package."],
+  ["pacman -Qdt", "pacman -Qdtq", "Arch-based: orphaned packages nothing needs anymore."]
+];
+
+</script>
+<script>
+/* Error Doctor: paste a real error from your own terminal, get a plain-English diagnosis and a fix. */
+(function () {
+  const { esc, icon, $ } = DA;
+  const card = (e, d, first) => `<section class="card stack doc-card ${first ? "top" : ""}">
+    <div class="row" style="gap:10px"><span class="tag ${first ? "peach" : ""}">${first ? "Most likely" : "Also possible"}</span><h2>${esc(e.title)}</h2></div>
+    <p>${esc(e.why)}</p>
+    <h3>How to fix it</h3><ol class="doc-steps">${e.fix.map(f => `<li>${esc(f)}</li>`).join("")}</ol>
+    ${e.cmds(d).length ? `<h3>Commands for ${esc(d.name)}</h3><div class="cmds">${e.cmds(d).map(([c, x]) => DA.ui.cmdBlock(c, x, false)).join("")}</div>` : ""}
+  </section>`;
+  DA.views.doctor = (v) => {
+    const d = DA.ui.my(), last = DA.state.prog.doctorLast || "";
+    v.innerHTML = `<div class="view"><div class="doc-page">${DA.ui.pageHead("Error Doctor", "Something broke on your real computer? Paste the error message here. You'll get what it means in plain English and the commands to fix it on " + esc(d.name) + ".", "", "// diagnose")}
+      <section class="card stack"><textarea class="input mono" id="doc-in" rows="6" spellcheck="false" placeholder="Paste the error here, for example:&#10;error: failed to commit transaction (conflicting files)&#10;bash: ./run.sh: Permission denied">${esc(last)}</textarea>
+        <div class="row" style="justify-content:space-between"><span class="small muted">Nothing leaves your computer. The Doctor works offline.</span><div class="row" style="gap:8px"><button class="btn ghost" data-ask-doc>${icon("chat")} Ask ${esc(DA.state.settings.tutor.name)}</button><button class="btn primary" id="doc-go">${icon("search")} Diagnose</button></div></div></section>
+      <div id="doc-out" class="stack" style="margin-top:var(--gap)"></div>
+      <section class="card stack" style="margin-top:var(--gap)"><h3>${icon("book")} Errors the Doctor knows</h3><div class="row" style="gap:6px">${DA.ERRORS.map(e => `<button class="tag" data-err="${e.id}">${esc(e.title)}</button>`).join("")}</div></section>
+    </div></div>`;
+    const run = () => {
+      const text = $("#doc-in").value, out = $("#doc-out");
+      DA.state.prog.doctorLast = text.slice(0, 2000); DA.save();
+      const hits = DA.diagnose(text);
+      if (!text.trim()) { out.innerHTML = ""; return; }
+      if (!hits.length) { out.innerHTML = `<section class="card empty">${DA.TUX("tux-xl")}<h3>The Doctor doesn't recognize this one</h3><p class="muted">Ask ${esc(DA.state.settings.tutor.name)}, or search the exact error message online (put it in quotes). Your distro's forum or wiki almost always has the answer.</p></section>`; return; }
+      out.innerHTML = hits.slice(0, 3).map((e, i) => card(e, d, i === 0)).join("");
+      DA.state.prog.doctorUses = (DA.state.prog.doctorUses || 0) + 1; DA.save(); DA.checkBadges();
+    };
+    $("#doc-go").onclick = run;
+    $("#doc-in").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) run(); });
+    v.querySelector("[data-ask-doc]").onclick = () => { const t = $("#doc-in").value.trim(); if (!t) return DA.toast("Paste an error first 🙂"); DA.tutor.open(true); DA.tutor.ask("I got this error on my computer, what does it mean and how do I fix it?\n" + t); };
+    v.querySelectorAll("[data-err]").forEach(b => b.onclick = () => { const e = DA.ERRORS.find(x => x.id === b.dataset.err); $("#doc-out").innerHTML = card(e, d, true); $("#doc-out").scrollIntoView({ behavior: "smooth", block: "start" }); });
+    if (last) run();
+  };
+  // The tutor uses the Doctor too when you paste an error into the chat.
+  const baseAnswer = DA.tutorAnswer;
+  DA.tutorAnswer = (input, ctx) => {
+    const hits = String(input).length > 12 ? DA.diagnose(input) : [];
+    if (hits.length && /error|denied|failed|not found|refused|cannot|can't|unable|no such|fault|killed|timed out|busy|invalid/i.test(input)) {
+      const e = hits[0], d = ctx.distro || DA.ui.my();
+      return { special: true, html: `<p><b>${esc(e.title)}.</b> ${esc(e.why)}</p><ul>${e.fix.slice(0, 3).map(f => `<li>${esc(f)}</li>`).join("")}</ul>${e.cmds(d).slice(0, 2).map(([c]) => `<div class="cmd"><code>${esc(c)}</code></div>`).join("")}`, actions: [{ label: "Open the Error Doctor", go: "#/doctor" }] };
+    }
+    return baseAnswer(input, ctx);
+  };
+})();
+
+</script>
+<script>
+/* Unofficial practice exams in the style of well-known Linux certifications.
+   Not affiliated with, endorsed by, or using material from CompTIA or Red Hat. Every question is original.
+   Each bank: domains (name, share) and questions { dm (domain index), q, a[], c (correct index), why }. */
+DA.CERTPREP = [
+  {
+    id: "lplus", name: "Linux+ style", em: "🧭", count: 30, minutes: 45, pass: 75,
+    blurb: "Broad, distro-neutral sysadmin knowledge: system management, security, scripting and containers, and troubleshooting.",
+    styled: "Styled after the topics of CompTIA Linux+",
+    domains: ["System management", "Security", "Scripting, containers & automation", "Troubleshooting"],
+    qs: [
+      { dm: 0, q: "Which file lists filesystems to mount automatically at boot?", a: ["/etc/fstab", "/etc/mtab", "/proc/mounts", "/etc/filesystems"], c: 0, why: "/etc/fstab is read at boot; /etc/mtab and /proc/mounts show what's mounted right now." },
+      { dm: 0, q: "Which command shows block devices as a tree, including partitions and mount points?", a: ["lsblk", "lspci", "fdisk -v", "blkid -t"], c: 0, why: "lsblk lists block devices. lspci lists PCI hardware." },
+      { dm: 0, q: "You need a stable identifier for a partition in /etc/fstab that won't change if disks are re-ordered. What should you use?", a: ["UUID=", "/dev/sdX1", "The partition label from fdisk", "The inode number"], c: 0, why: "Device names like /dev/sdb1 can change between boots. UUIDs (from blkid) don't." },
+      { dm: 0, q: "Which command creates an ext4 filesystem on /dev/sdb1?", a: ["mkfs.ext4 /dev/sdb1", "fsck.ext4 /dev/sdb1", "mount -t ext4 /dev/sdb1", "tune2fs -c ext4 /dev/sdb1"], c: 0, why: "mkfs makes a filesystem; fsck checks one; tune2fs adjusts one." },
+      { dm: 0, q: "In LVM, what is the correct order to build storage from a new disk?", a: ["pvcreate → vgcreate → lvcreate", "lvcreate → vgcreate → pvcreate", "vgcreate → pvcreate → lvcreate", "mkfs → pvcreate → lvcreate"], c: 0, why: "Physical volumes go into a volume group, which is carved into logical volumes." },
+      { dm: 0, q: "Which systemd command makes a service start at boot AND starts it right now?", a: ["systemctl enable --now NAME", "systemctl start --boot NAME", "systemctl enable NAME", "systemctl daemon-reload NAME"], c: 0, why: "enable alone only affects future boots; --now also starts it." },
+      { dm: 0, q: "After editing a unit file in /etc/systemd/system, what must you run before restarting the service?", a: ["systemctl daemon-reload", "systemctl reboot", "systemctl reset-failed", "journalctl --rotate"], c: 0, why: "daemon-reload makes systemd re-read changed unit files." },
+      { dm: 0, q: "Which command changes the default boot target to a text-only (no GUI) system?", a: ["systemctl set-default multi-user.target", "systemctl isolate rescue.target", "init 5", "systemctl set-default graphical.target"], c: 0, why: "multi-user.target is the non-graphical target. isolate switches now but doesn't change the default." },
+      { dm: 0, q: "Which cron schedule runs a job at 3:30 am every Monday?", a: ["30 3 * * 1", "3 30 * * 1", "30 3 1 * *", "* 3 30 * 1"], c: 0, why: "Fields: minute hour day-of-month month day-of-week. Monday is 1." },
+      { dm: 0, q: "Which command shows the kernel version you are running?", a: ["uname -r", "uname -m", "lsmod", "cat /etc/os-release"], c: 0, why: "uname -r is the kernel release. /etc/os-release describes the distro, not the kernel." },
+      { dm: 0, q: "How do you load a kernel module named 'loop' along with its dependencies?", a: ["modprobe loop", "insmod -r loop", "lsmod loop", "depmod loop"], c: 0, why: "modprobe resolves dependencies; insmod doesn't." },
+      { dm: 0, q: "A user should be able to run administrative commands with sudo on a Fedora/RHEL system. Which group do you add them to?", a: ["wheel", "sudo", "admin", "root"], c: 0, why: "Red Hat family systems use wheel. Debian and Ubuntu use the sudo group." },
+      { dm: 0, q: "Which command adds user 'sam' to the 'docker' group WITHOUT removing their other supplementary groups?", a: ["usermod -aG docker sam", "usermod -G docker sam", "groupadd sam docker", "useradd -G docker sam"], c: 0, why: "Without -a, -G replaces the whole list of supplementary groups." },
+      { dm: 1, q: "A file has permissions -rwxr-x---. What is that in octal?", a: ["750", "755", "740", "570"], c: 0, why: "rwx=7, r-x=5, ---=0." },
+      { dm: 1, q: "What does the setgid bit do when set on a directory?", a: ["New files inside inherit the directory's group", "Only the owner can delete files inside", "Files inside run as the group", "It hides the directory"], c: 0, why: "setgid on a directory makes new files inherit its group. Delete protection is the sticky bit." },
+      { dm: 1, q: "Why does /tmp normally have the sticky bit (drwxrwxrwt)?", a: ["So users can only delete their own files there", "So files are deleted at reboot", "So only root can write there", "So files are executable"], c: 0, why: "The sticky bit stops users from deleting each other's files in a shared folder." },
+      { dm: 1, q: "With a umask of 027, what permissions does a new directory get?", a: ["750", "755", "640", "777"], c: 0, why: "Directories start from 777; removing 027 gives 750." },
+      { dm: 1, q: "Which file stores hashed user passwords?", a: ["/etc/shadow", "/etc/passwd", "/etc/group", "/etc/login.defs"], c: 0, why: "/etc/passwd is world-readable, so the hashes live in /etc/shadow (root only)." },
+      { dm: 1, q: "What is the safest way to edit the sudoers configuration?", a: ["visudo", "nano /etc/sudoers", "echo >> /etc/sudoers", "chmod 777 /etc/sudoers"], c: 0, why: "visudo checks the syntax before saving, so a typo can't lock you out of sudo." },
+      { dm: 1, q: "In /etc/ssh/sshd_config, which setting disables password logins so only keys work?", a: ["PasswordAuthentication no", "PermitRootLogin no", "PubkeyAuthentication no", "UsePAM no"], c: 0, why: "PermitRootLogin only affects root. PubkeyAuthentication no would disable keys instead!" },
+      { dm: 1, q: "Which permissions should a private SSH key file have?", a: ["600", "644", "755", "777"], c: 0, why: "SSH refuses private keys that other users can read." },
+      { dm: 1, q: "Which command shows the current SELinux mode?", a: ["getenforce", "sestatus -m", "setenforce", "aa-status"], c: 0, why: "getenforce prints Enforcing, Permissive or Disabled. aa-status is for AppArmor." },
+      { dm: 1, q: "A web server can't read files you moved into its folder, and SELinux is enforcing. What usually fixes it?", a: ["restorecon -Rv on the folder", "chmod 777 the folder", "setenforce 0 permanently", "Reboot"], c: 0, why: "mv keeps the old SELinux label; restorecon resets labels to what the policy expects." },
+      { dm: 1, q: "Which ufw command allows incoming HTTPS?", a: ["ufw allow 443/tcp", "ufw open https", "ufw permit 443", "ufw enable 443"], c: 0, why: "ufw allow takes a port/protocol or a service name like https." },
+      { dm: 1, q: "With firewalld, what makes a rule survive a reboot?", a: ["Adding --permanent (then reloading)", "Running it twice", "Adding --now", "Restarting sshd"], c: 0, why: "Without --permanent, firewall-cmd changes only the running config." },
+      { dm: 2, q: "In a Bash script, what does $? contain?", a: ["The exit status of the last command", "The number of arguments", "The script's PID", "The last argument"], c: 0, why: "$# is the argument count, $$ is the PID." },
+      { dm: 2, q: "Which test checks that a regular file exists?", a: ["[ -f FILE ]", "[ -d FILE ]", "[ -z FILE ]", "[ -x FILE ]"], c: 0, why: "-d is directory, -z is empty string, -x is executable." },
+      { dm: 2, q: "What does this print? for i in {1..3}; do echo -n $i; done", a: ["123", "1 2 3 on separate lines", "{1..3}", "3"], c: 0, why: "Brace expansion gives 1 2 3; echo -n prints without a newline." },
+      { dm: 2, q: "Which redirect sends both normal output and errors to the same file?", a: ["cmd > log 2>&1", "cmd 2> log > log", "cmd >> log 2>> /dev/null", "cmd | log"], c: 0, why: "2>&1 points stderr wherever stdout already goes. Order matters: redirect stdout first." },
+      { dm: 2, q: "Which command starts a container from the nginx image in the background, publishing port 8080 on the host to 80 inside?", a: ["docker run -d -p 8080:80 nginx", "docker run -p 80:8080 nginx", "docker start nginx -p 8080", "docker build -p 8080:80 nginx"], c: 0, why: "-p is host:container, and -d detaches." },
+      { dm: 2, q: "What is the main difference between a container and a virtual machine?", a: ["Containers share the host's kernel; VMs run their own", "Containers are always slower", "VMs can't run Linux", "Containers need special hardware"], c: 0, why: "That's why containers start in milliseconds and are lighter." },
+      { dm: 2, q: "In Git, which command records staged changes as a new commit?", a: ["git commit -m \"msg\"", "git push", "git add -c", "git stash"], c: 0, why: "add stages, commit records, push uploads." },
+      { dm: 2, q: "Which file format do most infrastructure-as-code tools like Ansible use for playbooks?", a: ["YAML", "INI", "CSV", "XML only"], c: 0, why: "Ansible playbooks are YAML." },
+      { dm: 3, q: "A service won't start. Which command shows its recent log messages?", a: ["journalctl -u NAME", "dmesg -u NAME", "systemctl logs NAME", "cat /var/log/NAME.service"], c: 0, why: "journalctl -u filters the journal to one unit." },
+      { dm: 3, q: "df -h shows plenty of free space, but you still get 'No space left on device'. What should you check next?", a: ["Inodes, with df -i", "RAM, with free", "CPU, with top", "The network"], c: 0, why: "Millions of tiny files can use up every inode while the disk still has free bytes." },
+      { dm: 3, q: "You can ping 1.1.1.1 but not archlinux.org. What is most likely broken?", a: ["DNS resolution", "The network cable", "The firewall blocking ICMP", "The default gateway"], c: 0, why: "IP connectivity works, so name resolution is the problem." },
+      { dm: 3, q: "Which command shows which program is listening on TCP port 22?", a: ["ss -tlnp", "ip route", "ping -p 22", "netstat -r"], c: 0, why: "ss -t (TCP) -l (listening) -n (numbers) -p (process)." },
+      { dm: 3, q: "The load average is 8.0 on a 4-core machine. What does that suggest?", a: ["More work is waiting than the CPUs can handle", "The machine is idle", "8 users are logged in", "RAM is 80% full"], c: 0, why: "A load equal to the core count means fully busy; double it means a queue is forming." },
+      { dm: 3, q: "A process ignores kill PID. What signal force-stops it?", a: ["SIGKILL (kill -9)", "SIGHUP (kill -1)", "SIGTERM (kill -15)", "SIGCONT"], c: 0, why: "SIGTERM (the default) can be ignored; SIGKILL can't." },
+      { dm: 3, q: "Which command checks and repairs an unmounted ext4 filesystem?", a: ["fsck /dev/sdb1", "mkfs /dev/sdb1", "mount -o repair", "tune2fs -r"], c: 0, why: "Always unmount first; never run fsck on a mounted filesystem." }
+    ]
+  },
+  {
+    id: "rhcsa", name: "RHCSA style", em: "🎩", count: 25, minutes: 40, pass: 70,
+    blurb: "Red Hat–family system administration: dnf, systemd, storage, users, SELinux, firewalld and containers with podman.",
+    styled: "Styled after the topics of the Red Hat Certified System Administrator exam",
+    domains: ["Essential tools & files", "Storage", "Systems & services", "Users & security", "Containers & networking"],
+    qs: [
+      { dm: 0, q: "Which command finds every file named 'httpd.conf' under /etc?", a: ["find /etc -name httpd.conf", "locate -d /etc httpd.conf", "grep -r httpd.conf /etc", "ls -R /etc httpd.conf"], c: 0, why: "find walks the tree; grep -r would search file contents." },
+      { dm: 0, q: "How do you create a hard link named b pointing to file a?", a: ["ln a b", "ln -s a b", "cp -l b a", "link -s a b"], c: 0, why: "ln without -s makes a hard link; -s makes a symbolic one." },
+      { dm: 0, q: "Which tar command creates a bzip2-compressed archive of /etc?", a: ["tar -cjf etc.tar.bz2 /etc", "tar -xjf etc.tar.bz2 /etc", "tar -czf etc.tar.bz2 /etc", "tar -tjf etc.tar.bz2 /etc"], c: 0, why: "-c create, -j bzip2, -f file. -z would be gzip." },
+      { dm: 0, q: "Where would you look for documentation shipped with an installed package?", a: ["/usr/share/doc", "/var/doc", "/etc/doc", "/opt/help"], c: 0, why: "Packages put their READMEs and examples in /usr/share/doc." },
+      { dm: 0, q: "Which command shows lines in /etc/passwd that end with 'nologin'?", a: ["grep 'nologin$' /etc/passwd", "grep '^nologin' /etc/passwd", "grep -v nologin /etc/passwd", "cut nologin /etc/passwd"], c: 0, why: "$ anchors to the end of the line, ^ to the start." },
+      { dm: 1, q: "You extended a logical volume and its XFS filesystem must grow to match. Which command does that?", a: ["xfs_growfs /mountpoint", "resize2fs /dev/vg/lv", "xfs_repair -g", "mkfs.xfs -f"], c: 0, why: "XFS grows with xfs_growfs on the mount point; resize2fs is for ext filesystems. (lvextend -r can do both steps.)" },
+      { dm: 1, q: "Can an XFS filesystem be shrunk?", a: ["No, XFS can only grow", "Yes, with xfs_growfs -s", "Yes, while unmounted", "Only on LVM"], c: 0, why: "XFS can't shrink. Plan sizes carefully, or back up and recreate." },
+      { dm: 1, q: "Which command activates a new swap partition right away?", a: ["swapon /dev/sdb2", "mkswap -a", "mount -t swap", "swapctl enable"], c: 0, why: "mkswap formats it, swapon activates it, and an fstab entry keeps it after reboot." },
+      { dm: 1, q: "What does the fstab option 'nofail' do?", a: ["Lets the system boot even if that disk is missing", "Prevents disk errors", "Mounts it read-only", "Skips fsck forever"], c: 0, why: "Without nofail, a missing disk can drop you into emergency mode at boot." },
+      { dm: 1, q: "Which command adds the new disk /dev/vdb to the existing volume group 'data'?", a: ["vgextend data /dev/vdb", "lvextend data /dev/vdb", "pvmove data /dev/vdb", "vgcreate data /dev/vdb"], c: 0, why: "Make it a PV (pvcreate), then vgextend adds it to the group." },
+      { dm: 2, q: "Which command installs a package and its dependencies on RHEL 9?", a: ["dnf install NAME", "rpm -i NAME", "yum-get install NAME", "apt install NAME"], c: 0, why: "dnf resolves dependencies. rpm -i installs a single file and doesn't." },
+      { dm: 2, q: "Which command shows which package provides the file /usr/bin/dig?", a: ["dnf provides /usr/bin/dig", "rpm -qa dig", "dnf search --file dig", "which -p dig"], c: 0, why: "dnf provides works even for packages that aren't installed. (rpm -qf works for installed files.)" },
+      { dm: 2, q: "How do you boot into a target where you can reset a forgotten root password on RHEL 9?", a: ["Add rd.break (or init=/bin/bash) to the kernel line in GRUB", "Press Ctrl+Alt+Del three times", "Boot graphical.target", "Run passwd from the login screen"], c: 0, why: "Interrupting early boot gives a root shell; remember to touch /.autorelabel if SELinux is on." },
+      { dm: 2, q: "Which command makes the system journal persistent across reboots?", a: ["mkdir -p /var/log/journal (or set Storage=persistent)", "journalctl --persist", "systemctl enable journal", "rm /run/log/journal"], c: 0, why: "journald keeps logs only in memory unless /var/log/journal exists or Storage=persistent is set." },
+      { dm: 2, q: "Which tool sets the system's time zone?", a: ["timedatectl set-timezone", "date --zone", "hwclock --tz", "tzselect --apply"], c: 0, why: "timedatectl manages time, time zone and NTP sync." },
+      { dm: 2, q: "How do you set a process's priority lower (nicer) when starting it?", a: ["nice -n 10 COMMAND", "renice COMMAND", "nice -n -10 COMMAND", "kill -STOP COMMAND"], c: 0, why: "Higher nice values mean lower priority; only root can set negative values." },
+      { dm: 2, q: "Which command switches the tuned profile for a virtual machine guest?", a: ["tuned-adm profile virtual-guest", "tuned --guest", "systemctl tune virtual", "sysctl -p virtual-guest"], c: 0, why: "tuned-adm list shows profiles; tuned-adm profile applies one." },
+      { dm: 3, q: "Which command forces user 'sam' to change their password at next login?", a: ["chage -d 0 sam", "passwd -l sam", "usermod -e 0 sam", "chage -M 0 sam"], c: 0, why: "Setting the last-change date to 0 expires the password immediately. passwd -l would lock the account." },
+      { dm: 3, q: "Where are the default password-ageing rules for new users set?", a: ["/etc/login.defs", "/etc/shadow", "/etc/default/passwd", "/etc/security/limits.conf"], c: 0, why: "login.defs holds defaults such as PASS_MAX_DAYS." },
+      { dm: 3, q: "Which command lets a web server listen on port 82 under SELinux?", a: ["semanage port -a -t http_port_t -p tcp 82", "setsebool httpd_port 82", "chcon -p 82 httpd", "restorecon -p 82"], c: 0, why: "Ports also have SELinux types; semanage port adds 82 to http_port_t." },
+      { dm: 3, q: "Which command permanently turns on an SELinux boolean?", a: ["setsebool -P NAME on", "setsebool NAME on", "getsebool -P NAME", "semanage boolean -l"], c: 0, why: "-P writes it to the policy so it survives reboots." },
+      { dm: 3, q: "Which command adds a permanent firewalld rule allowing the http service, effective immediately after?", a: ["firewall-cmd --permanent --add-service=http; firewall-cmd --reload", "firewall-cmd --add-port=http", "systemctl allow http", "iptables -A http"], c: 0, why: "--permanent changes saved config; --reload applies it." },
+      { dm: 3, q: "Which file grants a group sudo rights without editing /etc/sudoers itself?", a: ["A file in /etc/sudoers.d/", "/etc/group", "/etc/security/sudo.conf", "/root/.sudo"], c: 0, why: "Drop-in files in /etc/sudoers.d are read by sudo; use visudo -f to edit them." },
+      { dm: 4, q: "Which podman command runs a container that keeps running in the background?", a: ["podman run -d IMAGE", "podman start -i IMAGE", "podman exec IMAGE", "podman build -d IMAGE"], c: 0, why: "-d detaches; exec runs a command inside an already-running container." },
+      { dm: 4, q: "How do you make a rootless podman container start automatically at boot on RHEL 9?", a: ["Create a systemd user unit (or Quadlet file) and enable lingering with loginctl enable-linger", "podman run --restart=boot", "Add it to /etc/rc.local", "chmod +x the image"], c: 0, why: "User services only run without a login if lingering is on." },
+      { dm: 4, q: "Which option maps a host folder into a container and fixes its SELinux label?", a: ["-v /host/dir:/data:Z", "-v /host/dir:/data:ro", "--mount=selinux", "-p /host/dir"], c: 0, why: ":Z relabels the folder so the container may use it." },
+      { dm: 4, q: "Which tool sets a static IP on a NetworkManager connection?", a: ["nmcli con mod NAME ipv4.addresses 192.168.1.10/24 ipv4.method manual", "ifconfig eth0 static", "ip addr save", "netplan apply"], c: 0, why: "nmcli edits the connection profile so it survives reboots; then nmcli con up NAME." },
+      { dm: 4, q: "Which command sets the hostname permanently?", a: ["hostnamectl set-hostname NAME", "hostname NAME", "echo NAME > /proc/sys/kernel/hostname", "nmcli hostname"], c: 0, why: "hostname alone only changes it until reboot." },
+      { dm: 4, q: "Which file maps host names to IP addresses locally, before DNS is asked?", a: ["/etc/hosts", "/etc/resolv.conf", "/etc/hostname", "/etc/networks"], c: 0, why: "resolv.conf lists DNS servers; hosts holds local overrides." }
+    ]
+  }
+];
+
+</script>
+<script>
+/* Cert prep: timed, unofficial practice exams with a per-topic breakdown at the end. */
+(function () {
+  const { esc, icon, $ } = DA;
+  const ui = () => DA.ui;
+  const fmt = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  const NOTE = "Unofficial practice. Not affiliated with, endorsed by, or using material from CompTIA, Red Hat or any certification body. Every question is original.";
+  DA.views.certprep = (v, id) => {
+    const bank = DA.CERTPREP.find(b => b.id === id);
+    if (bank) return intro(v, bank);
+    const st = DA.state.prog.certprep || {};
+    v.innerHTML = `<div class="view">${ui().pageHead("Cert prep", "Thinking about a Linux certification one day? These timed practice exams cover the same kinds of topics, so you can see where you stand.", "", "// practice exams")}
+      <div class="grid g2">${DA.CERTPREP.map(b => `<button type="button" class="card lab-card ${st[b.id]?.pass ? "done" : ""}" data-go="#/certprep/${b.id}"><div class="row" style="gap:12px;flex-wrap:nowrap"><span class="mission-em">${b.em}</span><div style="flex:1"><h3>${esc(b.name)}</h3><div class="small muted">${b.count} questions · ${b.minutes} min · ${b.pass}% to pass</div></div></div>
+        <p class="small muted">${esc(b.blurb)}</p><div class="row" style="gap:6px">${b.domains.map(x => `<span class="tag">${esc(x)}</span>`).join("")}</div>
+        <div class="row" style="justify-content:space-between">${st[b.id] ? `<span class="tag ${st[b.id].pass ? "mint" : ""}">Best ${st[b.id].best}%${st[b.id].pass ? " · passed" : ""}</span>` : `<span class="tag">+100 XP for a pass</span>`}<span class="small faint mono">${b.qs.length} in the bank</span></div></button>`).join("")}</div>
+      <p class="small faint" style="margin-top:var(--gap)">${esc(NOTE)}</p></div>`;
+  };
+  function intro(v, b) {
+    v.innerHTML = `<div class="view"><div class="review-wrap">${ui().pageHead(`${b.em} ${esc(b.name)} practice exam`, esc(b.styled) + ".", `<a class="btn ghost" href="#/certprep">Cert prep</a>`, "// practice exam")}
+      <section class="card stack game-intro" style="max-width:none"><div class="game-em">⏱️</div><h2>${b.count} questions, ${b.minutes} minutes</h2>
+        <p class="muted">Questions come from every topic. You'll see your score and a breakdown by topic at the end. Score ${b.pass}% to pass. You can flag questions and jump back before submitting.</p>
+        <div class="row" style="justify-content:center"><button class="btn primary" id="cp-go">${icon("play")} Start</button></div><p class="small faint">${esc(NOTE)}</p></section></div></div>`;
+    $("#cp-go").onclick = () => run(v, b);
+  }
+  function run(v, b) {
+    const seed = b.id + Date.now(), qs = DA.shuffleSeeded(b.qs, seed).slice(0, b.count).map((q, i) => ({ ...q, order: DA.shuffleSeeded(q.a.map((_, k) => k), seed + i) }));
+    const picks = qs.map(() => -1), flags = qs.map(() => false), end = Date.now() + b.minutes * 60000; let i = 0, done = false;
+    const wrap = v.querySelector(".review-wrap");
+    wrap.innerHTML = `<div class="row" style="justify-content:space-between;margin:18px 0 8px"><b>${esc(b.name)}</b><span class="tag mono" id="cp-time"></span></div>
+      <div class="cp-nav" id="cp-nav"></div><section class="card stack" id="cp-card"></section>
+      <div class="row" style="justify-content:space-between;margin-top:12px"><button class="btn ghost" id="cp-prev">${icon("arrowL")} Back</button><div class="row" style="gap:8px"><button class="btn ghost" id="cp-flag">🚩 Flag</button><button class="btn soft" id="cp-next">Next ${icon("arrowR")}</button><button class="btn primary" id="cp-submit">Submit</button></div></div>`;
+    const nav = () => { $("#cp-nav").innerHTML = qs.map((_, k) => `<button type="button" class="cp-dot ${k === i ? "cur" : ""} ${picks[k] >= 0 ? "ans" : ""} ${flags[k] ? "flag" : ""}" data-k="${k}">${k + 1}</button>`).join(""); $("#cp-nav").querySelectorAll("[data-k]").forEach(x => x.onclick = () => { i = +x.dataset.k; draw(); }); };
+    const draw = () => {
+      const q = qs[i];
+      $("#cp-card").innerHTML = `<span class="tag" style="width:fit-content">${esc(b.domains[q.dm])}</span><h2 class="rv-q">${esc(q.q)}</h2><div class="quiz-q">${q.order.map((k, n) => `<button type="button" class="opt ${picks[i] === k ? "chosen" : ""}" data-k="${k}"><span class="opt-key mono">${n + 1}</span><span>${esc(q.a[k])}</span></button>`).join("")}</div>`;
+      $("#cp-card").querySelectorAll(".opt").forEach(o => o.onclick = () => { picks[i] = +o.dataset.k; draw(); });
+      $("#cp-prev").disabled = i === 0; $("#cp-next").disabled = i === qs.length - 1; $("#cp-flag").textContent = flags[i] ? "🚩 Unflag" : "🚩 Flag";
+      nav();
+    };
+    $("#cp-prev").onclick = () => { if (i > 0) { i--; draw(); } };
+    $("#cp-next").onclick = () => { if (i < qs.length - 1) { i++; draw(); } };
+    $("#cp-flag").onclick = () => { flags[i] = !flags[i]; draw(); };
+    $("#cp-submit").onclick = () => { const left = picks.filter(p => p < 0).length; if (left) ui().confirmBox(`Submit with ${left} unanswered?`, "Unanswered questions count as wrong.", "Submit", finish); else finish(); };
+    const tick = setInterval(() => { const el = $("#cp-time"); if (!el || done) return clearInterval(tick); const s = Math.max(0, Math.round((end - Date.now()) / 1000)); el.textContent = "⏱ " + fmt(s); el.classList.toggle("warn", s < 300); if (!s) finish(); }, 500);
+    const keys = e => {
+      if (!wrap.isConnected || done) return removeEventListener("keydown", keys);
+      if (/input|textarea|select/i.test(document.activeElement?.tagName || "")) return;
+      if (/^[1-4]$/.test(e.key)) $("#cp-card").querySelectorAll(".opt")[+e.key - 1]?.click();
+      else if (e.key === "ArrowRight") $("#cp-next").click(); else if (e.key === "ArrowLeft") $("#cp-prev").click();
+    };
+    addEventListener("keydown", keys);
+    function finish() {
+      if (done) return; done = true; clearInterval(tick);
+      const right = qs.filter((q, k) => picks[k] === q.c).length, pct = Math.round(right / qs.length * 100), pass = pct >= b.pass;
+      const st = DA.state.prog.certprep = DA.state.prog.certprep || {}, prev = st[b.id];
+      st[b.id] = { best: Math.max(pct, prev?.best || 0), pass: pass || !!prev?.pass, tries: (prev?.tries || 0) + 1, at: Date.now() };
+      DA.addXP(pass && !prev?.pass ? 100 : Math.max(10, Math.round(pct / 5)), "practice exam");
+      if (pass) { DA.celebrate(200); DA.sound("level"); } else DA.sound("done");
+      DA.checkBadges(); DA.save();
+      const by = b.domains.map((name, dm) => { const mine = qs.map((q, k) => [q, k]).filter(([q]) => q.dm === dm); const ok = mine.filter(([q, k]) => picks[k] === q.c).length; return { name, ok, n: mine.length }; }).filter(x => x.n);
+      const wrong = qs.map((q, k) => [q, k]).filter(([q, k]) => picks[k] !== q.c);
+      wrap.innerHTML = `<div class="review-done" style="margin-top:20px">${DA.TUX("tux-xl")}<div class="big-num" style="font-size:3.2rem">${pct}%</div><h2>${pass ? "Passed! 🎉" : `Not yet: ${b.pass}% passes`}</h2><p class="muted">${right} of ${qs.length} right${prev ? ` · best ${st[b.id].best}%` : ""}</p></div>
+        <section class="card stack"><h3>${icon("target")} By topic</h3>${by.map(x => `<div><div class="row" style="justify-content:space-between"><span>${esc(x.name)}</span><span class="mono small">${x.ok}/${x.n}</span></div><div class="bar"><i style="width:${x.ok / x.n * 100}%"></i></div></div>`).join("")}
+          ${by.filter(x => x.ok / x.n < .7).length ? `<p class="small muted">Weakest: <b>${esc(by.slice().sort((a, c) => a.ok / a.n - c.ok / c.n)[0].name)}</b>. Ask ${esc(DA.state.settings.tutor.name)} about it, or try the matching labs.</p>` : ""}</section>
+        ${wrong.length ? `<section class="card stack" style="gap:10px"><b>Review your misses</b>${wrong.map(([q, k]) => `<div class="exam-miss"><div><b>${esc(q.q)}</b></div><div class="small">❌ You said: ${picks[k] >= 0 ? esc(q.a[picks[k]]) : "(no answer)"}</div><div class="small">✅ Answer: ${esc(q.a[q.c])}</div><div class="small muted">${esc(q.why)}</div></div>`).join("")}</section>` : ""}
+        <div class="row" style="justify-content:center;margin-top:12px"><a class="btn ghost" href="#/certprep">All practice exams</a><button class="btn primary" id="cp-again">${icon("refresh")} New attempt</button></div><p class="small faint" style="text-align:center">${esc(NOTE)}</p>`;
+      $("#cp-again").onclick = () => run(v, b);
+    }
+    draw();
+  }
+  DA.BADGES.push({ id: "certprep", em: "📜", name: "Exam Ready", d: "Pass an unofficial cert-style practice exam", ok: () => Object.values(DA.state.prog.certprep || {}).some(x => x.pass) });
+})();
+
+</script>
+<script>
 /* Auto-updates (installed app only). The launcher checks a signed release feed, downloads and
    verifies new versions, and this module shows the result: a top-bar chip, a restart dialog and
    the Updates page in Settings. */
@@ -10281,8 +11425,8 @@ DA.SCREAM_096_OGG = "T2dnUwACAAAAAAAAAADTDAAAAAAAAD5jNBwBHgF2b3JiaXMAAAAAAkSsAAA
   // ---------- navigation ----------
   const NAV = [
     ["Learn", [["home", "home", "Home"], ["distros", "grid", "Distros"], ["mine", "star", "My course"], ["review", "refresh", "Review"], ["missions", "target", "Missions"]]],
-    ["Practice", [["playground", "terminal", "Playground"], ["labs", "flask", "Labs"], ["arcade", "play", "Arcade"]]],
-    ["Library", [["commands", "code", "Commands"], ["glossary", "book", "Glossary"], ["notebook", "file", "Notebook"], ["guide", "compass", "Try a distro"], ["finder", "radar", "Distro finder"], ["compare", "scale", "Compare"], ["history", "history", "History"], ["larry", "skull", "Larry Files"]]],
+    ["Practice", [["playground", "terminal", "Playground"], ["labs", "flask", "Labs"], ["certprep", "passport", "Cert prep"], ["arcade", "play", "Arcade"]]],
+    ["Library", [["commands", "code", "Commands"], ["glossary", "book", "Glossary"], ["notebook", "file", "Notebook"], ["guide", "compass", "Try a distro"], ["finder", "radar", "Distro finder"], ["doctor", "bug", "Error Doctor"], ["compare", "scale", "Compare"], ["history", "history", "History"], ["larry", "skull", "Larry Files"]]],
     ["You", [["friends", "user", "Friends"], ["achievements", "trophy", "Achievements"], ["whats-new", "spark", "What's new"], ["settings", "settings", "Settings"]]]
   ];
   const NAV_FLAT = NAV.flatMap(([, items]) => items);
