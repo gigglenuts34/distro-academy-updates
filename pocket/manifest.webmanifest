@@ -1,0 +1,28 @@
+{
+ "name": "Distro Academy Pocket",
+ "short_name": "DA Pocket",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "background_color": "#f6f3ff",
+ "theme_color": "#7d69e6",
+ "description": "Daily challenges, flashcards, quizzes and friends from Distro Academy.",
+ "icons": [
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any maskable"
+  },
+  {
+   "src": "tux.svg",
+   "sizes": "any",
+   "type": "image/svg+xml"
+  }
+ ]
+}

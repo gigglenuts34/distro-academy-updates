@@ -1,14 +1,16 @@
 {
   "app": "distro-academy",
-  "version": "2.10.1",
-  "file": "DistroAcademy-2.10.1.html",
-  "sha256": "9a571cfed99922723423679202d383fa96e05c355b205865037717e9c2516d53",
-  "size": 1830490,
-  "core": "core-2.10.1.py",
-  "core_sha256": "92b670fff1b8fbf043e15058defc09fadd1f9317f21c0ee69fbc44c0de5c86d0",
-  "core_size": 17535,
+  "version": "2.11.0",
+  "file": "DistroAcademy-2.11.0.html",
+  "sha256": "50b8cbb691a57191e0f73462462f54bf84ba8c82ab3f865d6517923f33e09342",
+  "size": 1848173,
+  "core": "core-2.11.0.py",
+  "core_sha256": "b6c4d5bf645b7911981be4d6e127b21646e1a5571b50e9388d0da384ffc519d7",
+  "core_size": 23336,
   "date": "2026-10-16",
   "notes": [
-    "2.10.1: hide event card outside events"
+    "Distro Academy Pocket: the daily challenge, flashcards, quizzes and friends on your phone, synced to your account",
+    "Desktop notifications for friend requests, invites and gifts",
+    "Optional daily streak reminder, even when the app is closed"
   ]
 }

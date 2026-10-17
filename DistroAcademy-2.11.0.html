@@ -931,6 +931,7 @@ DA.views = DA.views || {};
   };
 
   const ICONS = {
+    bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/>',
     home: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/>',
     grid: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
     terminal: '<rect x="2.5" y="4" width="19" height="16" rx="3"/><path d="m7 10 3 2.5L7 15M12.5 15H17"/>',
@@ -5411,6 +5412,15 @@ DA.CMD_REF = {
 /* Every release, newest first. The What's New page and the after-update popup read from here.
    Add a new entry at the top whenever DA.VERSION changes. */
 DA.CHANGELOG = [
+  { v: "2.11.0", date: "2026-10-16", title: "Pocket and notifications", items: [
+    ["📱", "Distro Academy Pocket", "A phone version for the daily challenge, flashcards (commands and Linux words), quick quizzes and your friends. Open it from the Friends page: scan the QR code with your phone and sign in with the same account. The XP you earn on your phone shows up here and keeps your streak going. Add it to your home screen and it opens like an app."],
+    ["🔔", "Desktop notifications", "Get a pop-up for friend requests, duel and terminal invites, and gifts when the app is open in the background. Click it to jump right there."],
+    ["⏰", "Daily streak reminder", "Turn it on in Settings → Notifications and pick a time. If you haven't studied yet that day, you get a nudge, even when the app is closed."],
+    ["🏅", "New badge: On the Go", "Study with Pocket on your phone."]
+  ] },
+  { v: "2.10.1", date: "2026-10-16", title: "Tidier home", items: [
+    ["🧹", "Event card only when there's an event", "The Events card now only shows up on your home screen while an event (like Halloween) is running."]
+  ] },
   { v: "2.10.0", date: "2026-10-16", title: "Watch, cheer, gift", items: [
     ["👀", "Watch your friends' duels", "When a friend is in a live duel, a Watch button appears on their card. You see both scores climb in real time, and you can send cheers (🔥 👏 💀) that float up on their screens. Players see how many people are watching."],
     ["🏆", "Weekly tournament", "One game a week, the exact same round for everyone. Your best score goes on a friends-only leaderboard."],
@@ -5528,7 +5538,7 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
 /* State, persistence (native file via the launcher, else localStorage), lessons and the user's machine. */
 (function () {
   const KEY = "distro-academy-v1";
-  DA.VERSION = "2.10.0";
+  DA.VERSION = "2.11.0";
 
   DA.defaults = () => ({
     v: 2,
@@ -5541,6 +5551,7 @@ DA.WHATS_NEW = DA.CHANGELOG[0].items;
       tutor: { name: "Tux", avatar: "tux", personality: "chill", open: false },
       learn: { dailyGoal: 50, quizMode: "normal", hints: true, showXP: true, sound: true, reviewLimit: 20 },
       updates: { auto: true, autoApply: true, feed: "" },
+      notify: { desktop: true, reminder: false, hour: 19 },
       ai: { provider: "off", model: "claude-opus-5-5", key: "", ollamaUrl: "http://localhost:11434", ollamaModel: "llama3.2", mode: "always" },
       widgets: [
         { id: "continue", on: true }, { id: "daily", on: true }, { id: "quests", on: true }, { id: "pet", on: true }, { id: "season", on: true }, { id: "event", on: true }, { id: "dotd", on: true }, { id: "cotd", on: true }, { id: "review", on: true }, { id: "week", on: true }, { id: "streak", on: true },
@@ -9486,7 +9497,7 @@ DA.ONLINE_CONFIG = { url: "https://erstexcypkidzvzjajod.supabase.co", key: "sb_p
         </div>
         <div class="hero-art" aria-hidden="true">${DA.TUX("hero-tux")}<div class="hero-orbit"><span>$</span><span>~</span><span>/</span><span>#</span></div></div>
       </section>
-      <div class="widgets">${DA.state.settings.widgets.filter(w => w.on && W[w.id]).map(w => `<section class="card widget ${W[w.id].wide ? "wide" : ""}" data-widget="${w.id}">${W[w.id].render()}</section>`).join("")}</div>
+      <div class="widgets">${DA.state.settings.widgets.filter(w => w.on && W[w.id] && !W[w.id].hidden?.()).map(w => `<section class="card widget ${W[w.id].wide ? "wide" : ""}" data-widget="${w.id}">${W[w.id].render()}</section>`).join("")}</div>
       ${DA.state.settings.widgets.every(w => !w.on) ? `<div class="empty">All widgets are hidden. <a href="#/settings/layout">Turn some back on</a>.</div>` : ""}
     </div>`;
     $$("[data-widget]", v).forEach(el => W[el.dataset.widget].after?.(el));
@@ -10683,6 +10694,7 @@ DA.ONLINE_CONFIG = { url: "https://erstexcypkidzvzjajod.supabase.co", key: "sb_p
   DA.on("presence", () => { if (location.hash.startsWith("#/friends") && cache.friendships.length) hub($("#view")); });
 
   // ---------- room helpers ----------
+  O.peer = id => roomPeer(id);
   async function roomPeer(friendId) {
     const f = cache.friendships.find(x => x.requester.id === friendId || x.addressee.id === friendId);
     if (f) return f.requester.id === friendId ? f.requester : f.addressee;
@@ -11682,7 +11694,7 @@ DA.CERTPREP = [
   setTimeout(halloweenTick, 1500); setInterval(halloweenTick, 3600000);
   // During Halloween Larry gets about four times more likely to appear.
   setInterval(() => { if (!document.hidden && DA.isHalloween() && DA.state?.profile.onboarded && Math.random() < 3 / 200) DA.summonLarry?.("random"); }, 60000);
-  DA.WIDGETS.event = { name: "Events", render() {
+  DA.WIDGETS.event = { name: "Events", hidden: () => !DA.isHalloween(), render() {
     if (!DA.isHalloween()) return `<h3>${icon("spark")} Events</h3><p class="small muted">No event right now. Halloween starts October 24th. Larry is… excited.</p>`;
     return `<h3>🎃 Halloween with Larry</h3><p class="small">Until November 1st: Larry shows up four times as often, <code>larry trick-or-treat</code> works in any terminal, and the pumpkin hat and Pumpkin patch terminal theme are yours to keep.</p><div class="row" style="gap:8px"><button class="btn primary sm" data-term="larry trick-or-treat">🍬 Trick or treat</button><button class="btn ghost sm" data-go="#/settings/look">Wear the hat</button></div>`;
   } };
@@ -11795,6 +11807,12 @@ DA.CERTPREP = [
 
 </script>
 <script>
+/* Generated by tools/make-pocket-qr.py: where the phone companion lives, and a QR code to open it. */
+DA.POCKET_URL = "https://gigglenuts34.github.io/distro-academy-updates/pocket/";
+DA.POCKET_QR = "<svg viewBox=\"-2 -2 37 37\" xmlns=\"http://www.w3.org/2000/svg\" shape-rendering=\"crispEdges\"><rect x=\"-2\" y=\"-2\" width=\"37\" height=\"37\" fill=\"#fff\"/><path d=\"M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM10 0h1v1h-1zM12 0h1v1h-1zM14 0h1v1h-1zM16 0h1v1h-1zM17 0h1v1h-1zM18 0h1v1h-1zM19 0h1v1h-1zM20 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM26 0h1v1h-1zM27 0h1v1h-1zM28 0h1v1h-1zM29 0h1v1h-1zM30 0h1v1h-1zM31 0h1v1h-1zM32 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h1v1h-1zM10 1h1v1h-1zM14 1h1v1h-1zM15 1h1v1h-1zM16 1h1v1h-1zM20 1h1v1h-1zM22 1h1v1h-1zM24 1h1v1h-1zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM12 2h1v1h-1zM15 2h1v1h-1zM16 2h1v1h-1zM20 2h1v1h-1zM21 2h1v1h-1zM23 2h1v1h-1zM24 2h1v1h-1zM26 2h1v1h-1zM28 2h1v1h-1zM29 2h1v1h-1zM30 2h1v1h-1zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM10 3h1v1h-1zM12 3h1v1h-1zM13 3h1v1h-1zM15 3h1v1h-1zM17 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM26 3h1v1h-1zM28 3h1v1h-1zM29 3h1v1h-1zM30 3h1v1h-1zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM9 4h1v1h-1zM13 4h1v1h-1zM16 4h1v1h-1zM17 4h1v1h-1zM19 4h1v1h-1zM20 4h1v1h-1zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h1v1h-1zM29 4h1v1h-1zM30 4h1v1h-1zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM9 5h1v1h-1zM11 5h1v1h-1zM12 5h1v1h-1zM13 5h1v1h-1zM14 5h1v1h-1zM15 5h1v1h-1zM16 5h1v1h-1zM18 5h1v1h-1zM21 5h1v1h-1zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM27 6h1v1h-1zM28 6h1v1h-1zM29 6h1v1h-1zM30 6h1v1h-1zM31 6h1v1h-1zM32 6h1v1h-1zM9 7h1v1h-1zM10 7h1v1h-1zM11 7h1v1h-1zM14 7h1v1h-1zM20 7h1v1h-1zM21 7h1v1h-1zM22 7h1v1h-1zM0 8h1v1h-1zM1 8h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM9 8h1v1h-1zM11 8h1v1h-1zM17 8h1v1h-1zM18 8h1v1h-1zM22 8h1v1h-1zM25 8h1v1h-1zM27 8h1v1h-1zM29 8h1v1h-1zM31 8h1v1h-1zM3 9h1v1h-1zM7 9h1v1h-1zM10 9h1v1h-1zM12 9h1v1h-1zM13 9h1v1h-1zM16 9h1v1h-1zM17 9h1v1h-1zM18 9h1v1h-1zM19 9h1v1h-1zM20 9h1v1h-1zM23 9h1v1h-1zM25 9h1v1h-1zM26 9h1v1h-1zM30 9h1v1h-1zM31 9h1v1h-1zM32 9h1v1h-1zM0 10h1v1h-1zM2 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM8 10h1v1h-1zM10 10h1v1h-1zM13 10h1v1h-1zM14 10h1v1h-1zM15 10h1v1h-1zM16 10h1v1h-1zM20 10h1v1h-1zM22 10h1v1h-1zM24 10h1v1h-1zM25 10h1v1h-1zM27 10h1v1h-1zM28 10h1v1h-1zM29 10h1v1h-1zM31 10h1v1h-1zM0 11h1v1h-1zM2 11h1v1h-1zM5 11h1v1h-1zM12 11h1v1h-1zM13 11h1v1h-1zM21 11h1v1h-1zM22 11h1v1h-1zM24 11h1v1h-1zM25 11h1v1h-1zM28 11h1v1h-1zM30 11h1v1h-1zM0 12h1v1h-1zM1 12h1v1h-1zM2 12h1v1h-1zM4 12h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM7 12h1v1h-1zM8 12h1v1h-1zM9 12h1v1h-1zM10 12h1v1h-1zM12 12h1v1h-1zM14 12h1v1h-1zM15 12h1v1h-1zM17 12h1v1h-1zM23 12h1v1h-1zM24 12h1v1h-1zM25 12h1v1h-1zM27 12h1v1h-1zM28 12h1v1h-1zM29 12h1v1h-1zM1 13h1v1h-1zM3 13h1v1h-1zM5 13h1v1h-1zM9 13h1v1h-1zM16 13h1v1h-1zM19 13h1v1h-1zM20 13h1v1h-1zM23 13h1v1h-1zM25 13h1v1h-1zM26 13h1v1h-1zM31 13h1v1h-1zM32 13h1v1h-1zM0 14h1v1h-1zM1 14h1v1h-1zM2 14h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM5 14h1v1h-1zM6 14h1v1h-1zM8 14h1v1h-1zM10 14h1v1h-1zM11 14h1v1h-1zM12 14h1v1h-1zM15 14h1v1h-1zM16 14h1v1h-1zM20 14h1v1h-1zM22 14h1v1h-1zM24 14h1v1h-1zM25 14h1v1h-1zM31 14h1v1h-1zM0 15h1v1h-1zM1 15h1v1h-1zM2 15h1v1h-1zM3 15h1v1h-1zM7 15h1v1h-1zM9 15h1v1h-1zM10 15h1v1h-1zM11 15h1v1h-1zM14 15h1v1h-1zM16 15h1v1h-1zM19 15h1v1h-1zM21 15h1v1h-1zM22 15h1v1h-1zM30 15h1v1h-1zM1 16h1v1h-1zM3 16h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM8 16h1v1h-1zM10 16h1v1h-1zM11 16h1v1h-1zM17 16h1v1h-1zM22 16h1v1h-1zM25 16h1v1h-1zM27 16h1v1h-1zM28 16h1v1h-1zM31 16h1v1h-1zM1 17h1v1h-1zM2 17h1v1h-1zM3 17h1v1h-1zM5 17h1v1h-1zM10 17h1v1h-1zM12 17h1v1h-1zM13 17h1v1h-1zM14 17h1v1h-1zM16 17h1v1h-1zM19 17h1v1h-1zM20 17h1v1h-1zM21 17h1v1h-1zM23 17h1v1h-1zM25 17h1v1h-1zM26 17h1v1h-1zM29 17h1v1h-1zM31 17h1v1h-1zM32 17h1v1h-1zM0 18h1v1h-1zM1 18h1v1h-1zM3 18h1v1h-1zM4 18h1v1h-1zM6 18h1v1h-1zM7 18h1v1h-1zM9 18h1v1h-1zM10 18h1v1h-1zM13 18h1v1h-1zM14 18h1v1h-1zM15 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM21 18h1v1h-1zM22 18h1v1h-1zM27 18h1v1h-1zM29 18h1v1h-1zM31 18h1v1h-1zM1 19h1v1h-1zM2 19h1v1h-1zM7 19h1v1h-1zM10 19h1v1h-1zM12 19h1v1h-1zM13 19h1v1h-1zM15 19h1v1h-1zM18 19h1v1h-1zM21 19h1v1h-1zM24 19h1v1h-1zM25 19h1v1h-1zM26 19h1v1h-1zM28 19h1v1h-1zM30 19h1v1h-1zM6 20h1v1h-1zM12 20h1v1h-1zM14 20h1v1h-1zM15 20h1v1h-1zM16 20h1v1h-1zM17 20h1v1h-1zM22 20h1v1h-1zM23 20h1v1h-1zM24 20h1v1h-1zM27 20h1v1h-1zM28 20h1v1h-1zM31 20h1v1h-1zM0 21h1v1h-1zM1 21h1v1h-1zM2 21h1v1h-1zM4 21h1v1h-1zM7 21h1v1h-1zM8 21h1v1h-1zM16 21h1v1h-1zM18 21h1v1h-1zM19 21h1v1h-1zM20 21h1v1h-1zM23 21h1v1h-1zM25 21h1v1h-1zM26 21h1v1h-1zM29 21h1v1h-1zM31 21h1v1h-1zM32 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM4 22h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM9 22h1v1h-1zM11 22h1v1h-1zM12 22h1v1h-1zM15 22h1v1h-1zM16 22h1v1h-1zM20 22h1v1h-1zM21 22h1v1h-1zM28 22h1v1h-1zM29 22h1v1h-1zM31 22h1v1h-1zM0 23h1v1h-1zM2 23h1v1h-1zM5 23h1v1h-1zM7 23h1v1h-1zM11 23h1v1h-1zM14 23h1v1h-1zM16 23h1v1h-1zM18 23h1v1h-1zM20 23h1v1h-1zM21 23h1v1h-1zM22 23h1v1h-1zM23 23h1v1h-1zM25 23h1v1h-1zM26 23h1v1h-1zM29 23h1v1h-1zM30 23h1v1h-1zM0 24h1v1h-1zM4 24h1v1h-1zM5 24h1v1h-1zM6 24h1v1h-1zM8 24h1v1h-1zM9 24h1v1h-1zM10 24h1v1h-1zM11 24h1v1h-1zM17 24h1v1h-1zM19 24h1v1h-1zM22 24h1v1h-1zM24 24h1v1h-1zM25 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM28 24h1v1h-1zM32 24h1v1h-1zM8 25h1v1h-1zM10 25h1v1h-1zM12 25h1v1h-1zM13 25h1v1h-1zM14 25h1v1h-1zM18 25h1v1h-1zM19 25h1v1h-1zM21 25h1v1h-1zM22 25h1v1h-1zM24 25h1v1h-1zM28 25h1v1h-1zM29 25h1v1h-1zM30 25h1v1h-1zM32 25h1v1h-1zM0 26h1v1h-1zM1 26h1v1h-1zM2 26h1v1h-1zM3 26h1v1h-1zM4 26h1v1h-1zM5 26h1v1h-1zM6 26h1v1h-1zM8 26h1v1h-1zM9 26h1v1h-1zM10 26h1v1h-1zM13 26h1v1h-1zM14 26h1v1h-1zM15 26h1v1h-1zM16 26h1v1h-1zM18 26h1v1h-1zM20 26h1v1h-1zM23 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM28 26h1v1h-1zM29 26h1v1h-1zM31 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM9 27h1v1h-1zM10 27h1v1h-1zM12 27h1v1h-1zM13 27h1v1h-1zM19 27h1v1h-1zM20 27h1v1h-1zM21 27h1v1h-1zM22 27h1v1h-1zM23 27h1v1h-1zM24 27h1v1h-1zM28 27h1v1h-1zM29 27h1v1h-1zM30 27h1v1h-1zM31 27h1v1h-1zM0 28h1v1h-1zM2 28h1v1h-1zM3 28h1v1h-1zM4 28h1v1h-1zM6 28h1v1h-1zM8 28h1v1h-1zM9 28h1v1h-1zM12 28h1v1h-1zM14 28h1v1h-1zM15 28h1v1h-1zM16 28h1v1h-1zM17 28h1v1h-1zM19 28h1v1h-1zM22 28h1v1h-1zM24 28h1v1h-1zM25 28h1v1h-1zM26 28h1v1h-1zM27 28h1v1h-1zM28 28h1v1h-1zM31 28h1v1h-1zM32 28h1v1h-1zM0 29h1v1h-1zM2 29h1v1h-1zM3 29h1v1h-1zM4 29h1v1h-1zM6 29h1v1h-1zM8 29h1v1h-1zM9 29h1v1h-1zM16 29h1v1h-1zM19 29h1v1h-1zM20 29h1v1h-1zM21 29h1v1h-1zM22 29h1v1h-1zM27 29h1v1h-1zM28 29h1v1h-1zM31 29h1v1h-1zM32 29h1v1h-1zM0 30h1v1h-1zM2 30h1v1h-1zM3 30h1v1h-1zM4 30h1v1h-1zM6 30h1v1h-1zM8 30h1v1h-1zM11 30h1v1h-1zM12 30h1v1h-1zM15 30h1v1h-1zM16 30h1v1h-1zM21 30h1v1h-1zM22 30h1v1h-1zM23 30h1v1h-1zM25 30h1v1h-1zM26 30h1v1h-1zM29 30h1v1h-1zM30 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM8 31h1v1h-1zM9 31h1v1h-1zM10 31h1v1h-1zM11 31h1v1h-1zM14 31h1v1h-1zM15 31h1v1h-1zM16 31h1v1h-1zM18 31h1v1h-1zM19 31h1v1h-1zM21 31h1v1h-1zM25 31h1v1h-1zM28 31h1v1h-1zM29 31h1v1h-1zM30 31h1v1h-1zM0 32h1v1h-1zM1 32h1v1h-1zM2 32h1v1h-1zM3 32h1v1h-1zM4 32h1v1h-1zM5 32h1v1h-1zM6 32h1v1h-1zM8 32h1v1h-1zM9 32h1v1h-1zM11 32h1v1h-1zM15 32h1v1h-1zM17 32h1v1h-1zM20 32h1v1h-1zM22 32h1v1h-1zM24 32h1v1h-1zM31 32h1v1h-1z\" fill=\"#1b1730\"/></svg>";
+
+</script>
+<script>
 /* Online, part 3: friends' activity feed, a weekly friends tournament, gifts and cloud save.
    Each feature checks that its table exists on the server (server/schema-v3.sql), and stays hidden until it does. */
 (function () {
@@ -11881,6 +11899,7 @@ DA.CERTPREP = [
     else if (gft.kind === "xp") { DA.addXP(25, "gift"); DA.toast(`⭐ <b>${esc(from)}</b> sent you an XP boost${note}`, "xp"); }
     else if (gft.kind === "larry") { DA.toast(`💀 <b>${esc(from)}</b> sent you… Larry${note}`, "xp"); setTimeout(() => DA.summonLarry?.("summon", "run"), 1500); }
     P().giftsGot = (P().giftsGot || 0) + 1; DA.save(); DA.checkBadges();
+    DA.emit("gift", { from, what: ({ freeze: "A streak freeze 🧊", cheer: "A cheer 📣 (+10 XP)", xp: "An XP boost ⭐ (+25 XP)", larry: "…Larry 💀" })[gft.kind] + (gft.note ? `: “${gft.note}”` : "") });
   };
   O.claimGifts = async () => {
     if (!O.signedIn() || !(await O.hasTable("gifts"))) return;
@@ -11888,7 +11907,37 @@ DA.CERTPREP = [
     try { list = await O.req("GET", `/rest/v1/gifts?select=id,kind,note,created_at,sender:profiles!gifts_sender_fkey(username,display_name)&recipient=eq.${O.me().id}&claimed=eq.false&order=created_at.asc&limit=10`); } catch { return; }
     for (const g of list) { try { await O.req("PATCH", `/rest/v1/gifts?id=eq.${g.id}`, { claimed: true }, { headers: { Prefer: "return=minimal" } }); applyGift(g); } catch { /* try again later */ } }
   };
-  setTimeout(() => O.claimGifts(), 8000); setInterval(() => { if (!document.hidden) O.claimGifts(); }, 120000);
+  setTimeout(() => { O.claimGifts(); O.claimPocket(); }, 8000); setInterval(() => { if (!document.hidden) { O.claimGifts(); O.claimPocket(); } }, 120000);
+
+  // ---------- Pocket (the phone companion) ----------
+  // Pocket posts "pocket" activity rows with the XP you earned on your phone. Collect them, count the day toward
+  // the streak, then delete them. Capped per day, so a tampered phone can't hand out unlimited XP.
+  const POCKET_CAP = 200;
+  O.claimPocket = async () => {
+    if (!O.signedIn() || !(await O.hasTable("activity"))) return;
+    let rows = [];
+    try { rows = await O.req("GET", `/rest/v1/activity?select=id,detail,created_at&actor=eq.${O.me().id}&kind=eq.pocket&order=created_at.asc&limit=50`); } catch { return; }
+    if (!rows.length) return;
+    const p = P(), got = p.pocketXP = p.pocketXP || {}, oldest = DA.addDays(DA.today(), -3); let total = 0;
+    for (const r of rows) {
+      const d = r.detail || {}, day = /^\d{4}-\d{2}-\d{2}$/.test(d.day) && d.day <= DA.today() && d.day >= oldest ? d.day : null;
+      if (day) {
+        const xp = Math.max(0, Math.min(+d.xp || 0, POCKET_CAP - (got[day] || 0)));
+        got[day] = (got[day] || 0) + xp;
+        if (xp) { p.xp += xp; p.days[day] = (p.days[day] || 0) + xp; total += xp; } // an earlier day still counts toward the streak
+        if (d.daily && !p.daily[day]) p.daily[day] = String(d.daily).slice(0, 200);
+      }
+      O.req("DELETE", `/rest/v1/activity?id=eq.${r.id}`).catch(() => {});
+    }
+    for (const k of Object.keys(got)) if (k < oldest) delete got[k];
+    p.pocketDays = (p.pocketDays || 0) + 1; DA.save(); DA.checkBadges();
+    if (total) { DA.toast(`📱 +${total} XP from Pocket`, "xp"); DA.emit("xp"); DA.ui?.topbar?.(); }
+  };
+  DA.showPocket = () => DA.ui.modal(`<div class="row" style="gap:18px;flex-wrap:wrap;align-items:center"><div style="width:180px;flex:none;border-radius:14px;overflow:hidden;background:#fff;padding:6px">${DA.POCKET_QR}</div>
+      <div style="flex:1;min-width:220px"><div class="eyebrow mono">// on your phone</div><h2>📱 Distro Academy Pocket</h2><p class="muted small" style="margin:8px 0">Scan this with your phone's camera. The daily challenge, flashcards, quick quizzes and your friends, in your pocket. Sign in with the same account and the XP you earn there lands here and keeps your streak going.</p>
+      <p class="small"><code style="word-break:break-all">${esc(DA.POCKET_URL)}</code></p></div></div>
+    <div class="row" style="justify-content:flex-end;margin-top:14px;gap:8px"><button class="btn ghost" id="pk-copy">${icon("copy")} Copy link</button><button class="btn primary" data-close>Done</button></div>`, { label: "Pocket", width: 600 })
+    .querySelector("#pk-copy").addEventListener("click", () => { DA.copy?.(DA.POCKET_URL); DA.toast("Link copied"); });
 
   // Streak freezes: each one covers a single missed day, used automatically.
   const baseStreak = DA.streak;
@@ -11930,7 +11979,7 @@ DA.CERTPREP = [
         <button class="btn primary sm" data-go="#/tournament">${icon("play")} Play this week's round</button></section>`;
     }
     if (feed) {
-      let rows = []; try { rows = await O.req("GET", "/rest/v1/activity?select=kind,detail,created_at,actor&order=created_at.desc&limit=25"); } catch { /* offline */ }
+      let rows = []; try { rows = await O.req("GET", "/rest/v1/activity?select=kind,detail,created_at,actor&kind=neq.pocket&order=created_at.desc&limit=25"); } catch { /* offline */ }
       html += `<section class="card stack"><h2>${icon("spark")} Activity</h2>${rows.length ? `<div class="act-list">${rows.map(a => `<div class="act-row"><span class="small"><b>${esc(nameOf(people[a.actor]))}</b> ${say(a)}</span><span class="tiny muted">${ago(a.created_at)}</span></div>`).join("")}</div>` : `<p class="small muted">Nothing yet. Badges, labs, rank-ups and streaks from you and your friends show up here.</p>`}</section>`;
     }
     if (saves) {
@@ -11938,7 +11987,9 @@ DA.CERTPREP = [
       html += `<section class="card stack"><h2>${icon("upload")} Cloud save</h2><p class="small muted">${info ? `Last backup: ${ago(info.updated_at)} (v${esc(info.version)}). It backs up by itself once a day.` : "Back up your progress to your account, so you can restore it on any computer."}</p>
         <div class="row" style="gap:8px"><button class="btn soft sm" id="cs-save">${icon("upload")} Back up now</button>${info ? `<button class="btn ghost sm" id="cs-restore">${icon("download")} Restore</button>` : ""}</div></section>`;
     }
+    html += `<section class="card stack"><div class="row" style="gap:14px;flex-wrap:nowrap"><div style="width:76px;flex:none;border-radius:10px;overflow:hidden;background:#fff;padding:3px">${DA.POCKET_QR}</div><div><h2>📱 Pocket</h2><p class="small muted">Dailies, flashcards and quizzes on your phone. The XP counts here.</p></div></div><button class="btn soft sm" id="pk-open">Open on my phone</button></section>`;
     host.innerHTML = html;
+    host.querySelector("#pk-open")?.addEventListener("click", DA.showPocket);
     host.querySelector("#cs-save")?.addEventListener("click", async e => { e.target.disabled = true; try { await O.cloudSave(); DA.toast("☁️ Backed up!"); DA.friendsExtras(v, friends); } catch (err) { DA.toast(esc(err.message)); e.target.disabled = false; } });
     host.querySelector("#cs-restore")?.addEventListener("click", () => DA.ui.confirmBox("Restore your cloud save?", "This replaces the progress on this computer with your last cloud backup.", "Restore", async () => { try { await O.cloudRestore(); DA.toast("☁️ Restored!"); DA.ui.route(); } catch (err) { DA.toast(esc(err.message)); } }));
     if (gifts) v.querySelectorAll(".fr-card").forEach(card => {
@@ -11948,6 +11999,7 @@ DA.CERTPREP = [
     });
     O.claimGifts();
   };
+  DA.BADGES.push({ id: "pocket", em: "📱", name: "On the Go", d: "Study with Distro Academy Pocket on your phone", ok: () => (P().pocketDays || 0) >= 1 });
   DA.BADGES.push({ id: "gifted", em: "🎁", name: "Good Friend", d: "Receive a gift from a friend", ok: () => (P().giftsGot || 0) >= 1 });
 })();
 
@@ -12050,6 +12102,68 @@ DA.CERTPREP = [
 
   // Show the chip if an update finished downloading before this page loaded.
   if (DA.isNative()) setTimeout(() => DA.updates.status().then(st => { if (st.state === "ready" || (st.downloaded && st.downloaded !== st.running)) { last = { ...st, state: "ready", version: st.version || st.downloaded }; chip(); armAutoApply(); } }), 1500);
+})();
+
+</script>
+<script>
+/* Desktop notifications: friend requests, invites and gifts while the window is in the background,
+   and an optional daily streak reminder that runs even when the app is closed (a systemd user timer). */
+(function () {
+  const { esc, icon, $ } = DA;
+  const N = () => (DA.state.settings.notify = DA.state.settings.notify || { desktop: true, reminder: false, hour: 19 });
+  const away = () => document.hidden || !document.hasFocus();
+
+  // Shows a desktop notification. Only when you're not looking at the app, unless force is set (the test button).
+  DA.notify = async (title, body, route = "", force = false) => {
+    if (!force && (!N().desktop || !away())) return false;
+    if (DA.isNative()) { try { return (await DA.callNative("notify", { title, body, route })).ok; } catch { return false; } }
+    if (!("Notification" in window)) return false;
+    if (Notification.permission === "default" && force) await Notification.requestPermission();
+    if (Notification.permission !== "granted") return false;
+    const n = new Notification(title, { body }); n.onclick = () => { window.focus(); if (route) DA.ui.go(route); };
+    return true;
+  };
+
+  // What's worth a notification.
+  DA.on("invite", async rec => {
+    let who = "A friend"; try { const p = await DA.online.peer(rec.sender); who = p.display_name || p.username || who; } catch { /* offline */ }
+    DA.notify(rec.kind === "terminal" ? `${who} wants to hack together 🖥️` : `${who} challenges you to a duel ⚔️`, "Open Distro Academy to join.", "#/friends");
+  });
+  DA.on("friends-changed", d => {
+    const me = DA.online?.me?.()?.id, r = d?.record || {};
+    if (d?.type === "INSERT" && r.addressee === me && r.status === "pending") DA.notify("New friend request 👋", "Someone wants to be your friend on Distro Academy.", "#/friends");
+    if (d?.type === "UPDATE" && r.requester === me && r.status === "accepted") DA.notify("Friend request accepted 🎉", "You can now duel, compare and hack together.", "#/friends");
+  });
+  DA.on("gift", g => DA.notify(`🎁 ${g.from} sent you a gift`, g.what, "#/friends"));
+
+  // ---------- Settings → Notifications ----------
+  DA.SETTINGS_SECTIONS.splice(DA.SETTINGS_SECTIONS.length - 1, 0, ["notifications", "Notifications", "bell"]);
+  const baseSettings = DA.views.settings;
+  DA.views.settings = (v, sec) => {
+    if (sec !== "notifications") return baseSettings(v, sec);
+    const s = N(), hours = Array.from({ length: 24 }, (_, h) => [h, new Date(2000, 0, 1, h).toLocaleTimeString([], { hour: "numeric" })]);
+    const row = (t, x, ctrl) => `<div class="set-row"><div><b>${t}</b>${x ? `<div class="small">${x}</div>` : ""}</div>${ctrl}</div>`;
+    const sw = (id, on) => `<label class="switch"><input type="checkbox" id="${id}" ${on ? "checked" : ""}><span></span></label>`;
+    v.innerHTML = `<div class="view">${DA.ui.pageHead("Settings", "", "", "// settings")}
+      <div class="set-layout"><nav class="set-nav" aria-label="Settings sections">${DA.SETTINGS_SECTIONS.map(([k, l, ic]) => `<button type="button" class="nav-btn ${k === "notifications" ? "active" : ""}" data-go="#/settings/${k}">${icon(ic)}<span>${l}</span></button>`).join("")}</nav>
+      <div class="card"><div class="set-group"><h2>Notifications</h2><p class="muted">Pop-ups on your desktop, for when the app is in the background.</p>
+        ${row("Desktop notifications", "Friend requests, duel and terminal invites, and gifts. Only while the app is open but you're in another window.", sw("nt-desktop", s.desktop))}
+        ${row("Daily streak reminder", DA.isNative() ? "A nudge if you haven't studied yet that day. Works even when the app is closed. Click it to open the app." : "Works in the installed app.", sw("nt-rem", s.reminder))}
+        ${row("Remind me at", "", `<select class="input" id="nt-hour" style="width:auto" ${s.reminder ? "" : "disabled"}>${hours.map(([h, l]) => `<option value="${h}" ${h === s.hour ? "selected" : ""}>${esc(l)}</option>`).join("")}</select>`)}
+        <p class="small muted" id="nt-out" style="min-height:1.2em"></p>
+        <div class="row" style="margin-top:6px"><button class="btn" id="nt-test">${icon("bell")} Send a test notification</button></div></div></div></div></div>`;
+    const out = $("#nt-out"), say = (t, ok) => { out.textContent = t; out.style.color = ok ? "var(--good)" : "var(--bad)"; };
+    const timer = async () => {
+      if (!DA.isNative()) return;
+      const r = await DA.callNative("reminder", { on: s.reminder, hour: s.hour });
+      if (!r.ok) { say("Couldn't set the reminder: " + r.message, false); s.reminder = false; $("#nt-rem").checked = false; $("#nt-hour").disabled = true; DA.save(); }
+      else say(s.reminder ? `Reminder set for ${hours[s.hour][1]} every day 🔔` : "Reminder off.", true);
+    };
+    $("#nt-desktop").onchange = e => { s.desktop = e.target.checked; DA.save(); };
+    $("#nt-rem").onchange = e => { s.reminder = e.target.checked; $("#nt-hour").disabled = !s.reminder; DA.save(true); timer(); };
+    $("#nt-hour").onchange = e => { s.hour = +e.target.value; DA.save(true); timer(); };
+    $("#nt-test").onclick = async () => { const ok = await DA.notify("Hello from Tux 🐧", "Notifications are working. Larry says hi.", "#/settings/notifications", true); say(ok ? "Sent! Check your desktop." : "Couldn't show it. Your desktop may not have a notification service.", ok); };
+  };
 })();
 
 </script>

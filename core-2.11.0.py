@@ -7,6 +7,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
 import threading
 import time
@@ -109,6 +110,102 @@ def downloaded_update():
             "core_changed": bool(cur.get("core_sha256")) and cur.get("core_sha256") != RUNNING_CORE_SHA}
 
 
+# ---------- desktop notifications (freedesktop D-Bus, works on KDE, GNOME, XFCE, ...) ----------
+NOTIFY = ("org.freedesktop.Notifications", "/org/freedesktop/Notifications", "org.freedesktop.Notifications")
+
+
+def notify(title, body, actions=()):
+    """Shows a desktop notification and returns its id (0 if there's no notification service)."""
+    try:
+        bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
+        acts = [x for pair in actions for x in pair]
+        hints = {"desktop-entry": GLib.Variant("s", "distro-academy"), "urgency": GLib.Variant("y", 1)}
+        args = GLib.Variant("(susssasa{sv}i)", ("Distro Academy", 0, "distro-academy", str(title)[:120],
+                                                 GLib.markup_escape_text(str(body)[:400]), acts, hints, -1))
+        res = bus.call_sync(*NOTIFY, "Notify", args, GLib.VariantType("(u)"), Gio.DBusCallFlags.NONE, 5000, None)
+        return res.unpack()[0]
+    except GLib.Error:
+        return 0
+
+
+def on_notification_click(handler):
+    """handler(notification_id, action_key) for clicks on any of our notifications."""
+    try:
+        bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
+    except GLib.Error:
+        return
+    bus.signal_subscribe(NOTIFY[0], NOTIFY[2], "ActionInvoked", NOTIFY[1], None, Gio.DBusSignalFlags.NONE,
+                         lambda _c, _s, _p, _i, _n, params: handler(*params.unpack()))
+
+
+# ---------- the daily streak reminder: a systemd user timer that runs "distro-academy --remind" ----------
+SYSTEMD_USER = os.path.join(GLib.get_user_config_dir(), "systemd", "user")
+TIMER_NAME = "distro-academy-reminder"
+
+
+def set_reminder(on, hour):
+    """Turns the reminder on (at hour:00 every day) or off. Returns {ok, message}."""
+    if not shutil.which("systemctl"):
+        return {"ok": False, "message": "This system doesn't use systemd, so reminders can't run while the app is closed."}
+    svc, tmr = (os.path.join(SYSTEMD_USER, TIMER_NAME + ext) for ext in (".service", ".timer"))
+    run = lambda *a: subprocess.run(["systemctl", "--user", *a], capture_output=True, text=True, timeout=20)
+    try:
+        if not on:
+            run("disable", "--now", TIMER_NAME + ".timer")
+            for f in (svc, tmr):
+                if os.path.exists(f):
+                    os.remove(f)
+            run("daemon-reload")
+            return {"ok": True, "message": "off"}
+        hour = max(0, min(23, int(hour)))
+        exe = os.environ.get("DISTRO_ACADEMY_STUB") or shutil.which("distro-academy") or "/usr/bin/distro-academy"
+        os.makedirs(SYSTEMD_USER, exist_ok=True)
+        with open(svc, "w", encoding="utf-8") as f:
+            f.write("[Unit]\nDescription=Distro Academy daily streak reminder\n\n[Service]\nType=oneshot\nExecStart=%s --remind\n" % exe)
+        with open(tmr, "w", encoding="utf-8") as f:
+            f.write("[Unit]\nDescription=Distro Academy daily streak reminder\n\n[Timer]\nOnCalendar=*-*-* %02d:00:00\nPersistent=true\n\n[Install]\nWantedBy=timers.target\n" % hour)
+        run("daemon-reload")
+        r = run("enable", "--now", TIMER_NAME + ".timer")
+        if r.returncode:
+            return {"ok": False, "message": (r.stderr or "systemctl failed").strip()[:200]}
+        return {"ok": True, "message": "on"}
+    except (OSError, ValueError, subprocess.SubprocessError) as e:
+        return {"ok": False, "message": str(e)[:200]}
+
+
+def run_reminder():
+    """Runs from the timer: if you haven't studied today, a nudge. Clicking it opens the app."""
+    state = read_json(STATE_FILE, None) or {}
+    if not (state.get("settings", {}).get("notify", {}) or {}).get("reminder"):
+        return 0
+    days = (state.get("prog") or {}).get("days") or {}
+    day = lambda n: time.strftime("%Y-%m-%d", time.localtime(time.time() - n * 86400))
+    if days.get(day(0)):
+        return 0
+    streak = 0
+    while days.get(day(streak + 1)):
+        streak += 1
+    name = (state.get("profile") or {}).get("name") or "hey"
+    if streak:
+        title, body = "Your %d-day streak ends at midnight \U0001f525" % streak, "%s, one quick lesson or a review keeps it alive. Larry is watching." % name
+    else:
+        title, body = "Five minutes of Linux? \U0001f427", "%s, a quick review or one lesson today starts a new streak." % name
+    nid = notify(title, body, [("default", "Open Distro Academy")])
+    if not nid:
+        return 1
+    loop = GLib.MainLoop()
+
+    def clicked(i, _key):
+        if i == nid:
+            subprocess.Popen([os.environ.get("DISTRO_ACADEMY_STUB") or "distro-academy"], start_new_session=True,
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            loop.quit()
+    on_notification_click(clicked)
+    GLib.timeout_add_seconds(600, loop.quit)  # wait up to 10 minutes for a click, then exit
+    loop.run()
+    return 0
+
+
 def _running_core_sha():
     try:
         with open(os.path.abspath(__file__), "rb") as f:
@@ -140,6 +237,8 @@ class Window(Gtk.ApplicationWindow):
         ucm = WebKit2.UserContentManager()
         self.ucm = ucm
         self.update_state = {"state": "idle"}
+        self.notif_routes = {}
+        on_notification_click(self.on_notification_click)
         ucm.connect("script-message-received::da", self.on_message)
         ucm.register_script_message_handler("da")
 
@@ -301,6 +400,21 @@ class Window(Gtk.ApplicationWindow):
             self.on_update_message(msg)
         elif msg.get("type") == "http":
             threading.Thread(target=self.http, args=(msg,), daemon=True).start()
+        elif msg.get("type") == "notify":
+            nid = notify(msg.get("title", ""), msg.get("body", ""), [("default", "Open")])
+            route = str(msg.get("route", ""))
+            if nid and re.fullmatch(r"#/[\w./%-]*", route):
+                self.notif_routes[nid] = route
+            self.reply("DA._nativeReply", msg.get("id"), {"ok": bool(nid)})
+        elif msg.get("type") == "reminder":
+            self.reply("DA._nativeReply", msg.get("id"), set_reminder(bool(msg.get("on")), msg.get("hour", 19)))
+
+    def on_notification_click(self, nid, _key):
+        if nid not in self.notif_routes:
+            return
+        route = self.notif_routes.pop(nid)
+        self.present()
+        self.view.evaluate_javascript("DA.ui && DA.ui.go(%s)" % json.dumps(route), -1, None, None, None, None, None)
 
     def save_file(self, msg):
         name = os.path.basename(msg.get("name") or "distro-academy-file.txt")
@@ -372,4 +486,6 @@ if __name__ == "__main__":
     UPDATE_CONF.update(read_json(os.path.join(APP_DIR, "update.json"), {}))
     GLib.set_prgname("distro-academy")
     GLib.set_application_name("Distro Academy")
+    if "--remind" in sys.argv:
+        sys.exit(run_reminder())
     sys.exit(App().run(sys.argv))
